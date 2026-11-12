@@ -19,7 +19,7 @@ jobs:
     runs-on: windows-2022
     timeout-minutes: 20
     env:
-      BSIGN_PREVIEW_FOLDER: 'BSIGN Preview ทดสอบ & ! [ZIP]'
+      BSIGN_PREVIEW_FOLDER: 'BSIGN Preview ทดสอบ & !'
     steps:
       - uses: actions/checkout@v6
         with:
@@ -33,7 +33,7 @@ jobs:
           Expand-Archive -LiteralPath $archive -DestinationPath $env:BSIGN_PREVIEW_FOLDER
       - name: Verify Internet-marked ZIP, tamper rejection and START-WINDOWS
         shell: powershell
-        working-directory: 'BSIGN Preview ทดสอบ & ! [ZIP]'
+        working-directory: 'BSIGN Preview ทดสอบ & !'
         run: |
           try { & ./tests/windows-motw.ps1 }
           catch {
@@ -43,7 +43,7 @@ jobs:
           }
       - name: Verify Windows Forms controller
         shell: powershell
-        working-directory: 'BSIGN Preview ทดสอบ & ! [ZIP]'
+        working-directory: 'BSIGN Preview ทดสอบ & !'
         run: |
           try { & ./scripts/windows/preview.ps1 -UiSmokeTest }
           catch {
@@ -53,7 +53,7 @@ jobs:
           }
       - name: Verify GUI entry point with Internet-marked scripts
         shell: powershell
-        working-directory: 'BSIGN Preview ทดสอบ & ! [ZIP]'
+        working-directory: 'BSIGN Preview ทดสอบ & !'
         run: |
           try { & ./tests/windows-motw.ps1 -GuiOnly }
           catch {
@@ -63,7 +63,7 @@ jobs:
           }
       - name: API and persistence tests using bundled Node
         shell: powershell
-        working-directory: 'BSIGN Preview ทดสอบ & ! [ZIP]'
+        working-directory: 'BSIGN Preview ทดสอบ & !'
         run: |
           $node = Join-Path $PWD '.runtime/node-v24.22.1-win-x64/node.exe'
           $env:PATH = (Split-Path $node) + ';' + $env:PATH
@@ -73,7 +73,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: First-admin setup in Windows Edge
         shell: powershell
-        working-directory: 'BSIGN Preview ทดสอบ & ! [ZIP]'
+        working-directory: 'BSIGN Preview ทดสอบ & !'
         run: |
           $node = Join-Path $PWD '.runtime/node-v24.22.1-win-x64/node.exe'
           $env:CHROMIUM_PATH = Join-Path ${env:ProgramFiles(x86)} 'Microsoft/Edge/Application/msedge.exe'
@@ -81,7 +81,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Generated file account login in Windows Edge
         shell: powershell
-        working-directory: 'BSIGN Preview ทดสอบ & ! [ZIP]'
+        working-directory: 'BSIGN Preview ทดสอบ & !'
         run: |
           $node = Join-Path $PWD '.runtime/node-v24.22.1-win-x64/node.exe'
           $env:CHROMIUM_PATH = Join-Path ${env:ProgramFiles(x86)} 'Microsoft/Edge/Application/msedge.exe'
