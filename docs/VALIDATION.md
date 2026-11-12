@@ -1,3 +1,30 @@
+# ผลการตรวจ v1.2.1 — 12 พฤศจิกายน 2026
+
+แก้ข้อผิดพลาด RemoteSigned เมื่อไฟล์ .ps1 มี Mark-of-the-Web จาก ZIP ที่ดาวน์โหลด การทดสอบ v1.2.0 ก่อนหน้านี้ไม่ได้ติด Internet Zone ให้ไฟล์ จึงไม่ครอบคลุมข้อผิดพลาดนี้
+
+| รายการ | ผล |
+|---|---|
+| Inline launcher | ตรวจ syntax และ hash จริงใน PowerShell ผ่าน; generator --check ผ่าน |
+| Build | production build ผ่าน Node.js 24.22.1 |
+| Docker v1.2.1 | build, HTTP/API, non-root และข้อมูลอยู่หลังเปลี่ยน container ผ่าน |
+
+Windows Server 2022 x64 / Windows PowerShell 5.1 ผ่าน [Windows MOTW regression run #11](https://github.com/chanakan20010-cpu/BSIGN-WEB/actions/runs/43228292071) — implementation commit `b6c1fc4`:
+
+- ติด NTFS Zone.Identifier, ZoneId=3 ให้สคริปต์ทั้ง 4 ไฟล์ แล้วเรียกแบบ RemoteSigned เดิม ยืนยันว่าเกิด SecurityError/UnauthorizedAccess ก่อนแก้
+- แก้ bytes ของ console.ps1 แล้วเรียก START-WINDOWS: ถูกปฏิเสธด้วย hash mismatch และทุกไฟล์ยังติด mark อยู่
+- คืนไฟล์ที่ถูกต้องแต่คง Internet Zone แล้วเรียก START-WINDOWS: เตรียม Node/dependencies/build, เปิด HTTP, อ่าน initial-admin, ล็อกอิน CMS และ restart ผ่าน
+- ตรวจว่า mark ถูกลบเฉพาะสคริปต์ที่กำหนด ไฟล์ .ps1 อื่นยังมี mark และ execution policy ก่อน/หลังตรงกัน
+- ติด mark ใหม่แล้วเรียก OPEN-PREVIEW.vbs: GUI เปิด/ปิด server ได้ผ่าน entry point จริง
+- Generator hash check, API ทั้ง 21 ชุด และ Edge browser สำหรับ setup/recovery กับบัญชีจากไฟล์ initial-admin ผ่านทั้งหมด
+
+เป็นการจำลอง metadata บนไฟล์ที่แตกจาก ZIP แล้ว ไม่ได้อ้างว่าได้ดาวน์โหลดผ่าน browser และแตก ZIP ด้วย Explorer บนเครื่องผู้ใช้จริง
+
+ขอบเขต path: รอบส่งมอบใช้โฟลเดอร์ที่มีช่องว่างและภาษาไทย การลองโฟลเดอร์ที่มี `[]` พบปัญหา resolve path ของ PowerShell และการลอง `&/!` ยังไม่ผ่านขั้นเตรียมระบบ จึงไม่อ้างว่ารองรับชื่อเหล่านี้ ให้ใช้ชื่อโฟลเดอร์ปกติเช่น `BSIGN-WEB-1.2.1`
+
+การตรวจ hash เป็นการตรวจความครบชุดของไฟล์ในรุ่น ไม่ใช่ลายเซ็นจากผู้เผยแพร่ ตัวเปิดใช้ Unblock-File เฉพาะสคริปต์ 4 ไฟล์ที่ตรวจ hash ครบแล้ว ไม่เปลี่ยน Execution Policy ถาวร และไม่ข้าม Group Policy ที่บังคับลายเซ็น เครื่ององค์กรที่ใช้ AllSigned/AppLocker อาจยังต้องให้ฝ่ายไอทีอนุญาต Windows ARM64, SmartScreen และการดาวน์โหลด/แตก ZIP ด้วย Explorer จริงบนเครื่องผู้ใช้ยังไม่ใช่ขอบเขตการทดสอบในคลาวด์
+
+---
+
 # ผลการตรวจ v1.2.0 — 12 พฤศจิกายน 2026
 
 ใช้ฐานข้อมูลและบัญชีชั่วคราว ไม่สร้างรหัสผ่านทดสอบลง .data ที่ใช้จริง
