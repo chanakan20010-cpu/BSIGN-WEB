@@ -18,6 +18,8 @@ jobs:
   preview:
     runs-on: windows-2022
     timeout-minutes: 20
+    env:
+      BSIGN_PREVIEW_FOLDER: 'BSIGN Preview ทดสอบ'
     steps:
       - uses: actions/checkout@v6
         with:
@@ -28,7 +30,7 @@ jobs:
           $archive = Join-Path $env:RUNNER_TEMP 'BSIGN-WEB-preview.zip'
           git -C source archive --format=zip --output=$archive HEAD
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          Expand-Archive -LiteralPath $archive -DestinationPath 'BSIGN Preview ทดสอบ'
+          Expand-Archive -LiteralPath $archive -DestinationPath $env:BSIGN_PREVIEW_FOLDER
       - name: Verify portable startup and cached restart
         shell: powershell
         working-directory: 'BSIGN Preview ทดสอบ'
