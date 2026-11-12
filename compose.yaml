@@ -1,0 +1,19 @@
+services:
+  web:
+    build: .
+    image: bsign-web:1.0.0
+    ports:
+      - "127.0.0.1:${PORT:-3000}:3000"
+    env_file: .env
+    environment:
+      HOST: 0.0.0.0
+      PORT: 3000
+      DATA_DIR: /app/.data
+    volumes:
+      - bsign_data:/app/.data
+    restart: unless-stopped
+    init: true
+    security_opt:
+      - no-new-privileges:true
+volumes:
+  bsign_data:
