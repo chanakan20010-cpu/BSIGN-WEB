@@ -16,7 +16,7 @@
 
 Windows x64 ผ่านบน GitHub Actions `windows-2022` (Windows Server 2022, Windows PowerShell 5.1): ดาวน์โหลดและตรวจ SHA-256 ของ portable Node, ติดตั้ง dependencies, build, ใช้ cache, เปิด/หยุด/restart, หน้าต่าง WinForms, เรียก entry point `OPEN-PREVIEW.vbs`, API 15 ชุด และสร้างบัญชี/ตั้งรหัสใหม่/เข้า CMS ด้วย Microsoft Edge จริง ผ่านทั้งหมด
 
-หลักฐาน: [Windows preview run #4](https://github.com/chanakan20010-cpu/BSIGN-WEB/actions/runs/43219724023) — implementation commit `00a0c9a`; runner ใช้โฟลเดอร์ที่มีช่องว่างและภาษาไทย
+หลักฐาน: [Windows ZIP preview run #6](https://github.com/chanakan20010-cpu/BSIGN-WEB/actions/runs/43220271668) — commit `d7d13e2`; ทดสอบจาก `git archive` ZIP ที่แตกใหม่ในโฟลเดอร์ที่มีช่องว่างและภาษาไทย โดยไม่อาศัยไฟล์จาก working tree หรือเครื่องมือที่ติดตั้งไว้ก่อน
 
 ข้อจำกัดของการทดสอบ: ไม่ได้ทดสอบ Windows ARM64, เครื่ององค์กรที่ปิด scripting, SmartScreen/Mark-of-the-Web บนเครื่องผู้ใช้ หรือทุกเวอร์ชัน Windows 10/11; ต้องใช้อินเทอร์เน็ตเตรียมครั้งแรก การทดสอบบน CI ไม่รับรองนโยบายความปลอดภัยของแต่ละเครื่อง
 

@@ -20,7 +20,7 @@ export default function Setup() {
       await api("/session");
       if (!token) {
         if (live)
-          setMessage("กด “จัดการเนื้อหา” ในหน้าต่างเปิดพรีวิว เพื่อสร้างบัญชีครั้งแรก");
+          setMessage("กด “บัญชีแอดมิน / ลืมรหัสผ่าน” ในหน้าต่างเปิดพรีวิว เพื่อสร้างบัญชีครั้งแรก");
         return;
       }
       const s = await api("/setup", { headers: { "X-BSIGN-Setup": token } });
@@ -45,7 +45,7 @@ export default function Setup() {
     })().catch(
       () =>
         live &&
-        setMessage("ลิงก์นี้หมดอายุแล้ว กรุณากด “จัดการเนื้อหา” ในหน้าต่างเปิดพรีวิวอีกครั้ง"),
+        setMessage("ลิงก์นี้หมดอายุแล้ว กรุณากด “บัญชีแอดมิน / ลืมรหัสผ่าน” ในหน้าต่างเปิดพรีวิวอีกครั้ง"),
     );
     return () => {
       live = false;
