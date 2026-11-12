@@ -65,7 +65,7 @@ function Receive-BsignArchive([string]$Url,[string]$Destination,[string]$Sha256)
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
         $task = $client.DownloadFileTaskAsync([Uri]$Url,$partial)
         while (-not $task.IsCompleted) { Invoke-BsignTick; Start-Sleep -Milliseconds 100 }
-        $task.GetAwaiter().GetResult()
+        $null = $task.GetAwaiter().GetResult()
         if ((Get-FileHash -LiteralPath $partial -Algorithm SHA256).Hash -ne $Sha256) {
             throw 'ไฟล์ Node.js ตรวจสอบ SHA-256 ไม่ผ่าน กรุณาลองใหม่ ไม่ได้ใช้ไฟล์ที่ดาวน์โหลดมา'
         }
@@ -108,7 +108,7 @@ function Initialize-BsignProject([string]$ProjectRoot) {
     if (-not (Test-Path -LiteralPath $node)) {
         Write-BsignStatus 'ครั้งแรก: กำลังดาวน์โหลดเครื่องมือที่จำเป็น…'
         $archive = Join-Path $runtimeRoot ($folderName+'.zip')
-        Receive-BsignArchive ('https://nodejs.org/dist/v'+$manifest.version+'/'+$folderName+'.zip') $archive $manifest.archives.$arch.sha256
+        $null = Receive-BsignArchive ('https://nodejs.org/dist/v'+$manifest.version+'/'+$folderName+'.zip') $archive $manifest.archives.$arch.sha256
         Write-BsignStatus 'ตรวจสอบไฟล์แล้ว กำลังเตรียม Node.js สำหรับโปรเจกต์นี้…'
         $stage = Join-Path $runtimeRoot ('unpack-'+[Guid]::NewGuid().ToString('N'))
         try {

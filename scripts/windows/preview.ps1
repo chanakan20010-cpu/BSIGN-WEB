@@ -14,6 +14,7 @@ if($SmokeTest){
     $script:OnStatus={param($text) Write-Host $text}
     try{
         $prepared=Initialize-BsignProject $projectRoot
+        if($prepared -isnot [hashtable]){throw 'Project preparation returned unexpected pipeline output'}
         $script:Runtime=Start-BsignServer $projectRoot $prepared
         $health=Invoke-RestMethod ($script:Runtime.State.origin+'/api/health')
         if(-not $health.ok){throw 'Health check failed'}
@@ -87,6 +88,7 @@ function Start-BsignPreview {
     $script:Busy=$true;$script:Cancelled=$false;$openButton.Enabled=$false;$adminButton.Enabled=$false;$accountButton.Enabled=$false;$progress.Visible=$true
     try{
         $prepared=Initialize-BsignProject $projectRoot
+        if($prepared -isnot [hashtable]){throw 'Project preparation returned unexpected pipeline output'}
         $script:Runtime=Start-BsignServer $projectRoot $prepared
         $statusLabel.Text='พรีวิวพร้อมแล้ว • ปิดหน้าต่างนี้เมื่อต้องการหยุด • ข้อมูลยังคงอยู่'
         $openButton.Text='เปิดเว็บไซต์';$openButton.Enabled=$true;$adminButton.Enabled=$true;$accountButton.Enabled=$true
