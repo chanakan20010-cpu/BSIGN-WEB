@@ -19,17 +19,33 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           path: 'BSIGN Preview ทดสอบ'
       - name: Verify portable startup and cached restart
         shell: powershell
         working-directory: 'BSIGN Preview ทดสอบ'
-        run: '& ./scripts/windows/preview.ps1 -SmokeTest'
+        run: |
+          try { & ./scripts/windows/preview.ps1 -SmokeTest }
+          catch {
+            $message = ($_.Exception.GetBaseException().Message + ' | ' + $_.ScriptStackTrace) -replace '[\r\n]+',' '
+            Write-Host "::error title=Portable startup::$message"
+            if (Test-Path '.runtime/logs/setup.log') {
+              $tail = ((Get-Content '.runtime/logs/setup.log' -Tail 12) -join ' ') -replace '[\r\n]+',' '
+              Write-Host "::error title=Setup output::$tail"
+            }
+            exit 1
+          }
       - name: Verify Windows Forms controller
         shell: powershell
         working-directory: 'BSIGN Preview ทดสอบ'
-        run: '& ./scripts/windows/preview.ps1 -UiSmokeTest'
+        run: |
+          try { & ./scripts/windows/preview.ps1 -UiSmokeTest }
+          catch {
+            $message = ($_.Exception.GetBaseException().Message + ' | ' + $_.ScriptStackTrace) -replace '[\r\n]+',' '
+            Write-Host "::error title=Windows Forms::$message"
+            exit 1
+          }
       - name: API and persistence tests using bundled Node
         shell: powershell
         working-directory: 'BSIGN Preview ทดสอบ'
