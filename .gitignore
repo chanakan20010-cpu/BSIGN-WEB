@@ -9,3 +9,6 @@ test-results/
 *.log
 
 .runtime/
+
+# Generated local preview credentials, including custom DATA_DIR locations
+initial-admin.txt
