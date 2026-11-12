@@ -1,3 +1,34 @@
+# ผลการตรวจ v1.2.0 — 12 พฤศจิกายน 2026
+
+ใช้ฐานข้อมูลและบัญชีชั่วคราว ไม่สร้างรหัสผ่านทดสอบลง .data ที่ใช้จริง
+
+| รายการ | ผล |
+|---|---|
+| Production build | ผ่าน Node.js 24.22.1 |
+| API 21 ชุด | ผ่านทั้งหมด ไม่มี skipped รวม migration, backup/restore, restart และชุด initial-admin 6 ชุด |
+| initial-admin | สร้างบัญชีสุ่มเฉพาะ DB ว่าง ล็อกอินจริงได้ ไฟล์/บัญชีอยู่หลัง restart; บัญชีเดิมไม่ถูกเปลี่ยน |
+| ความปลอดภัยไฟล์บัญชี | ไม่ส่ง password ผ่าน readiness/log/HTTP; exclusive create, rollback cleanup และปฏิเสธไฟล์เดิมเมื่อ DB ไม่มีบัญชีผ่าน |
+| เปิดพร้อมกัน | ได้บัญชีเดียวและไฟล์ที่ล็อกอินได้ ไม่เขียนทับกัน |
+| Browser ตามขั้นตอนผู้ใช้ | Chromium: หน้าแรก → เติม /admin → ใช้ Username/Password จากไฟล์ → CMS → logout → restart → login อีกครั้ง ผ่าน |
+| ตัวเลือก GUI เดิม | สร้างบัญชีเอง, ยืนยันรหัส, เข้าสู่ CMS, ปิด setup หลังมีบัญชี และกู้รหัสผ่านผ่าน browser ผ่าน |
+| Browser regression 53 กรณี | TH/EN, 5 หน้า, 1440/768/390px, ฟอร์ม, CMS, รูป, ไอคอน, สไตล์กลาง, keyboard และ axe ผ่าน |
+| Docker v1.2.0 | build, HTTP/API, non-root และข้อมูลอยู่หลังเปลี่ยน container ผ่าน |
+| PowerShell | parse สคริปต์และ compile helper สำหรับอายุ process ผ่านใน Linux; ใช้งาน helper กับ server จริงผ่าน Windows CI |
+
+Windows x64 / PowerShell 5.1 ผ่าน [Windows ZIP preview run #8](https://github.com/chanakan20010-cpu/BSIGN-WEB/actions/runs/43225215666) — implementation commit `131afe9`:
+
+- แตก ZIP จาก git archive ลงโฟลเดอร์ที่มีช่องว่างและอักษรไทย
+- เรียก START-WINDOWS.cmd -SmokeTest โดยใช้ Node portable ที่ดาวน์โหลดและตรวจ checksum ใหม่ ติดตั้ง dependencies และ build จริง
+- CMD แสดง readiness, สร้าง initial-admin.txt, ใช้บัญชีจากไฟล์ล็อกอิน API แล้วอ่าน CMS ได้ เปิดซ้ำไม่ rebuild และไฟล์บัญชีไม่เปลี่ยน
+- ตัวเลือก WinForms/VBS เดิมยังเปิดได้ และ API ทั้ง 21 ชุดผ่าน
+- Microsoft Edge: ใช้ Username/Password จากไฟล์ที่สร้างจริง เข้า /admin, logout และเข้าอีกครั้งหลัง restart ผ่าน รวม browser setup/recovery แบบเดิม
+
+ขั้นตอน browser ของ CI ใช้ Edge แบบ headless แยกจากการเรียก default browser ของเครื่องผู้ใช้
+
+ขอบเขตที่ยังไม่ทดสอบ: Windows ARM64, Windows 10/11 ทุก build, Mark-of-the-Web/SmartScreen และนโยบายเครื่ององค์กร; ผล CI ใช้ Windows Server 2022 x64 ไม่เท่ากับทดสอบเครื่องผู้ใช้ทุกเครื่อง บริการ SMTP จริง, พิกัดแผนที่ iframe, URL LinkedIn และ deploy สาธารณะยังมีข้อจำกัดตามรายการด้านล่าง
+
+---
+
 # ผลการตรวจ v1.1.0 — 12 พฤศจิกายน 2026
 
 ใช้ข้อมูลทดสอบชั่วคราวและรหัสผ่านสุ่ม ไม่แก้ข้อมูลผู้ใช้ใน `.data`
