@@ -1,7 +1,7 @@
 services:
   web:
     build: .
-    image: bsign-web:1.0.0
+    image: bsign-web:1.1.0
     ports:
       - "127.0.0.1:${PORT:-3000}:3000"
     env_file: .env

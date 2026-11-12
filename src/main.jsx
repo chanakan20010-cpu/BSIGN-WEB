@@ -27,6 +27,7 @@ import {
   SectionHeading,
 } from "./shared";
 import Admin from "./Admin";
+import Setup from "./Setup";
 import "./style.css";
 function App() {
   const [content, setContent] = useState(null);
@@ -39,7 +40,7 @@ function App() {
     api("/content")
       .then(setContent)
       .catch(() => setError(true));
-    api("/session").catch(() => {});
+    if (location.pathname !== "/setup") api("/session").catch(() => {});
   }, []);
   useEffect(() => {
     document.documentElement.lang = lang;
@@ -73,7 +74,9 @@ function App() {
   return (
     <Site.Provider value={{ content, setContent, lang, setLang, t }}>
       <Typography styles={content.styles}>
-        {location.pathname.startsWith("/admin") ? (
+        {location.pathname === "/setup" ? (
+          <Setup />
+        ) : location.pathname.startsWith("/admin") ? (
           <Admin />
         ) : (
           <>

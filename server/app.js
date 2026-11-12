@@ -7,7 +7,7 @@ import sharp from "sharp";
 import createDOMPurify from "dompurify";
 import { JSDOM } from "jsdom";
 import nodemailer from "nodemailer";
-import { randomBytes, randomUUID } from "node:crypto";
+import { randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import path from "node:path";
 import { z } from "zod";
@@ -21,6 +21,7 @@ import {
   validateTree,
   validateShape,
 } from "./schema.js";
+import { version } from "./version.js";
 const purify = createDOMPurify(new JSDOM("").window);
 const fail = (status, code) => Object.assign(new Error(code), { status, code });
 export function createApp({
@@ -29,12 +30,19 @@ export function createApp({
   secure = process.env.COOKIE_SECURE === "true",
   limits = true,
   development = false,
+  localPreview = false,
+  initialSetupToken,
 } = {}) {
   if (
+    !localPreview &&
     process.env.NODE_ENV === "production" &&
     (!secure || !origin.startsWith("https://"))
   )
     throw Error("Production requires HTTPS APP_ORIGIN and COOKIE_SECURE=true");
+  if (localPreview && !/^http:\/\/127\.0\.0\.1:\d+$/.test(origin))
+    throw Error("Preview must use a loopback origin");
+  if (initialSetupToken && (!localPreview || initialSetupToken.length < 48))
+    throw Error("Initial setup requires a local preview capability");
   const db = openDb(directory);
   seed(db);
   const secretFile = path.join(directory, "session.key");
@@ -44,8 +52,20 @@ export function createApp({
       flag: "wx",
     });
   const app = express();
+  const cookieName = localPreview
+    ? `bsign.preview.${new URL(origin).port}`
+    : "bsign.sid";
   app.disable("x-powered-by");
-  app.set("trust proxy", Number(process.env.TRUST_PROXY || 0));
+  app.set(
+    "trust proxy",
+    localPreview ? false : Number(process.env.TRUST_PROXY || 0),
+  );
+  if (localPreview)
+    app.use((q, r, next) => {
+      if (q.headers.host !== new URL(origin).host)
+        return r.status(403).json({ error: "HOST" });
+      next();
+    });
   app.use(
     helmet({
       contentSecurityPolicy: {
@@ -65,7 +85,7 @@ export function createApp({
   app.use(express.json({ limit: "2mb" }));
   app.use(
     session({
-      name: "bsign.sid",
+      name: cookieName,
       secret: readFileSync(secretFile, "utf8"),
       resave: false,
       saveUninitialized: false,
@@ -91,7 +111,7 @@ export function createApp({
   app.get("/api/health", (_q, r) =>
     r.json({
       ok: db.prepare("SELECT 1 AS ok").get().ok === 1,
-      version: "1.0.0",
+      version,
     }),
   );
   app.get("/api/session", (q, r) =>
@@ -112,6 +132,53 @@ export function createApp({
       .prepare("INSERT INTO audit(actor,action,created_at) VALUES(?,?,?)")
       .run(q.session.user, action, new Date().toISOString());
   const loginLimit = limits ? limiter(10) : (_q, _r, n) => n();
+  if (initialSetupToken) {
+    const capability = (q, r, next) => {
+      const remote = q.socket.remoteAddress;
+      const supplied = q.get("X-BSIGN-Setup") || "";
+      if (
+        !["127.0.0.1", "::1", "::ffff:127.0.0.1"].includes(remote) ||
+        Buffer.byteLength(supplied) !== Buffer.byteLength(initialSetupToken) ||
+        !timingSafeEqual(Buffer.from(supplied), Buffer.from(initialSetupToken))
+      )
+        return r.status(403).json({ error: "SETUP_LINK_REQUIRED" });
+      next();
+    };
+    app.get("/api/setup", capability, (_q, r) =>
+      r.json({ needsSetup: !db.prepare("SELECT 1 FROM users LIMIT 1").get() }),
+    );
+    app.post("/api/setup", loginLimit, capability, async (q, r) => {
+      const b = z
+        .object({
+          email: z.email().max(254),
+          password: z.string().min(12).max(200),
+        })
+        .parse(q.body);
+      if (db.prepare("SELECT 1 FROM users LIMIT 1").get())
+        throw fail(409, "SETUP_COMPLETE");
+      const hash = await hashPassword(b.password);
+      let id;
+      db.exec("BEGIN IMMEDIATE");
+      try {
+        if (db.prepare("SELECT 1 FROM users LIMIT 1").get())
+          throw fail(409, "SETUP_COMPLETE");
+        id = Number(
+          db
+            .prepare("INSERT INTO users(email,password) VALUES(?,?)")
+            .run(b.email.toLowerCase(), hash).lastInsertRowid,
+        );
+        db.exec("COMMIT");
+      } catch (e) {
+        db.exec("ROLLBACK");
+        throw e;
+      }
+      await new Promise((resolve, reject) =>
+        q.session.regenerate((e) => (e ? reject(e) : resolve())),
+      );
+      q.session.user = id;
+      r.status(201).json({ authenticated: true, csrf: csrfToken(q) });
+    });
+  }
   app.post("/api/login", loginLimit, async (q, r) => {
     const { email, password } = z
       .object({ email: z.email(), password: z.string().min(1).max(200) })
@@ -132,7 +199,7 @@ export function createApp({
   });
   app.post("/api/logout", auth, (q, r) =>
     q.session.destroy(() => {
-      r.clearCookie("bsign.sid");
+      r.clearCookie(cookieName);
       r.json({ ok: true });
     }),
   );

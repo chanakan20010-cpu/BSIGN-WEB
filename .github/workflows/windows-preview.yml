@@ -1,0 +1,48 @@
+name: Windows preview
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/windows/**'
+      - 'server/**'
+      - 'src/**'
+      - 'tests/**'
+      - 'package*.json'
+      - 'OPEN-PREVIEW.vbs'
+      - 'START-WINDOWS.cmd'
+      - '.github/workflows/windows-preview.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  preview:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: 'BSIGN Preview ทดสอบ'
+      - name: Verify portable startup and cached restart
+        shell: powershell
+        working-directory: 'BSIGN Preview ทดสอบ'
+        run: '& ./scripts/windows/preview.ps1 -SmokeTest'
+      - name: Verify Windows Forms controller
+        shell: powershell
+        working-directory: 'BSIGN Preview ทดสอบ'
+        run: '& ./scripts/windows/preview.ps1 -UiSmokeTest'
+      - name: API and persistence tests using bundled Node
+        shell: powershell
+        working-directory: 'BSIGN Preview ทดสอบ'
+        run: |
+          $node = Join-Path $PWD '.runtime/node-v24.22.1-win-x64/node.exe'
+          $env:PATH = (Split-Path $node) + ';' + $env:PATH
+          & $node --test --test-concurrency=1 tests/api.test.js tests/preview.test.js
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: First-admin setup in Windows Edge
+        shell: powershell
+        working-directory: 'BSIGN Preview ทดสอบ'
+        run: |
+          $node = Join-Path $PWD '.runtime/node-v24.22.1-win-x64/node.exe'
+          $env:CHROMIUM_PATH = Join-Path ${env:ProgramFiles(x86)} 'Microsoft/Edge/Application/msedge.exe'
+          & $node tests/preview-browser.js
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

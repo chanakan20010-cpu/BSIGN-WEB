@@ -549,7 +549,7 @@ export default function Admin() {
           <button disabled={busy}>เข้าสู่ระบบ</button>
         </form>
         <p role="status">{status}</p>
-        <p>สร้างผู้ดูแลด้วยคำสั่ง npm run admin:create บนเครื่องเซิร์ฟเวอร์</p>
+        <p>หากยังไม่มีบัญชี กด “จัดการเนื้อหา” ในหน้าต่างเปิดพรีวิวเพื่อตั้งบัญชีครั้งแรก</p>
         <Link to="/">กลับเว็บไซต์</Link>
       </main>
     );

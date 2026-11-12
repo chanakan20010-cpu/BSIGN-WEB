@@ -1,10 +1,26 @@
-# BSIGN TECH — v1.0.0
+# BSIGN TECH — v1.1.0
 
 เว็บไซต์ TH/EN ตามภาพส่งออก Figma ที่ผู้ใช้แนบ: หน้าแรก เกี่ยวกับเรา ข่าวสาร รายละเอียดข่าว และติดต่อเรา พร้อม CMS, REST API และ SQLite จริง
 
-## เริ่มใช้งาน
+## เปิดพรีวิวบน Windows — ไม่ต้องพิมพ์คำสั่ง
 
-ติดตั้ง **Node.js 24 LTS** แล้วรันในโฟลเดอร์โปรเจกต์:
+1. ดาวน์โหลด ZIP เวอร์ชันล่าสุด แล้ว **แตกไฟล์ทั้งโฟลเดอร์**
+2. ดับเบิลคลิก **OPEN-PREVIEW.vbs** หรือ **START-WINDOWS.cmd**
+3. รอหน้าต่างเตรียมระบบครั้งแรก เว็บไซต์จะเปิดในเบราว์เซอร์อัตโนมัติ
+4. ต้องการแก้เนื้อหา กด **จัดการเนื้อหา** ในหน้าต่างพรีวิว แล้วสร้างบัญชีอีเมล/รหัสผ่านบนเว็บได้เลย
+5. กด **หยุดพรีวิวและปิด** เมื่อเสร็จ ข้อมูลยังคงอยู่เมื่อเปิดครั้งถัดไป
+
+ไม่ต้องติดตั้ง Node.js เอง และไม่ต้องมีสิทธิ์ Administrator ตัวเปิดใช้ Node.js 24 แบบ portable ใน `.runtime` ของโปรเจกต์ ตรวจ SHA-256 จากรายการที่ตรึงไว้ของ nodejs.org ก่อนใช้ และไม่แก้ Node.js หรือ PATH ถาวรของเครื่อง ใช้อินเทอร์เน็ตเฉพาะเตรียมครั้งแรก/อัปเดต dependencies; เปิดครั้งถัดไปใช้ cache หากโค้ดไม่เปลี่ยน
+
+รองรับ Windows 10/11 แบบ x64 และมีตัวเลือกดาวน์โหลด ARM64 ตามสถาปัตยกรรมเครื่อง (ผลทดสอบจริงแยกไว้ใน docs/VALIDATION.md) พรีวิวเลือกพอร์ตว่างอัตโนมัติและรับเฉพาะเครื่องนี้ ปิดหน้าต่างเบราว์เซอร์อย่างเดียวจะยังไม่หยุดเซิร์ฟเวอร์ ให้ปิดหน้าต่างตัวเปิดด้วย
+
+หาก Windows บล็อกไฟล์ที่ดาวน์โหลด ให้คลิกขวา ZIP → Properties → Unblock (ถ้ามี) → Apply แล้วแตกใหม่ ตัวเปิดใช้ RemoteSigned เฉพาะ process ไม่เปลี่ยน execution policy ของระบบ และไม่หลบ Group Policy เครื่ององค์กรที่ห้าม VBScript/PowerShell ต้องให้ฝ่ายไอทีอนุญาตก่อน มีคู่มือแบบเปิดอ่านได้ที่ `START-HERE.html`
+
+หากมีปัญหา กด **เปิดบันทึกการเตรียมระบบ** ในหน้าต่าง บัญชีผู้ดูแลเดิมและ `.data` / `.env` ไม่ถูกเขียนทับ หน้า setup สร้างบัญชีแรกได้เฉพาะลิงก์ที่ตัวเปิดสร้างและเมื่อยังไม่มีบัญชีเท่านั้น เมื่อมีบัญชีแล้วจะกลับไปใช้ login ปกติ
+
+## สำหรับนักพัฒนา / เซิร์ฟเวอร์
+
+ติดตั้ง Node.js 24 LTS แล้วรันในโฟลเดอร์โปรเจกต์:
 
 ```sh
 npm ci
@@ -14,11 +30,9 @@ npm run admin:create
 npm start
 ```
 
-Windows: ดับเบิลคลิก `START-WINDOWS.cmd` (ต้องมี Node.js 24) แล้วเปิด terminal อีกหน้าต่างเพื่อรัน `npm run admin:create` หน้าต่างสร้างผู้ดูแลรับรหัสผ่านแบบซ่อน ไม่ตั้งรหัสผ่านเริ่มต้น ไม่ใส่รหัสผ่านลง command line, source หรือ log
+โหมดเซิร์ฟเวอร์ใช้ `http://localhost:3000` และ CMS ที่ `/admin` โดย origin ต้องตรง `APP_ORIGIN` ส่วนตัวเปิดพรีวิวจัดการ origin/port ให้เองโดยไม่แก้ `.env`
 
-เปิดเว็บที่ `http://localhost:3000` และ CMS ที่ `/admin` ใช้ hostname ให้ตรง `APP_ORIGIN` เช่น localhost ไม่สลับกับ 127.0.0.1 มิฉะนั้น CSRF จะปฏิเสธการส่งฟอร์ม
-
-`npm run dev` ใช้ Vite middleware พร้อม hot reload และ API ใน origin เดียวกัน แม้มี dist อยู่แล้ว ส่วน `npm start` เสิร์ฟ production build และต้องรัน build ก่อน โหมด dev อนุญาต Vite inline preamble/WebSocket ใน CSP เฉพาะระหว่างพัฒนา โหมด production ใช้ CSP ที่เข้มงวดกว่า
+`npm run dev` ใช้ Vite hot reload และ API ใน origin เดียวกัน แม้มี dist อยู่แล้ว ส่วน `npm start` เสิร์ฟ production build โหมด dev อนุญาต Vite inline preamble/WebSocket ใน CSP เฉพาะระหว่างพัฒนา โหมด production ใช้ CSP ที่เข้มงวดกว่า
 
 ## การใช้งาน CMS
 
@@ -71,7 +85,7 @@ Production ต้องตั้ง `NODE_ENV=production`, `APP_ORIGIN=https://�
 Docker build ใน Codex cloud ต้องส่ง CA ให้ npm โดยรักษา TLS verification:
 
 ```sh
-docker build --secret id=proxy_ca,src="$CODEX_PROXY_CERT" -t bsign-web:1.0.0 .
+docker build --secret id=proxy_ca,src="$CODEX_PROXY_CERT" -t bsign-web:1.1.0 .
 docker compose up --no-build -d
 ```
 
@@ -98,6 +112,7 @@ Backup volume ด้วยการหยุด web แล้วใช้ `docke
 npm test
 npm run build
 npm run test:browser
+npm run test:preview
 ```
 
 Browser tests ใช้ Chromium (`CHROMIUM_PATH` เปลี่ยนตำแหน่ง binary ได้) ใช้ฐานข้อมูลและบัญชีสุ่มชั่วคราว ไม่เขียนข้อมูลทดสอบลง `.data` สร้าง screenshots ใน test-results ซึ่งไม่ commit

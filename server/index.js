@@ -2,6 +2,7 @@ import express from "express";
 import path from "node:path";
 import { existsSync } from "node:fs";
 import { createApp } from "./app.js";
+import { version } from "./version.js";
 const development = process.argv.includes("--dev");
 if (process.env.NODE_ENV === "production" && development)
   throw Error("Development server cannot run in production");
@@ -21,7 +22,7 @@ if (!development) {
 }
 const port = Number(process.env.PORT || 3000);
 const server = app.listen(port, process.env.HOST || "127.0.0.1", () =>
-  console.log(`BSIGN TECH v1.0.0 listening on port ${port}`),
+  console.log(`BSIGN TECH v${version} listening on port ${port}`),
 );
 for (const signal of ["SIGTERM", "SIGINT"])
   process.on(signal, () =>

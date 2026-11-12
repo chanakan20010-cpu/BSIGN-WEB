@@ -7,3 +7,5 @@ dist/
 backups/
 test-results/
 *.log
+
+.runtime/
