@@ -1,4 +1,4 @@
-# BSIGN TECH — v1.2.0
+# BSIGN TECH — v1.2.1
 
 เว็บไซต์ TH/EN ตามภาพส่งออก Figma ที่ผู้ใช้แนบ: หน้าแรก เกี่ยวกับเรา ข่าวสาร รายละเอียดข่าว และติดต่อเรา พร้อม CMS, REST API และ SQLite จริง
 
@@ -17,7 +17,7 @@ CMD แสดง URL เว็บไซต์, URL แอดมิน และ�
 
 รองรับ Windows 10/11 แบบ x64 และมีตัวเลือกดาวน์โหลด ARM64 ตามสถาปัตยกรรมเครื่อง ผลทดสอบจริงและขอบเขตอยู่ใน `docs/VALIDATION.md`
 
-หาก Windows บล็อกไฟล์ที่ดาวน์โหลด ให้คลิกขวา ZIP → Properties → Unblock (ถ้ามี) → Apply แล้วแตกใหม่ ตัวเปิดใช้ RemoteSigned เฉพาะ process ไม่เปลี่ยน execution policy ของระบบ เครื่ององค์กรที่ห้าม PowerShell ต้องให้ฝ่ายไอทีอนุญาตก่อน หากเตรียมระบบไม่สำเร็จ อ่านข้อความใน CMD และเปิดไฟล์ `.runtime/logs/setup.log` ด้วย Notepad แล้วลองเปิด START-WINDOWS ใหม่ มีคู่มือแบบเปิดอ่านได้ที่ `START-HERE.html`
+START-WINDOWS รุ่นนี้ตรวจ SHA-256 ของสคริปต์ตัวเปิดทั้ง 4 ไฟล์ แล้วปลด Mark-of-the-Web เฉพาะไฟล์ที่ตรงกับรุ่น ก่อนเรียก PowerShell จึงเปิด ZIP ที่ดาวน์โหลดมาได้โดยไม่ต้องปลดบล็อก .ps1 เอง ไม่ปลดบล็อกไฟล์อื่นในโฟลเดอร์ และไม่เปลี่ยน Execution Policy ถาวรของเครื่อง การตรวจ hash เป็นการตรวจความครบชุดของไฟล์ ไม่ใช่ลายเซ็นยืนยันผู้เผยแพร่ หากเครื่ององค์กรบังคับให้สคริปต์ต้องมีลายเซ็นหรือห้าม PowerShell ต้องให้ฝ่ายไอทีอนุญาตก่อน หากเตรียมระบบไม่สำเร็จ อ่านข้อความใน CMD และเปิดไฟล์ `.runtime/logs/setup.log` ด้วย Notepad แล้วลองเปิด START-WINDOWS ใหม่ มีคู่มือแบบเปิดอ่านได้ที่ `START-HERE.html`
 
 ### Username และ Password ใน initial-admin
 
@@ -109,7 +109,7 @@ Production ต้องตั้ง `NODE_ENV=production`, `APP_ORIGIN=https://�
 Docker build ใน Codex cloud ต้องส่ง CA ให้ npm โดยรักษา TLS verification:
 
 ```sh
-docker build --secret id=proxy_ca,src="$CODEX_PROXY_CERT" -t bsign-web:1.2.0 .
+docker build --secret id=proxy_ca,src="$CODEX_PROXY_CERT" -t bsign-web:1.2.1 .
 docker compose up --no-build -d
 ```
 
@@ -154,3 +154,7 @@ POST `/api/login`, `/api/logout`, `/api/password`, `/api/contact`, `/api/subscri
 ผู้ดูแล: GET `/api/admin/documents`, PATCH `/api/admin/documents/:key` ส่ง `{revision,patch}`; CRUD `/api/admin/articles`; GET/POST multipart `/api/admin/media`; GET/PATCH/DELETE `/api/admin/contacts`; GET/DELETE `/api/admin/subscribers`
 
 API ส่ง error code แทนข้อมูลภายในและไม่แสดง stack/รหัสผ่านให้ client; HTML ไม่รับ raw content จาก CMS ใช้ text rendering เพื่อป้องกัน XSS
+
+## การแก้สคริปต์ตัวเปิดสำหรับนักพัฒนา
+
+หลังแก้ไฟล์ `.ps1` ใน `scripts/windows` ให้รัน `node scripts/windows/update-launcher.js` เพื่ออัปเดต hash ที่ฝังใน START-WINDOWS และตรวจด้วย `node scripts/windows/update-launcher.js --check` ก่อนส่งเวอร์ชัน ระบบยอมรับ LF/CRLF และ UTF-8 BOM เหมือนกัน ไฟล์ที่เปลี่ยนแต่ยังไม่อัปเดต hash จะถูกปฏิเสธก่อนปลดบล็อก

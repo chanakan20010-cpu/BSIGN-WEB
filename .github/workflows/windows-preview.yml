@@ -19,7 +19,7 @@ jobs:
     runs-on: windows-2022
     timeout-minutes: 20
     env:
-      BSIGN_PREVIEW_FOLDER: 'BSIGN Preview ทดสอบ'
+      BSIGN_PREVIEW_FOLDER: 'BSIGN Preview ทดสอบ & ! [ZIP]'
     steps:
       - uses: actions/checkout@v6
         with:
@@ -31,22 +31,19 @@ jobs:
           git -C source archive --format=zip --output=$archive HEAD
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           Expand-Archive -LiteralPath $archive -DestinationPath $env:BSIGN_PREVIEW_FOLDER
-      - name: Verify START-WINDOWS console, generated account and restart
+      - name: Verify Internet-marked ZIP, tamper rejection and START-WINDOWS
         shell: powershell
-        working-directory: 'BSIGN Preview ทดสอบ'
+        working-directory: 'BSIGN Preview ทดสอบ & ! [ZIP]'
         run: |
-          & ./START-WINDOWS.cmd -SmokeTest
-          if ($LASTEXITCODE -ne 0) {
-            Write-Host '::error title=START-WINDOWS::Console preview failed; see setup output below'
-            if (Test-Path '.runtime/logs/setup.log') {
-              $tail = ((Get-Content '.runtime/logs/setup.log' -Tail 12) -join ' ') -replace '[\r\n]+',' '
-              Write-Host "::error title=Setup output::$tail"
-            }
-            exit $LASTEXITCODE
+          try { & ./tests/windows-motw.ps1 }
+          catch {
+            $message = ($_.Exception.GetBaseException().Message + ' | ' + $_.ScriptStackTrace) -replace '[\r\n]+',' '
+            Write-Host "::error title=Internet-marked ZIP::$message"
+            exit 1
           }
       - name: Verify Windows Forms controller
         shell: powershell
-        working-directory: 'BSIGN Preview ทดสอบ'
+        working-directory: 'BSIGN Preview ทดสอบ & ! [ZIP]'
         run: |
           try { & ./scripts/windows/preview.ps1 -UiSmokeTest }
           catch {
@@ -54,25 +51,29 @@ jobs:
             Write-Host "::error title=Windows Forms::$message"
             exit 1
           }
-      - name: Verify double-click launcher entry point
+      - name: Verify GUI entry point with Internet-marked scripts
         shell: powershell
-        working-directory: 'BSIGN Preview ทดสอบ'
+        working-directory: 'BSIGN Preview ทดสอบ & ! [ZIP]'
         run: |
-          $launcher = Join-Path $PWD 'OPEN-PREVIEW.vbs'
-          $process = Start-Process wscript.exe -ArgumentList ('"' + $launcher + '" /test-ui') -PassThru
-          if (-not $process.WaitForExit(120000)) { Stop-Process -Id $process.Id; throw 'Launcher timeout' }
-          if ($process.ExitCode -ne 0) { throw "Launcher exit code: $($process.ExitCode)" }
+          try { & ./tests/windows-motw.ps1 -GuiOnly }
+          catch {
+            $message = ($_.Exception.GetBaseException().Message + ' | ' + $_.ScriptStackTrace) -replace '[\r\n]+',' '
+            Write-Host "::error title=Internet-marked GUI::$message"
+            exit 1
+          }
       - name: API and persistence tests using bundled Node
         shell: powershell
-        working-directory: 'BSIGN Preview ทดสอบ'
+        working-directory: 'BSIGN Preview ทดสอบ & ! [ZIP]'
         run: |
           $node = Join-Path $PWD '.runtime/node-v24.22.1-win-x64/node.exe'
           $env:PATH = (Split-Path $node) + ';' + $env:PATH
+          & $node scripts/windows/update-launcher.js --check
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           & $node --test --test-concurrency=1 tests/api.test.js tests/preview.test.js tests/initial-admin.test.js
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: First-admin setup in Windows Edge
         shell: powershell
-        working-directory: 'BSIGN Preview ทดสอบ'
+        working-directory: 'BSIGN Preview ทดสอบ & ! [ZIP]'
         run: |
           $node = Join-Path $PWD '.runtime/node-v24.22.1-win-x64/node.exe'
           $env:CHROMIUM_PATH = Join-Path ${env:ProgramFiles(x86)} 'Microsoft/Edge/Application/msedge.exe'
@@ -80,7 +81,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Generated file account login in Windows Edge
         shell: powershell
-        working-directory: 'BSIGN Preview ทดสอบ'
+        working-directory: 'BSIGN Preview ทดสอบ & ! [ZIP]'
         run: |
           $node = Join-Path $PWD '.runtime/node-v24.22.1-win-x64/node.exe'
           $env:CHROMIUM_PATH = Join-Path ${env:ProgramFiles(x86)} 'Microsoft/Edge/Application/msedge.exe'

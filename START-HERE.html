@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>เปิดพรีวิว BSIGN TECH v1.2.0</title>
+    <title>เปิดพรีวิว BSIGN TECH v1.2.1</title>
     <style>
       body{font:18px/1.8 system-ui,sans-serif;background:#f7f8fa;color:#171717;margin:0}
       main{max-width:800px;margin:45px auto;background:white;padding:40px;border-radius:16px}
@@ -14,7 +14,7 @@
   </head>
   <body>
     <main>
-      <h1>เปิดพรีวิว BSIGN TECH v1.2.0</h1>
+      <h1>เปิดพรีวิว BSIGN TECH v1.2.1</h1>
       <ol>
         <li>ดาวน์โหลด ZIP แล้ว <b>แตกไฟล์ทั้งโฟลเดอร์</b></li>
         <li>เปิดโฟลเดอร์ที่แตกออกมา ดับเบิลคลิก <strong>START-WINDOWS.cmd</strong><br>ถ้า Explorer ซ่อนนามสกุล จะเห็นชื่อ <b>START-WINDOWS</b></li>
@@ -31,7 +31,7 @@
       <h2>มีบัญชีเดิม แต่ไม่พบ initial-admin หรือจำรหัสไม่ได้</h2>
       <p>บัญชีที่ตั้งเองในรุ่นก่อนจะใช้รหัสเดิม ระบบไม่เขียนทับหรือตั้งใหม่อัตโนมัติ ถ้าจำไม่ได้ ให้หยุดพรีวิวแบบ CMD ก่อน แล้วเปิด <strong>OPEN-PREVIEW.vbs</strong> กด <strong>บัญชีแอดมิน / ลืมรหัสผ่าน</strong> เพื่อเลือกอีเมลและตั้งรหัสผ่านใหม่ ข้อมูลเว็บไซต์ยังอยู่</p>
       <h2>หากเปิดไม่ได้</h2>
-      <p>ถ้า Windows บล็อกไฟล์ที่ดาวน์โหลด: คลิกขวา ZIP → Properties → Unblock (ถ้ามี) → Apply แล้วแตก ZIP ใหม่ หากเครื่ององค์กรห้าม PowerShell ให้ฝ่ายไอทีอนุญาตตัวเปิดนี้</p>
+      <p>รุ่นนี้ตรวจไฟล์แล้วปลดบล็อกเฉพาะสคริปต์ตัวเปิดของ BSIGN TECH อัตโนมัติ ไม่ต้องเปลี่ยน Execution Policy ของเครื่อง หากเครื่ององค์กรบังคับให้สคริปต์มีลายเซ็นหรือห้าม PowerShell ให้ฝ่ายไอทีอนุญาตตัวเปิดนี้</p>
       <p>ถ้าเตรียมระบบไม่สำเร็จ อ่านข้อความใน CMD ตรวจอินเทอร์เน็ต และเปิดบันทึก <code>.runtime/logs/setup.log</code> ด้วย Notepad แล้วลองเปิด START-WINDOWS ใหม่</p>
       <small>ใช้ Node.js portable ใน .runtime ไม่ต้องติดตั้ง Node.js เองหรือใช้สิทธิ์ Administrator ต้องใช้อินเทอร์เน็ตเตรียมครั้งแรก รองรับการดาวน์โหลดเครื่องมือสำหรับ Windows 64-bit (x64/ARM64) ดูผลทดสอบจริงใน docs/VALIDATION.md เก็บ .data และ .env ไว้เสมอเมื่ออัปเดต และเก็บไฟล์ initial-admin กับผู้ดูแลที่มีสิทธิ์เท่านั้น</small>
     </main>
