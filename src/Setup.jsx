@@ -3,9 +3,12 @@ import { Link, useNavigate } from "react-router-dom";
 import { api } from "./api";
 export default function Setup() {
   const navigate = useNavigate();
+  const recovery = new URLSearchParams(location.search).get("recover") === "1";
+  const [accounts, setAccounts] = useState([]);
+  const [done, setDone] = useState(false);
   const [token] = useState(() => {
     const token = location.hash.slice(1);
-    history.replaceState(null, "", location.pathname);
+    history.replaceState(null, "", location.pathname + location.search);
     return token;
   });
   const [ready, setReady] = useState(false),
@@ -22,9 +25,20 @@ export default function Setup() {
       }
       const s = await api("/setup", { headers: { "X-BSIGN-Setup": token } });
       if (!live) return;
-      if (!s.needsSetup) {
+      if (!s.needsSetup && !recovery) {
         navigate("/admin", { replace: true });
         return;
+      }
+      if (recovery && s.needsSetup) {
+        location.replace("/setup#" + token);
+        return;
+      }
+      if (recovery) {
+        const result = await api("/local-account", {
+          headers: { "X-BSIGN-Setup": token },
+        });
+        if (!live) return;
+        setAccounts(result.accounts);
       }
       setReady(true);
       setMessage("");
@@ -36,7 +50,7 @@ export default function Setup() {
     return () => {
       live = false;
     };
-  }, [token]);
+  }, [token, recovery]);
   async function submit(e) {
     e.preventDefault();
     const b = Object.fromEntries(new FormData(e.currentTarget));
@@ -47,17 +61,21 @@ export default function Setup() {
     setBusy(true);
     setMessage("");
     try {
-      await api("/setup", {
+      await api(recovery ? "/local-account" : "/setup", {
         method: "POST",
         headers: { "X-BSIGN-Setup": token },
         body: { email: b.email, password: b.password },
       });
-      navigate("/admin", { replace: true });
+      if (recovery) {
+        setDone(true);
+        setReady(false);
+        setMessage("ตั้งรหัสผ่านใหม่แล้ว ใช้อีเมลที่เลือกกับรหัสผ่านใหม่เพื่อเข้าสู่ระบบ");
+      } else navigate("/admin", { replace: true });
     } catch (e) {
       setMessage(
         e.message === "SETUP_COMPLETE"
           ? "มีบัญชีผู้ดูแลแล้ว กรุณาเข้าสู่ระบบ"
-          : "สร้างบัญชีไม่สำเร็จ กรุณาตรวจอีเมลและรหัสผ่าน แล้วลองอีกครั้ง",
+          : "บันทึกบัญชีไม่สำเร็จ กรุณาตรวจอีเมลและรหัสผ่าน แล้วลองอีกครั้ง",
       );
     } finally {
       setBusy(false);
@@ -65,19 +83,33 @@ export default function Setup() {
   }
   return (
     <main className="admin login">
-      <h1>พร้อมเปิดพรีวิว BSIGN TECH</h1>
-      <p>ตั้งบัญชีของคุณเพื่อแก้ไขข้อความ รูปภาพ และข่าวสารได้จากหน้าเว็บ</p>
+      <h1>{recovery ? "ตั้งรหัสผ่านแอดมินใหม่" : "สร้างบัญชีแอดมิน BSIGN TECH"}</h1>
+      <p>
+        {recovery
+          ? "เลือกบัญชีในเครื่องนี้แล้วตั้งรหัสผ่านใหม่ ข้อมูลเว็บไซต์จะคงอยู่ และทุกบัญชีจะออกจากระบบ"
+          : "ไม่มี username หรือ password สำเร็จรูป ตั้งอีเมลและรหัสผ่านของคุณเอง อีเมลนี้ใช้เป็นชื่อเข้าสู่ระบบ"}
+      </p>
       {ready && (
         <form onSubmit={submit}>
           <label>
             อีเมลผู้ดูแล
-            <input
-              type="email"
-              name="email"
-              autoComplete="username"
-              required
-              maxLength={254}
-            />
+            {recovery ? (
+              <select name="email" required>
+                {accounts.map((a) => (
+                  <option key={a.email} value={a.email}>
+                    {a.email}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <input
+                type="email"
+                name="email"
+                autoComplete="username"
+                required
+                maxLength={254}
+              />
+            )}
           </label>
           <label>
             รหัสผ่านใหม่
@@ -103,14 +135,20 @@ export default function Setup() {
             />
           </label>
           <button disabled={busy}>
-            {busy ? "กำลังสร้างบัญชี…" : "สร้างบัญชีและเปิดหลังบ้าน"}
+            {busy
+              ? "กำลังบันทึก…"
+              : recovery
+                ? "ตั้งรหัสผ่านใหม่และออกจากทุกอุปกรณ์"
+                : "สร้างบัญชีและเปิดหลังบ้าน"}
           </button>
         </form>
       )}
       <p role="status">{message}</p>
       <div className="admin-actions">
         <Link to="/">ดูเว็บไซต์ก่อน</Link>
-        <Link to="/admin">มีบัญชีแล้ว · เข้าสู่ระบบ</Link>
+        <Link to="/admin">
+          {done ? "เข้าสู่ระบบด้วยรหัสผ่านใหม่" : "มีบัญชีแล้ว · เข้าสู่ระบบ"}
+        </Link>
       </div>
       <p>ข้อมูลจะอยู่ในเครื่องของคุณเมื่อปิดและเปิดพรีวิวใหม่</p>
     </main>

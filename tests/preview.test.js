@@ -13,6 +13,7 @@ test("normal server does not expose first-admin setup", async () => {
   const { app, db } = createApp({ directory });
   try {
     assert.equal((await request(app).get("/api/setup")).status, 404);
+    assert.equal((await request(app).get("/api/local-account")).status, 404);
     assert.throws(
       () =>
         createApp({
@@ -23,6 +24,89 @@ test("normal server does not expose first-admin setup", async () => {
     );
   } finally {
     db.close();
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test("local account recovery requires launcher capability and CSRF, revokes sessions and preserves content", async () => {
+  const directory = mkdtempSync(path.join(tmpdir(), "bsign-recovery-"));
+  let runtime;
+  try {
+    runtime = await startPreview({ directory });
+    const { origin, token } = runtime;
+    const owner = request.agent(origin),
+      recovery = request.agent(origin),
+      stranger = request.agent(origin);
+    const csrf = (await owner.get("/api/session")).body.csrf;
+    const credentials = {
+      email: "owner@example.test",
+      password: randomBytes(24).toString("hex"),
+    };
+    const created = await owner
+      .post("/api/setup")
+      .set("Origin", origin)
+      .set("X-CSRF-Token", csrf)
+      .set("X-BSIGN-Setup", token)
+      .send(credentials);
+    assert.equal(created.status, 201);
+    const before = (await owner.get("/api/content")).body;
+    const recoveryCsrf = (await recovery.get("/api/session")).body.csrf;
+    assert.equal((await stranger.get("/api/local-account")).status, 403);
+    assert.deepEqual(
+      (await recovery.get("/api/local-account").set("X-BSIGN-Setup", token))
+        .body.accounts,
+      [{ email: credentials.email }],
+    );
+    const replacement = {
+      ...credentials,
+      password: randomBytes(24).toString("hex"),
+    };
+    const reset = (key, csrfValue, originValue = origin, body = replacement) =>
+      recovery
+        .post("/api/local-account")
+        .set("Origin", originValue)
+        .set("X-CSRF-Token", csrfValue)
+        .set("X-BSIGN-Setup", key)
+        .send(body);
+    assert.equal((await reset("invalid", recoveryCsrf)).status, 403);
+    assert.equal((await reset(token, "invalid")).status, 403);
+    assert.equal(
+      (await reset(token, recoveryCsrf, "https://attacker.test")).status,
+      403,
+    );
+    assert.equal(
+      (
+        await reset(token, recoveryCsrf, origin, {
+          ...replacement,
+          password: "short",
+        })
+      ).status,
+      400,
+    );
+    assert.equal((await reset(token, recoveryCsrf)).status, 200);
+    assert.equal((await owner.get("/api/admin/documents")).status, 401);
+    const loginCsrf = (await recovery.get("/api/session")).body.csrf;
+    const login = (body) =>
+      recovery
+        .post("/api/login")
+        .set("Origin", origin)
+        .set("X-CSRF-Token", loginCsrf)
+        .send(body);
+    assert.equal((await login(credentials)).status, 401);
+    assert.equal((await login(replacement)).status, 200);
+    assert.equal((await recovery.get("/api/admin/documents")).status, 200);
+    assert.deepEqual((await recovery.get("/api/content")).body, before);
+    assert.equal(runtime.db.prepare("SELECT count(*) n FROM users").get().n, 1);
+    assert.equal(
+      runtime.db
+        .prepare(
+          "SELECT count(*) n FROM audit WHERE action='local-account:password-reset'",
+        )
+        .get().n,
+      1,
+    );
+  } finally {
+    if (runtime) await runtime.close();
     rmSync(directory, { recursive: true, force: true });
   }
 });

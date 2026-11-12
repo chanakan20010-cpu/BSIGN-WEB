@@ -147,6 +147,46 @@ export function createApp({
     app.get("/api/setup", capability, (_q, r) =>
       r.json({ needsSetup: !db.prepare("SELECT 1 FROM users LIMIT 1").get() }),
     );
+    // Local file ownership grants this launcher capability; it is never
+    // available through the public app, ordinary login, or normal startup.
+    app.get("/api/local-account", capability, (_q, r) =>
+      r.json({
+        accounts: db.prepare("SELECT email FROM users ORDER BY id").all(),
+      }),
+    );
+    app.post("/api/local-account", loginLimit, capability, async (q, r) => {
+      const b = z
+        .object({
+          email: z.email().max(254),
+          password: z.string().min(12).max(200),
+        })
+        .parse(q.body);
+      const user = db
+        .prepare("SELECT id FROM users WHERE email=?")
+        .get(b.email.toLowerCase());
+      if (!user) throw fail(404, "ACCOUNT_NOT_FOUND");
+      const hash = await hashPassword(b.password);
+      db.exec("BEGIN IMMEDIATE");
+      try {
+        db.prepare("UPDATE users SET password=? WHERE id=?").run(hash, user.id);
+        db.prepare("DELETE FROM sessions").run();
+        db.prepare(
+          "INSERT INTO audit(actor,action,created_at) VALUES(?,?,?)",
+        ).run(
+          user.id,
+          "local-account:password-reset",
+          new Date().toISOString(),
+        );
+        db.exec("COMMIT");
+      } catch (e) {
+        db.exec("ROLLBACK");
+        throw e;
+      }
+      q.session.destroy(() => {
+        r.clearCookie(cookieName);
+        r.json({ ok: true });
+      });
+    });
     app.post("/api/setup", loginLimit, capability, async (q, r) => {
       const b = z
         .object({

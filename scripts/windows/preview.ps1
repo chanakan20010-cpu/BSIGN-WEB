@@ -7,6 +7,7 @@ $script:OnStatus=$null
 $script:Runtime=$null
 $script:Busy=$false
 $script:UiReady=$false
+$script:UiError=''
 $projectRoot=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..'))
 . (Join-Path $PSScriptRoot 'bootstrap.ps1')
 if($SmokeTest){
@@ -70,7 +71,9 @@ $closeButton=New-Object Windows.Forms.Button
 $closeButton.Text='หยุดพรีวิวและปิด';$closeButton.SetBounds(402,218,188,46)
 $logsButton=New-Object Windows.Forms.LinkLabel
 $logsButton.Text='เปิดบันทึกการเตรียมระบบ';$logsButton.SetBounds(30,284,280,30)
-$form.Controls.AddRange(@($heading,$description,$statusLabel,$progress,$openButton,$adminButton,$closeButton,$logsButton))
+$accountButton=New-Object Windows.Forms.LinkLabel
+$accountButton.Text='บัญชีแอดมิน / ลืมรหัสผ่าน';$accountButton.SetBounds(330,284,265,30);$accountButton.Enabled=$false
+$form.Controls.AddRange(@($heading,$description,$statusLabel,$progress,$openButton,$adminButton,$closeButton,$logsButton,$accountButton))
 $script:Tick={ [Windows.Forms.Application]::DoEvents() }
 $script:OnStatus={param($text) $statusLabel.Text=$text;[Windows.Forms.Application]::DoEvents()}
 function Open-BsignAdmin {
@@ -81,19 +84,23 @@ function Open-BsignAdmin {
 }
 function Start-BsignPreview {
     if($script:Busy){return}
-    $script:Busy=$true;$script:Cancelled=$false;$openButton.Enabled=$false;$adminButton.Enabled=$false;$progress.Visible=$true
+    $script:Busy=$true;$script:Cancelled=$false;$openButton.Enabled=$false;$adminButton.Enabled=$false;$accountButton.Enabled=$false;$progress.Visible=$true
     try{
         $prepared=Initialize-BsignProject $projectRoot
         $script:Runtime=Start-BsignServer $projectRoot $prepared
         $statusLabel.Text='พรีวิวพร้อมแล้ว • ปิดหน้าต่างนี้เมื่อต้องการหยุด • ข้อมูลยังคงอยู่'
-        $openButton.Text='เปิดเว็บไซต์';$openButton.Enabled=$true;$adminButton.Enabled=$true
+        $openButton.Text='เปิดเว็บไซต์';$openButton.Enabled=$true;$adminButton.Enabled=$true;$accountButton.Enabled=$true
+        $current=Get-BsignStatus $script:Runtime.State
+        if($current.needsSetup){$adminButton.Text='สร้างบัญชีแอดมิน'}else{$adminButton.Text='เข้าสู่หลังบ้าน'}
         if($UiSmokeTest){
             $script:UiReady=$true
             $null=$form.BeginInvoke([Action]{$form.Close()})
         }else{Start-Process $script:Runtime.State.origin}
     }catch{
         Stop-BsignServer $script:Runtime;$script:Runtime=$null
+        $script:UiError=$_.Exception.GetBaseException().Message+' | '+$_.ScriptStackTrace
         if(-not $script:Cancelled){$statusLabel.Text='ยังเปิดไม่ได้: '+$_.Exception.Message;$openButton.Text='ลองอีกครั้ง';$openButton.Enabled=$true}
+        if($UiSmokeTest){$null=$form.BeginInvoke([Action]{$form.Close()})}
     }finally{
         $script:Busy=$false;$progress.Visible=$false
         if($script:Cancelled){$form.Close()}
@@ -101,11 +108,15 @@ function Start-BsignPreview {
 }
 $openButton.Add_Click({if($script:Runtime){try{Start-Process $script:Runtime.State.origin}catch{$statusLabel.Text='เปิดเบราว์เซอร์ไม่สำเร็จ กรุณาลองอีกครั้ง'}}else{Start-BsignPreview}})
 $adminButton.Add_Click({try{Open-BsignAdmin}catch{$statusLabel.Text='พรีวิวหยุดแล้ว กรุณาปิดและเปิดตัวเปิดพรีวิวใหม่'}})
+$accountButton.Add_LinkClicked({
+    try{Start-Process ($script:Runtime.State.origin+'/setup?recover=1#'+$script:Runtime.State.token)}
+    catch{$statusLabel.Text='พรีวิวหยุดแล้ว กรุณาปิดและเปิดตัวเปิดพรีวิวใหม่'}
+})
 $closeButton.Add_Click({$form.Close()})
 $logsButton.Add_LinkClicked({$log=Join-Path $projectRoot '.runtime\logs\setup.log';if(Test-Path -LiteralPath $log){Start-Process notepad.exe -ArgumentList (Quote-BsignArgument $log)}})
 $form.Add_FormClosing({param($sender,$eventArgs) if($script:Busy){$script:Cancelled=$true;$eventArgs.Cancel=$true}else{Stop-BsignServer $script:Runtime;$script:Runtime=$null}})
 $form.Add_Shown({Start-BsignPreview})
 try{
     [Windows.Forms.Application]::Run($form)
-    if($UiSmokeTest){if(-not $script:UiReady){throw 'WinForms startup did not reach ready state'};Write-Host 'PASS: Windows Forms controller reached ready state and closed its server'}
+    if($UiSmokeTest){if(-not $script:UiReady){throw ('WinForms startup did not reach ready state: '+$script:UiError)};Write-Host 'PASS: Windows Forms controller reached ready state and closed its server'}
 }finally{Stop-BsignServer $script:Runtime;$mutex.ReleaseMutex();$mutex.Dispose();$form.Dispose()}

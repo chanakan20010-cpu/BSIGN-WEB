@@ -40,15 +40,29 @@ try {
   await runtime.close();
   runtime = await startPreview({ directory });
   const again = await browser.newPage();
+  again.on("pageerror", (e) => errors.push(e.message));
   again.setDefaultTimeout(15000);
   await again.goto(runtime.origin + "/admin");
   await again.getByLabel("อีเมล", { exact: true }).fill("owner@example.test");
   await again.getByLabel("รหัสผ่าน", { exact: true }).fill(password);
   await again.getByRole("button", { name: "เข้าสู่ระบบ", exact: true }).click();
   await again.getByRole("heading", { name: "BSIGN TECH · CMS" }).waitFor();
+  await again.goto(runtime.origin + "/setup?recover=1#" + runtime.token);
+  await expect(again.getByLabel("อีเมลผู้ดูแล")).toHaveValue("owner@example.test");
+  const newPassword = randomBytes(24).toString("hex");
+  await again.getByLabel("รหัสผ่านใหม่", { exact: true }).fill(newPassword);
+  await again.getByLabel("ยืนยันรหัสผ่าน", { exact: true }).fill(newPassword);
+  await again
+    .getByRole("button", { name: "ตั้งรหัสผ่านใหม่และออกจากทุกอุปกรณ์" })
+    .click();
+  await again.getByRole("link", { name: "เข้าสู่ระบบด้วยรหัสผ่านใหม่" }).click();
+  await again.getByLabel("อีเมล", { exact: true }).fill("owner@example.test");
+  await again.getByLabel("รหัสผ่าน", { exact: true }).fill(newPassword);
+  await again.getByRole("button", { name: "เข้าสู่ระบบ", exact: true }).click();
+  await again.getByRole("heading", { name: "BSIGN TECH · CMS" }).waitFor();
   assert.deepEqual(errors, []);
   console.log(
-    "PASS: browser account creation, confirmation, CMS, setup lockout and login after preview restart",
+    "PASS: browser account creation, confirmation, CMS, setup lockout, login after preview restart and local password recovery",
   );
 } finally {
   if (browser) await browser.close();
