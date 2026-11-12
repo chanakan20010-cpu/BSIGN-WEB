@@ -1,3 +1,29 @@
+# ผลการตรวจ v1.1.0 — 12 พฤศจิกายน 2026
+
+ใช้ข้อมูลทดสอบชั่วคราวและรหัสผ่านสุ่ม ไม่แก้ข้อมูลผู้ใช้ใน `.data`
+
+| รายการ | ผล |
+|---|---|
+| Production build | ผ่าน Node.js 24.22.1 |
+| API 15 ชุด | ผ่านทั้งหมด รวม migration, backup/restore รูปและไอคอน, restart และ security เดิม |
+| สร้างแอดมินครั้งแรก | ผ่านใน Chromium: ตั้งอีเมล/รหัสผ่าน ตรวจยืนยันรหัส เปิด CMS และใช้บัญชีเดิมหลัง restart |
+| กู้บัญชีจากตัวเปิด | ผ่าน API และ Chromium: แสดงอีเมลเฉพาะผู้ถือ capability ตั้งรหัสใหม่ ยกเลิก session ปฏิเสธรหัสเก่า และเก็บเนื้อหาเดิม |
+| จำกัดสิทธิ์ local preview | ผ่าน loopback/Host/capability/CSRF/Origin; token เปลี่ยนหลัง restart; เซิร์ฟเวอร์ปกติไม่มี setup/recovery endpoints |
+| สร้างบัญชีพร้อมกัน | มีเพียง request เดียวสำเร็จ ไม่สร้างบัญชีเพิ่มหลัง setup |
+| Chromium regression 53 กรณี | ผ่าน TH/EN, 5 หน้า, 1440/768/390px, ฟอร์มจริง, CMS, รูป, ไอคอน, computed styles, keyboard และ axe |
+| Docker | build v1.1.0, HTTP/API, non-root และข้อมูลอยู่หลังเปลี่ยน container ผ่าน |
+| PowerShell | parse และ process arguments ที่มีช่องว่าง/ภาษาไทยผ่านใน PowerShell 7 บน Linux; ผล Windows แยกด้านล่าง |
+
+Windows x64 ผ่านบน GitHub Actions `windows-2022` (Windows Server 2022, Windows PowerShell 5.1): ดาวน์โหลดและตรวจ SHA-256 ของ portable Node, ติดตั้ง dependencies, build, ใช้ cache, เปิด/หยุด/restart, หน้าต่าง WinForms, เรียก entry point `OPEN-PREVIEW.vbs`, API 15 ชุด และสร้างบัญชี/ตั้งรหัสใหม่/เข้า CMS ด้วย Microsoft Edge จริง ผ่านทั้งหมด
+
+หลักฐาน: [Windows preview run #4](https://github.com/chanakan20010-cpu/BSIGN-WEB/actions/runs/43219724023) — implementation commit `00a0c9a`; runner ใช้โฟลเดอร์ที่มีช่องว่างและภาษาไทย
+
+ข้อจำกัดของการทดสอบ: ไม่ได้ทดสอบ Windows ARM64, เครื่ององค์กรที่ปิด scripting, SmartScreen/Mark-of-the-Web บนเครื่องผู้ใช้ หรือทุกเวอร์ชัน Windows 10/11; ต้องใช้อินเทอร์เน็ตเตรียมครั้งแรก การทดสอบบน CI ไม่รับรองนโยบายความปลอดภัยของแต่ละเครื่อง
+
+SMTP, พิกัด iframe Maps, URL LinkedIn และการ deploy สาธารณะยังมีขอบเขตตามรายการด้านล่าง ไม่อ้างว่าเชื่อมต่อสำเร็จแล้ว
+
+---
+
 # ผลการตรวจ v1.0.0 — 12 พฤศจิกายน 2026
 
 ใช้ข้อมูลทดสอบชั่วคราว แยกจาก .data สำหรับใช้งานจริง
@@ -30,7 +56,7 @@
 - ยังไม่ได้ส่งอีเมลผ่าน SMTP จริง เพราะยังไม่มีบัญชี/ค่าเชื่อมต่อ การรับฟอร์มลงฐานข้อมูลผ่านแล้ว และ API/หลังบ้านแสดงสถานะ mail แยกต่างหาก
 - ลิงก์ Google Maps ที่ผู้ใช้ให้ถูกนโยบายเครือข่ายคลาวด์ปฏิเสธ จึงยังไม่ได้อ่านพิกัด/ทดสอบ iframe ใช้ short link ที่ยืนยันแล้วเป็นปุ่มนำทางทั้งสองภาษา ปิด iframe จนยืนยันพิกัดจริง
 - URL LinkedIn ต้องเติม; LINE/Facebook อนุมานจาก handles ในดีไซน์ ยังไม่ทดสอบปลายทางภายนอก
-- ยังไม่ได้ทดสอบ Windows จริง, Safari, Firefox หรือ screen reader จริง (เช่น NVDA/VoiceOver) การผ่าน axe ไม่เท่ากับการรับรอง accessibility ทั้งหมด
+- ใน v1.0.0 ยังไม่ได้ทดสอบ Windows จริง (ดูผล v1.1.0 ด้านบน); Safari, Firefox และ screen reader จริง เช่น NVDA/VoiceOver ยังไม่ได้ทดสอบ การผ่าน axe ไม่เท่ากับการรับรอง accessibility ทั้งหมด
 - Desktop เทียบภาพด้วยสายตา ไม่ได้อ้าง pixel-perfect diff: ไม่มี font metadata และไฟล์ภาพแยกชิ้น Mobile/Tablet เป็น responsive adaptation; ปรับเทาส่วนกลางเล็กน้อยเพื่อให้ contrast ผ่าน
 - PostgreSQL มีแนวทางย้าย ยังไม่ได้ติดตั้งหรือทดสอบ migration ไป PostgreSQL
 - ยังไม่ได้ deploy สู่โดเมนสาธารณะ/ตั้ง TLS production และไม่ได้ push image ไป Docker registry

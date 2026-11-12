@@ -5,8 +5,10 @@
 - เพิ่มตัวเปิดพรีวิว Windows แบบหน้าต่าง ดับเบิลคลิกเพื่อดาวน์โหลด/ตรวจ Node.js portable ติดตั้ง dependencies และเปิดเบราว์เซอร์อัตโนมัติ
 - ใช้พอร์ตว่างบน loopback มีปุ่มเปิดเว็บ หลังบ้าน และหยุด พร้อม cache สำหรับเปิดครั้งถัดไปและบันทึกข้อผิดพลาด
 - เพิ่มหน้าสร้างบัญชีผู้ดูแลครั้งแรกผ่านเบราว์เซอร์ เฉพาะ local preview ที่มี capability และ CSRF; ปิดการสร้างเพิ่มหลังมีบัญชี และไม่เปิด endpoint นี้บนเซิร์ฟเวอร์ปกติ
+- เพิ่มหน้าดูอีเมลบัญชีและตั้งรหัสผ่านใหม่ผ่านลิงก์จากตัวเปิดพรีวิวเท่านั้น พร้อมยกเลิก session เดิม โดยไม่ลบเนื้อหาหรือรูป
 - รักษา .data, .env และ Node.js ที่มีอยู่ในเครื่อง ไม่ต้องพิมพ์คำสั่ง npm ด้วยตนเอง
-- เพิ่มการทดสอบ preview/setup/restart และ workflow ตรวจ Windows portable runtime, WinForms และ Edge
+- แก้ผลลัพธ์จาก PowerShell download ที่รบกวนค่าตั้งต้นของตัวเปิด และยืนยันเปิดครั้งแรก/restart ได้บน Windows จริง
+- เพิ่มการทดสอบ preview/setup/recovery/restart และ workflow ตรวจ ZIP, Windows portable runtime, WinForms, VBS entry point และ Edge
 
 ## v1.0.0 — 2026-11-12
 
