@@ -14,9 +14,11 @@ import { pathToFileURL } from "node:url";
 import express from "express";
 import { createApp } from "./app.js";
 import { version } from "./version.js";
+import { ensureInitialAdmin } from "./initial-admin.js";
 export async function startPreview({
   stateFile,
   directory = path.resolve(process.env.DATA_DIR || ".data"),
+  provisionInitialAdmin = false,
 } = {}) {
   if (!existsSync("dist/index.html")) throw Error("Preview build is missing");
   const server = createServer();
@@ -26,7 +28,7 @@ export async function startPreview({
   });
   const origin = `http://127.0.0.1:${server.address().port}`;
   const token = randomBytes(32).toString("hex");
-  let app, db;
+  let app, db, initialAdmin;
   try {
     ({ app, db } = createApp({
       directory,
@@ -35,8 +37,11 @@ export async function startPreview({
       localPreview: true,
       initialSetupToken: token,
     }));
+    if (provisionInitialAdmin)
+      initialAdmin = await ensureInitialAdmin(db, directory);
   } catch (e) {
     server.close();
+    if (db) db.close();
     throw e;
   }
   let stopping = false;
@@ -94,12 +99,18 @@ export async function startPreview({
     const partial = stateFile + ".tmp";
     writeFileSync(
       partial,
-      JSON.stringify({ origin, token, pid: process.pid, version }),
+      JSON.stringify({
+        origin,
+        token,
+        pid: process.pid,
+        version,
+        initialAdmin,
+      }),
       { mode: 0o600 },
     );
     renameSync(partial, stateFile);
   }
-  return { origin, token, db, close, server };
+  return { origin, token, db, close, server, initialAdmin };
 }
 if (
   process.argv[1] &&
@@ -107,7 +118,10 @@ if (
 ) {
   const stateFile = process.argv[2];
   if (!stateFile) throw Error("A private launcher state path is required");
-  const runtime = await startPreview({ stateFile: path.resolve(stateFile) });
+  const runtime = await startPreview({
+    stateFile: path.resolve(stateFile),
+    provisionInitialAdmin: process.argv.includes("--initial-admin"),
+  });
   for (const signal of ["SIGINT", "SIGTERM"])
     process.once(signal, () => runtime.close());
 }

@@ -1,1 +1,39 @@
-<!doctype html><html lang="th"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>เปิดพรีวิว BSIGN TECH</title><style>body{font:18px/1.8 system-ui,sans-serif;background:#f7f8fa;color:#171717;margin:0}main{max-width:760px;margin:60px auto;background:white;padding:40px;border-radius:16px}h1{line-height:1.3}strong{background:#ffedc4;padding:3px 8px;border-radius:5px}li{margin-bottom:15px}small{color:#555}@media(max-width:600px){main{margin:15px;padding:22px}}</style><main><h1>เปิดพรีวิว BSIGN TECH</h1><ol><li>แตกไฟล์ ZIP ทั้งโฟลเดอร์ก่อน</li><li>ดับเบิลคลิก <strong>OPEN-PREVIEW.vbs</strong> ในโฟลเดอร์นี้<br>หรือดับเบิลคลิก START-WINDOWS.cmd ซึ่งเปิดหน้าต่างเดียวกัน</li><li>รอเตรียมระบบครั้งแรก แล้วเว็บจะเปิดในเบราว์เซอร์อัตโนมัติ</li></ol><p>ต้องการแก้ข้อความหรือรูป กด <strong>สร้างบัญชีแอดมิน</strong> ในหน้าต่างพรีวิว จากนั้นตั้งอีเมลและรหัสผ่านของคุณผ่านหน้าเว็บได้เลย</p><p><b>Username คืออีเมลที่คุณตั้งเอง</b> ไม่มีรหัสผ่านสำเร็จรูป ตั้งรหัสผ่านอย่างน้อย 12 ตัวอักษร ถ้ามีบัญชีแล้วแต่จำไม่ได้ กด <strong>บัญชีแอดมิน / ลืมรหัสผ่าน</strong> ในหน้าต่างตัวเปิด เพื่อเลือกอีเมลและตั้งรหัสผ่านใหม่โดยข้อมูลเว็บยังอยู่</p><p>เมื่อใช้งานเสร็จ กด <strong>หยุดพรีวิวและปิด</strong> ข้อมูลจะยังอยู่เมื่อเปิดใหม่</p><hr><h2>อัปเดตจากเวอร์ชันเก่า</h2><p>หยุดพรีวิวเก่า เก็บสำเนาโฟลเดอร์เก่าไว้ แล้วแตก ZIP ใหม่ในอีกโฟลเดอร์ คัดลอก <b>.data</b> และ <b>.env</b> จากโฟลเดอร์เดิมไปโฟลเดอร์ใหม่ก่อนเปิด เพื่อรักษาบัญชี เนื้อหา และรูปภาพ หากกำหนด DATA_DIR เอง ให้รักษาโฟลเดอร์นั้นด้วย</p><h2>หากเปิดไม่ได้</h2><p>ถ้า Windows แจ้งบล็อกไฟล์ที่ดาวน์โหลด: คลิกขวาไฟล์ ZIP → Properties → เลือก Unblock (ถ้ามี) → Apply แล้วแตก ZIP ใหม่ ไม่ต้องปิดโปรแกรมรักษาความปลอดภัยของเครื่อง หากเครื่ององค์กรไม่อนุญาตให้รันสคริปต์ ให้ฝ่ายไอทีอนุญาตตัวเปิดนี้</p><p>ถ้าหน้าต่างพรีวิวแจ้งเตรียมระบบไม่สำเร็จ ตรวจอินเทอร์เน็ตแล้วกด “ลองอีกครั้ง” หรือเปิดบันทึกจากลิงก์ในหน้าต่าง</p><small>รองรับ Windows 10/11 แบบ 64-bit (x64/ARM64) ใช้อินเทอร์เน็ตในการเตรียมครั้งแรก เครื่องมืออยู่ใน .runtime ไม่ต้องติดตั้ง Node.js เอง และไม่ต้องมีสิทธิ์ Administrator เก็บ .data และ .env ไว้เสมอเมื่ออัปเดตเวอร์ชัน</small></main></html>
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>เปิดพรีวิว BSIGN TECH v1.2.0</title>
+    <style>
+      body{font:18px/1.8 system-ui,sans-serif;background:#f7f8fa;color:#171717;margin:0}
+      main{max-width:800px;margin:45px auto;background:white;padding:40px;border-radius:16px}
+      h1,h2{line-height:1.4}strong{background:#ffedc4;padding:3px 8px;border-radius:5px}
+      li{margin-bottom:15px}small{color:#555}code{overflow-wrap:anywhere}
+      @media(max-width:600px){main{margin:15px;padding:22px}}
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>เปิดพรีวิว BSIGN TECH v1.2.0</h1>
+      <ol>
+        <li>ดาวน์โหลด ZIP แล้ว <b>แตกไฟล์ทั้งโฟลเดอร์</b></li>
+        <li>เปิดโฟลเดอร์ที่แตกออกมา ดับเบิลคลิก <strong>START-WINDOWS.cmd</strong><br>ถ้า Explorer ซ่อนนามสกุล จะเห็นชื่อ <b>START-WINDOWS</b></li>
+        <li>หน้าต่าง CMD จะเตรียมระบบอัตโนมัติ รอจนขึ้น <b>Website ready</b> แล้วเว็บไซต์จะเปิดในเบราว์เซอร์เอง ไม่ต้องพิมพ์คำสั่ง</li>
+        <li>ต้องการเข้าหลังบ้าน เพิ่ม <strong>/admin</strong> ต่อท้าย URL เดิม หรือใช้ URL <b>Admin panel</b> ที่แสดงใน CMD</li>
+        <li>เปิดโฟลเดอร์ <strong>.data</strong> แล้วเปิดไฟล์ <strong>initial-admin.txt</strong> ด้วย Notepad คัดลอก <b>Username</b> ไปกรอกช่องอีเมล และ <b>Password</b> ไปกรอกช่องรหัสผ่าน<br>Explorer ที่ซ่อนนามสกุลจะแสดงชื่อไฟล์ <b>initial-admin</b></li>
+      </ol>
+      <p>เปิดหน้าต่าง CMD ค้างไว้ระหว่างพรีวิว เมื่อใช้งานเสร็จ กด <strong>Ctrl+C</strong> ในหน้าต่างนั้นเพื่อหยุด ข้อมูลยังอยู่เมื่อเปิดใหม่</p>
+      <p>ระบบสร้างบัญชีและรหัสผ่านสุ่มบนเครื่องคุณตอนเปิดครั้งแรกที่ยังไม่มีบัญชี ZIP ไม่มีรหัสผ่านฝังมา และ CMD แสดงเฉพาะตำแหน่งไฟล์ หากตั้ง DATA_DIR ใน .env ให้ดูตำแหน่งไฟล์จริงที่ CMD แสดง</p>
+      <p>เมื่อเปิดซ้ำจะใช้บัญชีเดิม หากเปลี่ยนรหัสผ่านแล้ว ให้ใช้รหัสผ่านใหม่ที่คุณตั้ง ค่าใน initial-admin เป็นรหัสเริ่มต้นและไม่เปลี่ยนตาม</p>
+      <hr>
+      <h2>อัปเดตจากเวอร์ชันเก่า</h2>
+      <p>หยุดพรีวิวเก่า เก็บสำเนาโฟลเดอร์เก่าไว้ แล้วแตก ZIP ใหม่ในอีกโฟลเดอร์ คัดลอก <b>.data</b> และ <b>.env</b> จากโฟลเดอร์เดิมไปโฟลเดอร์ใหม่ <b>ก่อนเปิดครั้งแรก</b> เพื่อรักษาบัญชี เนื้อหา และรูปภาพ รวมไฟล์ initial-admin ถ้ามี หากกำหนด DATA_DIR เอง ให้รักษาโฟลเดอร์ข้อมูลนั้นด้วย</p>
+      <h2>มีบัญชีเดิม แต่ไม่พบ initial-admin หรือจำรหัสไม่ได้</h2>
+      <p>บัญชีที่ตั้งเองในรุ่นก่อนจะใช้รหัสเดิม ระบบไม่เขียนทับหรือตั้งใหม่อัตโนมัติ ถ้าจำไม่ได้ ให้หยุดพรีวิวแบบ CMD ก่อน แล้วเปิด <strong>OPEN-PREVIEW.vbs</strong> กด <strong>บัญชีแอดมิน / ลืมรหัสผ่าน</strong> เพื่อเลือกอีเมลและตั้งรหัสผ่านใหม่ ข้อมูลเว็บไซต์ยังอยู่</p>
+      <h2>หากเปิดไม่ได้</h2>
+      <p>ถ้า Windows บล็อกไฟล์ที่ดาวน์โหลด: คลิกขวา ZIP → Properties → Unblock (ถ้ามี) → Apply แล้วแตก ZIP ใหม่ หากเครื่ององค์กรห้าม PowerShell ให้ฝ่ายไอทีอนุญาตตัวเปิดนี้</p>
+      <p>ถ้าเตรียมระบบไม่สำเร็จ อ่านข้อความใน CMD ตรวจอินเทอร์เน็ต และเปิดบันทึก <code>.runtime/logs/setup.log</code> ด้วย Notepad แล้วลองเปิด START-WINDOWS ใหม่</p>
+      <small>ใช้ Node.js portable ใน .runtime ไม่ต้องติดตั้ง Node.js เองหรือใช้สิทธิ์ Administrator ต้องใช้อินเทอร์เน็ตเตรียมครั้งแรก รองรับการดาวน์โหลดเครื่องมือสำหรับ Windows 64-bit (x64/ARM64) ดูผลทดสอบจริงใน docs/VALIDATION.md เก็บ .data และ .env ไว้เสมอเมื่ออัปเดต และเก็บไฟล์ initial-admin กับผู้ดูแลที่มีสิทธิ์เท่านั้น</small>
+    </main>
+  </body>
+</html>

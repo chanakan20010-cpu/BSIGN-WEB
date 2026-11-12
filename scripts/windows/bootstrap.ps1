@@ -33,7 +33,7 @@ function Stop-BsignOwnedProcess($Process) {
         }
     } catch { }
 }
-function Invoke-BsignProcess([string]$Executable, [string[]]$Arguments, [string]$WorkingDirectory, [string]$LogPath) {
+function Invoke-BsignProcess([string]$Executable, [string[]]$Arguments, [string]$WorkingDirectory, [string]$LogPath, [switch]$ShowOutput) {
     $info = New-Object System.Diagnostics.ProcessStartInfo
     $info.FileName = $Executable
     $info.Arguments = ($Arguments | ForEach-Object { Quote-BsignArgument $_ }) -join ' '
@@ -50,6 +50,7 @@ function Invoke-BsignProcess([string]$Executable, [string[]]$Arguments, [string]
         $process.WaitForExit()
         $output = $stdout.GetAwaiter().GetResult() + $stderr.GetAwaiter().GetResult()
         [IO.File]::AppendAllText($LogPath, $output, [Text.Encoding]::UTF8)
+        if($ShowOutput -and $output.Trim()){Write-Host $output.Trim()}
         if ($process.ExitCode -ne 0) { throw "ขั้นตอนเตรียมระบบไม่สำเร็จ (รหัส $($process.ExitCode)) ดูรายละเอียดที่ปุ่มเปิดบันทึก" }
         return $output.Trim()
     } finally { Stop-BsignOwnedProcess $process; $process.Dispose() }
@@ -89,7 +90,7 @@ function Get-BsignFingerprint([string[]]$Files,[string]$Salt) {
 function Test-BsignStamp([string]$File,[string]$Expected) {
     return (Test-Path -LiteralPath $File) -and ([IO.File]::ReadAllText($File) -eq $Expected)
 }
-function Initialize-BsignProject([string]$ProjectRoot) {
+function Initialize-BsignProject([string]$ProjectRoot, [switch]$Console) {
     if (-not (Test-Path -LiteralPath (Join-Path $ProjectRoot 'package.json'))) {
         throw 'ไม่พบไฟล์โปรเจกต์ กรุณาแตก ZIP ทั้งโฟลเดอร์ก่อนเปิดพรีวิว'
     }
@@ -117,7 +118,7 @@ function Initialize-BsignProject([string]$ProjectRoot) {
             Move-Item -LiteralPath (Join-Path $stage $folderName) -Destination $nodeDirectory
         } finally { if(Test-Path -LiteralPath $stage){Remove-Item -LiteralPath $stage -Recurse -Force} }
     }
-    $actualVersion = Invoke-BsignProcess $node @('--version') $ProjectRoot $logFile
+    $actualVersion = Invoke-BsignProcess $node @('--version') $ProjectRoot $logFile -ShowOutput:$Console
     if ($actualVersion -ne ('v'+$manifest.version)) { throw 'เวอร์ชันเครื่องมือในโฟลเดอร์ .runtime ไม่ตรง กรุณาปิดและลบเฉพาะโฟลเดอร์ .runtime แล้วลองใหม่' }
     # This change affects only this launcher and its children, never the machine PATH.
     $env:PATH = $nodeDirectory + [IO.Path]::PathSeparator + $env:PATH
@@ -126,7 +127,7 @@ function Initialize-BsignProject([string]$ProjectRoot) {
     $depsStamp = Join-Path $runtimeRoot 'dependencies.stamp'
     if (-not ((Test-BsignStamp $depsStamp $deps) -and (Test-Path -LiteralPath (Join-Path $ProjectRoot 'node_modules\.package-lock.json')))) {
         Write-BsignStatus 'กำลังเตรียมส่วนประกอบของเว็บไซต์ (ครั้งแรกต้องใช้อินเทอร์เน็ต)…'
-        $null = Invoke-BsignProcess $node @($npm,'ci','--include=dev','--no-audit','--no-fund','--strict-ssl=true','--cache',(Join-Path $runtimeRoot 'npm-cache')) $ProjectRoot $logFile
+        $null = Invoke-BsignProcess $node @($npm,'ci','--include=dev','--no-audit','--no-fund','--strict-ssl=true','--cache',(Join-Path $runtimeRoot 'npm-cache')) $ProjectRoot $logFile -ShowOutput:$Console
         [IO.File]::WriteAllText($depsStamp,$deps)
     }
     $files = @((Join-Path $ProjectRoot 'index.html'),(Join-Path $ProjectRoot 'vite.config.js'))
@@ -135,18 +136,19 @@ function Initialize-BsignProject([string]$ProjectRoot) {
     $buildStamp = Join-Path $runtimeRoot 'build.stamp'
     if (-not ((Test-BsignStamp $buildStamp $buildHash) -and (Test-Path -LiteralPath (Join-Path $ProjectRoot 'dist\index.html')))) {
         Write-BsignStatus 'กำลังจัดเตรียมหน้าพรีวิว…'
-        $null = Invoke-BsignProcess $node @($npm,'run','build') $ProjectRoot $logFile
+        $null = Invoke-BsignProcess $node @($npm,'run','build') $ProjectRoot $logFile -ShowOutput:$Console
         [IO.File]::WriteAllText($buildStamp,$buildHash)
     }
     if (-not (Test-Path -LiteralPath (Join-Path $ProjectRoot '.env'))) { Copy-Item -LiteralPath (Join-Path $ProjectRoot '.env.example') -Destination (Join-Path $ProjectRoot '.env') }
     return @{Node=$node;RuntimeRoot=$runtimeRoot;Log=$logFile}
 }
-function Start-BsignServer([string]$ProjectRoot,$Prepared) {
+function Start-BsignServer([string]$ProjectRoot,$Prepared,[switch]$InitialAdmin) {
     Write-BsignStatus 'กำลังเปิดเว็บไซต์…'
     $stateFile = Join-Path $Prepared.RuntimeRoot ('run-'+[Guid]::NewGuid().ToString('N')+'.json')
     $info = New-Object Diagnostics.ProcessStartInfo
     $info.FileName = $Prepared.Node
     $arguments = @('--env-file-if-exists=.env','server/preview.js',$stateFile)
+    if($InitialAdmin){$arguments += '--initial-admin'}
     $info.Arguments = ($arguments | ForEach-Object {Quote-BsignArgument $_}) -join ' '
     $info.WorkingDirectory = $ProjectRoot
     $info.UseShellExecute=$false; $info.CreateNoWindow=$true
@@ -161,7 +163,7 @@ function Start-BsignServer([string]$ProjectRoot,$Prepared) {
             if([DateTime]::UtcNow -gt $deadline){throw 'เปิดพรีวิวไม่ทันเวลา กรุณาลองใหม่'}
             Start-Sleep -Milliseconds 100
         }
-        $state=Get-Content -LiteralPath $stateFile -Raw | ConvertFrom-Json
+        $state=Get-Content -LiteralPath $stateFile -Raw -Encoding UTF8 | ConvertFrom-Json
         $result=Get-BsignStatus $state
         if($result.product -ne 'BSIGN-LOCAL-PREVIEW' -or $result.pid -ne $process.Id){throw 'ไม่สามารถยืนยันพรีวิวของโปรเจกต์นี้ได้'}
         [IO.File]::WriteAllText((Join-Path $Prepared.RuntimeRoot 'active-state.txt'),$stateFile)

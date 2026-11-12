@@ -31,19 +31,18 @@ jobs:
           git -C source archive --format=zip --output=$archive HEAD
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           Expand-Archive -LiteralPath $archive -DestinationPath $env:BSIGN_PREVIEW_FOLDER
-      - name: Verify portable startup and cached restart
+      - name: Verify START-WINDOWS console, generated account and restart
         shell: powershell
         working-directory: 'BSIGN Preview ทดสอบ'
         run: |
-          try { & ./scripts/windows/preview.ps1 -SmokeTest }
-          catch {
-            $message = ($_.Exception.GetBaseException().Message + ' | ' + $_.ScriptStackTrace) -replace '[\r\n]+',' '
-            Write-Host "::error title=Portable startup::$message"
+          & ./START-WINDOWS.cmd -SmokeTest
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host '::error title=START-WINDOWS::Console preview failed; see setup output below'
             if (Test-Path '.runtime/logs/setup.log') {
               $tail = ((Get-Content '.runtime/logs/setup.log' -Tail 12) -join ' ') -replace '[\r\n]+',' '
               Write-Host "::error title=Setup output::$tail"
             }
-            exit 1
+            exit $LASTEXITCODE
           }
       - name: Verify Windows Forms controller
         shell: powershell
@@ -69,7 +68,7 @@ jobs:
         run: |
           $node = Join-Path $PWD '.runtime/node-v24.22.1-win-x64/node.exe'
           $env:PATH = (Split-Path $node) + ';' + $env:PATH
-          & $node --test --test-concurrency=1 tests/api.test.js tests/preview.test.js
+          & $node --test --test-concurrency=1 tests/api.test.js tests/preview.test.js tests/initial-admin.test.js
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: First-admin setup in Windows Edge
         shell: powershell
@@ -78,4 +77,12 @@ jobs:
           $node = Join-Path $PWD '.runtime/node-v24.22.1-win-x64/node.exe'
           $env:CHROMIUM_PATH = Join-Path ${env:ProgramFiles(x86)} 'Microsoft/Edge/Application/msedge.exe'
           & $node tests/preview-browser.js
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Generated file account login in Windows Edge
+        shell: powershell
+        working-directory: 'BSIGN Preview ทดสอบ'
+        run: |
+          $node = Join-Path $PWD '.runtime/node-v24.22.1-win-x64/node.exe'
+          $env:CHROMIUM_PATH = Join-Path ${env:ProgramFiles(x86)} 'Microsoft/Edge/Application/msedge.exe'
+          & $node tests/initial-admin-browser.js
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
