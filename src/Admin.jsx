@@ -295,15 +295,21 @@ export default function Admin() {
     }
   }
   async function save() {
+    const submitted = clone(draft);
     setBusy(true);
     setStatus("");
     try {
       const saved = await api("/admin/documents/" + tab, {
         method: "PATCH",
-        body: { revision: docs[tab].revision, patch: draft },
+        body: { revision: docs[tab].revision, patch: submitted },
       });
       setDocs((d) => ({ ...d, [tab]: saved }));
-      if (currentTab.current === tab) setDraft(clone(saved.value));
+      if (currentTab.current === tab)
+        setDraft((current) =>
+          JSON.stringify(current) === JSON.stringify(submitted)
+            ? clone(saved.value)
+            : current,
+        );
       site.setContent((c) => ({ ...c, [tab]: saved.value }));
       setSavedAt(new Date());
       notice("บันทึกแล้ว");

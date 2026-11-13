@@ -185,6 +185,42 @@ try {
   await expect(page).toHaveURL(/view=home/);
   await expect(homeTitle).toHaveValue("หัวข้อจากตัวแก้ไข UX ใหม่");
   checks++;
+  // Simulate a slow save while the user continues typing. The successful
+  // response must not replace newer text that has not been submitted yet.
+  const submittedTitle = "หัวข้อก่อนบันทึกระหว่างรอ";
+  await homeTitle.fill(submittedTitle);
+  let releaseSave;
+  const saveGate = new Promise((resolve) => {
+    releaseSave = resolve;
+  });
+  const delayedPatch = async (route) => {
+    if (route.request().method() === "PATCH") await saveGate;
+    await route.continue();
+  };
+  await page.route("**/api/admin/documents/home", delayedPatch);
+  try {
+    const requested = page.waitForRequest(
+      (request) =>
+        request.url().endsWith("/api/admin/documents/home") &&
+        request.method() === "PATCH",
+    );
+    await page
+      .getByRole("button", { name: "บันทึกการเปลี่ยนแปลง", exact: true })
+      .click();
+    await requested;
+    await homeTitle.fill("หัวข้อจากตัวแก้ไข UX ใหม่");
+    releaseSave();
+    await page.getByText("บันทึกแล้ว", { exact: true }).waitFor();
+    assert.equal((await content()).home.title[0].text.th, submittedTitle);
+    await expect(homeTitle).toHaveValue("หัวข้อจากตัวแก้ไข UX ใหม่");
+    await expect(
+      page.getByRole("button", { name: "บันทึกการเปลี่ยนแปลง", exact: true }),
+    ).toBeEnabled();
+  } finally {
+    releaseSave();
+    await page.unroute("**/api/admin/documents/home", delayedPatch);
+  }
+  checks++;
   await page
     .getByRole("button", { name: "บันทึกการเปลี่ยนแปลง", exact: true })
     .click();
