@@ -1,94 +1,65 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import {
-  ArrowLeft,
-  ArrowRight,
-  Eye,
-  EyeOff,
-  FileText,
-  Image,
-  KeyRound,
-  Layers3,
-  ShieldCheck,
-} from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, CircleHelp } from "lucide-react";
 import { AdminBrand } from "./AdminShell";
 import "./admin.css";
+
 function AuthStory() {
   return (
     <section className="cms-auth-story" aria-labelledby="cms-auth-story-title">
-      <p className="cms-eyebrow">YOUR CONTENT. YOUR NEXT CHAPTER.</p>
-      <h1 id="cms-auth-story-title">
-        พื้นที่ของไอเดีย
-        <br />
-        ที่พร้อมเติบโต<span>.</span>
-      </h1>
-      <p className="cms-auth-intro">
-        ทุกข้อความ ทุกภาพ และทุกเรื่องราวของ BSIGN TECH
-        <br className="cms-desktop-break" /> จัดการได้อย่างเป็นระบบจากพื้นที่ทำงานเดียว
-      </p>
-      <div className="cms-auth-network" aria-hidden="true">
-        <span className="cms-network-ring cms-network-ring-one" />
-        <span className="cms-network-ring cms-network-ring-two" />
-        <span className="cms-network-axis" />
-        <span className="cms-network-axis cms-network-axis-two" />
-        <span className="cms-network-core">
-          B<span>BSIGN TECH</span>
-        </span>
-        <span className="cms-network-node cms-network-node-one">
-          <FileText size={22} />
-        </span>
-        <span className="cms-network-node cms-network-node-two">
-          <Image size={22} />
-        </span>
-        <span className="cms-network-node cms-network-node-three">
-          <Layers3 size={22} />
-        </span>
-        <i className="cms-network-dot" />
+      <div className="cms-login-brand">
+        <AdminBrand />
       </div>
-      <div className="cms-auth-story-footer">
-        <span>01 — CONTENT WORKSPACE</span>
-        <span>สร้างสรรค์ · จัดการ · เผยแพร่</span>
+      <div className="cms-auth-story-copy">
+        <p className="cms-eyebrow">A WORKSPACE FOR YOUR NEXT CHAPTER</p>
+        <h1 id="cms-auth-story-title">
+          ดูแลทุกเรื่องราว
+          <br />
+          ให้เติบโตไปด้วยกัน
+        </h1>
+        <p className="cms-auth-intro">
+          จัดการเนื้อหา ภาพ และข่าวสารของ BSIGN TECH
+          <br className="cms-desktop-break" /> ให้พร้อมเชื่อมต่อกับทุกโอกาส
+        </p>
+        <div className="cms-login-rule" />
+        <p className="cms-login-tagline">Built for your next update.</p>
       </div>
+      <div className="cms-auth-story-footer">BSIGN TECH Co., Ltd.</div>
     </section>
   );
 }
+
 export function AdminAuthFrame({ title, description, children }) {
   return (
-    <main className="admin cms-auth">
-      <header className="cms-auth-header">
-        <AdminBrand />
-        <Link to="/" className="cms-auth-back">
-          <ArrowLeft size={16} aria-hidden="true" />
-          กลับไปเว็บไซต์
-        </Link>
-      </header>
+    <main lang="th" className="admin cms-auth">
       <div className="cms-auth-frame">
         <AuthStory />
         <section
           className="cms-auth-panel"
           aria-labelledby="cms-auth-action-title"
         >
+          <Link to="/" className="cms-auth-back">
+            <ArrowLeft size={16} aria-hidden="true" />
+            กลับไปยังเว็บไซต์
+          </Link>
           <div className="cms-auth-form-wrap">
-            <span className="cms-auth-lock" aria-hidden="true">
-              <ShieldCheck size={25} strokeWidth={1.6} />
-            </span>
-            <p className="cms-auth-welcome">ยินดีต้อนรับกลับมา</p>
-            <h2 id="cms-auth-action-title">{title}</h2>
-            <p className="cms-auth-description">{description}</p>
+            <div className="cms-auth-heading">
+              <AdminBrand compact />
+              <p className="cms-auth-welcome">WELCOME BACK</p>
+              <h2 id="cms-auth-action-title">{title}</h2>
+              <p className="cms-auth-description">{description}</p>
+            </div>
             {children}
           </div>
           <p className="cms-auth-panel-footer">
-            BSIGN TECH · พื้นที่สำหรับผู้ดูแลเว็บไซต์
+            © {new Date().getFullYear()} BSIGN TECH Co., Ltd.
           </p>
         </section>
       </div>
-      <footer className="cms-auth-footer">
-        <span>BSIGN TECH CONTENT MANAGEMENT</span>
-        <span>จัดการอย่างชัดเจน พร้อมสำหรับทุกการเติบโต</span>
-      </footer>
     </main>
   );
 }
+
 export default function AdminLogin({ busy, status, onSubmit }) {
   const [visible, setVisible] = useState(false),
     [caps, setCaps] = useState(false);
@@ -96,7 +67,7 @@ export default function AdminLogin({ busy, status, onSubmit }) {
   return (
     <AdminAuthFrame
       title="เข้าสู่ระบบจัดการเว็บไซต์"
-      description="เข้าสู่พื้นที่ทำงานของคุณเพื่ออัปเดตเนื้อหาเว็บไซต์"
+      description="พื้นที่สำหรับผู้ดูแลเว็บไซต์ BSIGN TECH"
     >
       <form onSubmit={onSubmit} aria-busy={busy}>
         <label>
@@ -107,7 +78,7 @@ export default function AdminLogin({ busy, status, onSubmit }) {
             autoComplete="username"
             required
             maxLength={254}
-            placeholder="อีเมลผู้ดูแลเว็บไซต์"
+            placeholder="อีเมลผู้ดูแลระบบ"
           />
         </label>
         <label>
@@ -120,7 +91,7 @@ export default function AdminLogin({ busy, status, onSubmit }) {
               required
               maxLength={200}
               placeholder="กรอกรหัสผ่านของคุณ"
-              onKeyUp={(e) => setCaps(e.getModifierState("CapsLock"))}
+              onKeyUp={(event) => setCaps(event.getModifierState("CapsLock"))}
             />
             <button
               type="button"
@@ -162,19 +133,16 @@ export default function AdminLogin({ busy, status, onSubmit }) {
               กำลังเข้าสู่ระบบ…
             </>
           ) : (
-            <>
-              เข้าสู่ระบบ
-              <ArrowRight size={19} aria-hidden="true" />
-            </>
+            "เข้าสู่ระบบ"
           )}
         </button>
       </form>
       <div className="cms-auth-note">
-        <KeyRound size={18} aria-hidden="true" />
+        <CircleHelp size={19} aria-hidden="true" />
         <div>
-          <b>ใช้งานครั้งแรก?</b>
           <p>
-            ใช้ Username และ Password จากไฟล์ <code>initial-admin.txt</code>
+            เข้าใช้งานครั้งแรก? ใช้บัญชีที่สร้างไว้ในไฟล์ <code>initial-admin.txt</code>{" "}
+            ของโปรเจกต์
           </p>
           <details>
             <summary>ดูวิธีค้นหาบัญชีผู้ดูแล</summary>

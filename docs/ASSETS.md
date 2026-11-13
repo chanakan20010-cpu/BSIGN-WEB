@@ -9,3 +9,7 @@
 - รูปอัปโหลดบันทึก source/license ในตาราง media; SVG ถูก sanitize ฝั่ง server ก่อนเก็บ ใช้ `<img>` หรือ CSS mask ไม่แทรก markup ที่อัปโหลดลง DOM
 - ภาพ raster เปลี่ยนสีภายในไม่ได้; ใช้สีต้นฉบับและเปลี่ยนเฉพาะพื้นหลังได้
 - ไอคอนภายใน Google Maps, browser UI, native form validation และเครื่องมือช่วยการเข้าถึงของระบบปฏิบัติการอยู่นอก CMS
+
+## ฟอนต์ระบบหลังบ้าน v1.4.0
+
+ใช้ Prompt และ Inter แบบ bundled ผ่าน @fontsource ตามรูปแบบของโปรเจกต์ตัวอย่าง ใบอนุญาต SIL Open Font License อยู่ใน `public/licenses/prompt-OFL.txt` และ `public/licenses/inter-OFL.txt` แหล่งแพ็กเกจ: https://fontsource.org/fonts/prompt และ https://fontsource.org/fonts/inter สไตล์ข้อความของหน้าสาธารณะยังใช้การตั้งค่าส่วนกลางเดิม

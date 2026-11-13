@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { createContext, useContext, useState } from "react";
 import {
   ArrowDown,
   ArrowUp,
@@ -6,10 +6,39 @@ import {
   Plus,
   RotateCcw,
   Trash2,
-  Type,
   Palette,
 } from "lucide-react";
 import { useSite, Site, Typography, Picture, Icon, iconNames } from "../shared";
+
+// A language switch changes the visible controls, never the stored object.
+// Leaving the context empty retains paired controls for existing integrations.
+export const EditorLanguageContext = createContext(null);
+export function LanguageSwitcher({ value, onChange }) {
+  return (
+    <div
+      className="cms-language-options"
+      role="group"
+      aria-label="ภาษาที่กำลังแก้ไข"
+    >
+      {[
+        ["th", "TH", "ภาษาไทย"],
+        ["en", "EN", "English"],
+      ].map(([key, code, name]) => (
+        <button
+          key={key}
+          type="button"
+          className={value === key ? "is-active" : ""}
+          aria-label={key === "th" ? "แก้ไขภาษาไทย" : "แก้ไขภาษาอังกฤษ"}
+          aria-pressed={value === key}
+          onClick={() => onChange(key)}
+        >
+          <b>{code}</b>
+          <span>{name}</span>
+        </button>
+      ))}
+    </div>
+  );
+}
 
 const labels = {
   global: "ข้อมูลส่วนกลาง",
@@ -228,6 +257,7 @@ function TextControl({ value, onChange, path, label }) {
       {multiline ? (
         <textarea
           aria-label={label}
+          lang={path.endsWith(".en") ? "en" : undefined}
           value={value}
           rows={heading ? 2 : /body|privacy/.test(path) ? 7 : 4}
           onChange={(e) => onChange(e.target.value)}
@@ -235,6 +265,7 @@ function TextControl({ value, onChange, path, label }) {
       ) : (
         <input
           aria-label={label}
+          lang={path.endsWith(".en") ? "en" : undefined}
           value={value}
           type="text"
           onChange={(e) => onChange(e.target.value)}
@@ -263,25 +294,28 @@ function emptyArrayItem(path) {
 }
 
 export function Field({ value, onChange, path = "", media = [] }) {
+  const language = useContext(EditorLanguageContext);
   const key = path.split(".").at(-1),
     label = fieldLabel(path);
   if (isBilingual(value))
     return (
-      <fieldset className="cms-field-group">
+      <fieldset className="cms-field-group cms-bilingual-field">
         <legend>{label}</legend>
-        <div className="cms-languages">
+        <div className="cms-languages" data-language={language || "both"}>
           {[
             ["th", "ไทย"],
             ["en", "English"],
-          ].map(([language, languageLabel]) => (
-            <TextControl
-              key={language}
-              path={`${path}.${language}`}
-              label={languageLabel}
-              value={value[language]}
-              onChange={(x) => onChange({ ...value, [language]: x })}
-            />
-          ))}
+          ]
+            .filter(([key]) => !language || key === language)
+            .map(([language, languageLabel]) => (
+              <TextControl
+                key={language}
+                path={`${path}.${language}`}
+                label={languageLabel}
+                value={value[language]}
+                onChange={(x) => onChange({ ...value, [language]: x })}
+              />
+            ))}
         </div>
         {Object.entries(value)
           .filter(([k]) => !["th", "en"].includes(k))
@@ -1013,11 +1047,28 @@ export function StyleEditor({ value, onChange }) {
           </button>
         ))}
       </div>
-      <div className="cms-editor-layout">
+      <div className="cms-editor-layout cms-style-workspace">
         <section className="cms-card">
           <div className="cms-card-header">
-            <Type size={20} aria-hidden="true" />
+            <span className="cms-style-symbol" aria-hidden="true">
+              {{
+                hero: "H1",
+                heading: "H2",
+                subheading: "H3",
+                body: "Aa",
+                highlight: "Hi",
+              }[kind] || "Aa"}
+            </span>
             <div>
+              <span className="cms-style-caption">
+                {{
+                  hero: "MAIN HEADING",
+                  heading: "SECTION HEADING",
+                  subheading: "SUBHEADING",
+                  body: "BODY TEXT",
+                  highlight: "HIGHLIGHT",
+                }[kind] || "TYPOGRAPHY"}
+              </span>
               <h3>{title}</h3>
               <p className="cms-muted">{description}</p>
             </div>
@@ -1072,33 +1123,73 @@ export function StyleEditor({ value, onChange }) {
                 </select>
               </label>
             </div>
-            <div
-              data-tone={
-                ["inverse", "footer"].includes(kind) ? "dark" : "light"
-              }
-              className="cms-type-sample"
-            >
+            <div className="cms-type-sample" data-tone="light">
               <Typography styles={previewStyles}>
-                <p className={`type-${kind}`}>
-                  {language === "th" ? (
-                    <>
-                      ออกแบบอนาคต
-                      <br />
-                      ให้ธุรกิจเติบโต
-                    </>
-                  ) : (
-                    <>
-                      Engineer the future.
-                      <br />
-                      Build what’s next.
-                    </>
+                <div className="cms-style-preview-paper" lang={language}>
+                  <span className="cms-preview-eyebrow">
+                    BSIGN TECH · TYPOGRAPHY PREVIEW
+                  </span>
+                  <p className="type-hero" data-selected={kind === "hero"}>
+                    {language === "th" ? (
+                      <>
+                        ออกแบบอนาคต
+                        <br />
+                        ให้ธุรกิจเติบโต
+                      </>
+                    ) : (
+                      <>
+                        Engineer the future.
+                        <br />
+                        Build what’s next.
+                      </>
+                    )}
+                  </p>
+                  <p
+                    className="type-heading"
+                    data-selected={kind === "heading"}
+                  >
+                    {language === "th"
+                      ? "สร้างคุณค่าไปด้วยกัน"
+                      : "Create lasting value, together."}
+                  </p>
+                  <p className="type-body" data-selected={kind === "body"}>
+                    {language === "th"
+                      ? "สถาปัตยกรรมดิจิทัลและวิศวกรรมอัจฉริยะ เชื่อมเทคโนโลยีกับเป้าหมายขององค์กร ด้วยประสบการณ์และความใส่ใจในทุกรายละเอียด"
+                      : "Digital architecture and intelligent engineering, connecting technology with your business goals through thoughtful design and attention to every detail."}
+                  </p>
+                  <p
+                    className="type-highlight"
+                    data-selected={kind === "highlight"}
+                  >
+                    {language === "th"
+                      ? "มุ่งมั่นสู่อนาคตที่ดีกว่า"
+                      : "Building a better tomorrow."}
+                  </p>
+                  {!["hero", "heading", "body", "highlight"].includes(kind) && (
+                    <div
+                      className="cms-selected-type-sample"
+                      data-tone={
+                        ["inverse", "footer"].includes(kind) ? "dark" : "light"
+                      }
+                    >
+                      <small>{title}</small>
+                      <p className={`type-${kind}`}>
+                        {language === "th"
+                          ? "เทคโนโลยีที่เติบโตไปพร้อมธุรกิจของคุณ"
+                          : "Technology that grows with your business."}
+                      </p>
+                    </div>
                   )}
-                </p>
-                <p className={`type-${kind}`}>
-                  {language === "th"
-                    ? "สถาปัตยกรรมดิจิทัลและวิศวกรรมอัจฉริยะ เชื่อมเทคโนโลยีกับเป้าหมายขององค์กร"
-                    : "Digital architecture and intelligent engineering, connecting technology with your business goals."}
-                </p>
+                  <div className="cms-preview-rule" />
+                  <div className="cms-preview-footer">
+                    <span>
+                      {language === "th"
+                        ? "มาตรฐานเดียวกันในทุกหน้า"
+                        : "One consistent voice, everywhere"}
+                    </span>
+                    <span>TH / EN</span>
+                  </div>
+                </div>
               </Typography>
             </div>
             <p className="cms-muted">

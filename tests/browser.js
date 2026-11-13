@@ -149,7 +149,20 @@ try {
   await page.getByLabel("รหัสผ่าน", { exact: true }).fill(password);
   await page.getByRole("button", { name: "เข้าสู่ระบบ", exact: true }).click();
   await page.getByRole("heading", { name: "BSIGN TECH · CMS" }).waitFor();
-  await page.getByRole("button", { name: "หน้าแรก", exact: true }).click();
+  async function adminNavigate(parent, tabs, child) {
+    await page
+      .locator(".cms-navigation")
+      .getByRole("button", { name: parent, exact: true })
+      .click();
+    if (tabs)
+      await page
+        .locator(tabs)
+        .getByRole("button", { name: child, exact: true })
+        .click();
+  }
+
+  await adminNavigate("ข้อมูลเว็บไซต์", ".cms-website-tabs", "หน้าแรก");
+  await page.getByRole("button", { name: "แก้ไขภาษาไทย", exact: true }).click();
   await page
     .getByLabel("ไทย", { exact: true })
     .first()
@@ -159,7 +172,7 @@ try {
     .click();
   await page.getByText("บันทึกแล้ว", { exact: true }).waitFor();
   checks++;
-  await page.getByRole("button", { name: "รูปภาพและไฟล์", exact: true }).click();
+  await adminNavigate("คลังรูปภาพและไฟล์");
   await page.locator("input[type=file]").setInputFiles({
     name: "browser.svg",
     mimeType: "image/svg+xml",
@@ -172,14 +185,15 @@ try {
   await page.getByRole("button", { name: "อัปโหลดและตรวจไฟล์" }).click();
   await page.getByText("อัปโหลดแล้ว", { exact: true }).waitFor();
   checks++;
-  await page.getByRole("button", { name: "หน้าแรก", exact: true }).click();
+  await adminNavigate("ข้อมูลเว็บไซต์", ".cms-website-tabs", "หน้าแรก");
+  await page.getByRole("button", { name: "แก้ไขภาษาไทย", exact: true }).click();
   await page.getByLabel("เลือกจากคลัง").first().selectOption({ index: 1 });
   await page
     .getByRole("button", { name: "บันทึกการเปลี่ยนแปลง", exact: true })
     .click();
   await page.getByText("บันทึกแล้ว", { exact: true }).waitFor();
   checks++;
-  await page.getByRole("button", { name: "ไอคอน", exact: true }).click();
+  await adminNavigate("สไตล์เว็บไซต์", ".cms-design-tabs", "ไอคอน");
   await page.getByLabel("คลังไอคอน").selectOption("Rocket");
   await page.getByLabel("สีไอคอน (SVG / ไอคอนสำเร็จรูป)").fill("#123456");
   await page

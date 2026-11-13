@@ -24,7 +24,15 @@ import { api } from "./api";
 import { useSite } from "./shared";
 import AdminShell from "./admin/AdminShell";
 import AdminLogin from "./admin/AdminLogin";
-import { Field, IconEditor, StyleEditor } from "./admin/Editors";
+import {
+  Field,
+  IconEditor,
+  StyleEditor,
+  EditorLanguageContext,
+  LanguageSwitcher,
+} from "./admin/Editors";
+import Dashboard from "./admin/Dashboard";
+import "./admin/fonts.css";
 import {
   ArticlesPanel,
   MediaPanel,
@@ -50,205 +58,6 @@ function Empty({ icon: Glyph = Inbox, title, children }) {
       <h3>{title}</h3>
       <p>{children}</p>
     </div>
-  );
-}
-function Dashboard({ overview, onNavigate }) {
-  if (!overview)
-    return (
-      <div className="cms-card cms-skeleton" role="status">
-        กำลังโหลดภาพรวม…
-      </div>
-    );
-  const { counts, recentArticles, recentContacts, system } = overview;
-  return (
-    <>
-      <section className="cms-overview-banner">
-        <div>
-          <span className="cms-eyebrow">YOUR CONTENT, CONNECTED</span>
-          <h3>
-            พื้นที่สำหรับทุกเรื่องราว
-            <br />
-            ของ BSIGN TECH
-          </h3>
-          <p>ดูแลเนื้อหาให้เป็นปัจจุบัน แล้วส่งต่อเรื่องราวที่ดีให้ผู้เข้าชม</p>
-          <button className="cms-primary" onClick={() => onNavigate("home")}>
-            แก้ไขหน้าแรก <ArrowUpRight size={17} />
-          </button>
-        </div>
-        <div className="cms-banner-art" aria-hidden="true">
-          <span>CONTENT</span>
-          <strong>
-            B<span>+</span>
-          </strong>
-          <small>DESIGN · BUILD · CONNECT</small>
-        </div>
-      </section>
-      <section className="cms-metrics" aria-label="สรุปข้อมูลเว็บไซต์">
-        {[
-          [
-            "articles",
-            "บทความทั้งหมด",
-            counts.articles,
-            counts.published + " เผยแพร่ · " + counts.draft + " ฉบับร่าง",
-            FileText,
-          ],
-          [
-            "contacts",
-            "ข้อความที่ยังไม่อ่าน",
-            counts.unread,
-            counts.contacts + " ข้อความทั้งหมด",
-            Inbox,
-          ],
-          ["media", "ไฟล์ในคลังสื่อ", counts.media, "ภาพและไอคอนที่อัปโหลด", Image],
-          [
-            "subscribers",
-            "ผู้สมัครรับข่าวสาร",
-            counts.subscribers,
-            "รายชื่ออีเมลที่บันทึกไว้",
-            Users,
-          ],
-        ].map(([key, label, note, detail, Glyph]) => (
-          <button
-            className="cms-metric"
-            key={key}
-            onClick={() => onNavigate(key)}
-          >
-            <span className="cms-metric-top">
-              <Glyph size={20} />
-              <ArrowUpRight size={16} />
-            </span>
-            <span>{label}</span>
-            <strong>{note}</strong>
-            <small>{detail}</small>
-          </button>
-        ))}
-      </section>
-      <div className="cms-grid cms-grid-2">
-        <section className="cms-card">
-          <div className="cms-card-header">
-            <div>
-              <h3>ข่าวสารล่าสุด</h3>
-              <p>ติดตามบทความที่ทีมกำลังดูแล</p>
-            </div>
-            <button
-              className="cms-text-button"
-              onClick={() => onNavigate("articles")}
-            >
-              ดูทั้งหมด <ArrowRight size={16} />
-            </button>
-          </div>
-          {recentArticles.length ? (
-            <div className="cms-recent-list">
-              {recentArticles.map((a) => (
-                <button
-                  className="cms-recent-row"
-                  onClick={() => onNavigate("articles")}
-                  key={a.id}
-                >
-                  <span className="cms-recent-icon">
-                    <FileText size={19} />
-                  </span>
-                  <span>
-                    <strong>{a.title.th || a.title.en}</strong>
-                    <small>{dateText(a.publishedAt)}</small>
-                  </span>
-                  <span
-                    className="cms-badge"
-                    data-tone={a.status === "draft" ? "warning" : "success"}
-                  >
-                    {a.status === "draft"
-                      ? "ฉบับร่าง"
-                      : Date.parse(a.publishedAt) > Date.now()
-                        ? "ตั้งเวลา"
-                        : "เผยแพร่"}
-                  </span>
-                </button>
-              ))}
-            </div>
-          ) : (
-            <Empty icon={FileText} title="เริ่มต้นด้วยบทความแรก">
-              เขียนข่าวหรือความเคลื่อนไหวจากทีมงานได้ที่จัดการบทความ
-            </Empty>
-          )}
-        </section>
-        <section className="cms-card">
-          <div className="cms-card-header">
-            <div>
-              <h3>ข้อความล่าสุด</h3>
-              <p>การติดต่อใหม่จากหน้าเว็บไซต์</p>
-            </div>
-            <button
-              className="cms-text-button"
-              onClick={() => onNavigate("contacts")}
-              aria-label="เปิดกล่องข้อความ"
-            >
-              <ArrowUpRight size={19} />
-            </button>
-          </div>
-          {recentContacts.length ? (
-            <div className="cms-recent-list">
-              {recentContacts.map((c) => (
-                <button
-                  className="cms-recent-row"
-                  onClick={() => onNavigate("contacts")}
-                  key={c.id}
-                >
-                  <span className="cms-avatar">{c.name.slice(0, 1)}</span>
-                  <span>
-                    <strong>{c.name}</strong>
-                    <small>{c.email}</small>
-                  </span>
-                  <span
-                    className="cms-badge"
-                    data-tone={c.status === "new" ? "warning" : "success"}
-                  >
-                    {c.status === "new" ? "ใหม่" : "อ่านแล้ว"}
-                  </span>
-                </button>
-              ))}
-            </div>
-          ) : (
-            <Empty title="ยังไม่มีข้อความใหม่">
-              เมื่อมีผู้ติดต่อผ่านแบบฟอร์ม ข้อความจะแสดงที่นี่
-            </Empty>
-          )}
-        </section>
-      </div>
-      <section className="cms-card">
-        <div className="cms-card-header">
-          <div>
-            <h3>เลือกงานที่ต้องการทำ</h3>
-            <p>เข้าถึงส่วนที่ใช้บ่อยได้จากที่เดียว</p>
-          </div>
-        </div>
-        <div className="cms-quick-grid">
-          {[
-            ["global", "ข้อมูลและแบรนด์", "โลโก้ เมนู และข้อมูลบริษัท", Globe],
-            ["styles", "สไตล์ตัวอักษร", "ตัวอักษรที่สอดคล้องทุกหน้า", Palette],
-            ["system", "ข้อมูลระบบ", "ตรวจสถานะและการสำรอง", ShieldCheck],
-          ].map(([key, label, desc, Glyph]) => (
-            <button
-              className="cms-quick-link"
-              onClick={() => onNavigate(key)}
-              key={key}
-            >
-              <Glyph size={22} />
-              <span>
-                <strong>{label}</strong>
-                <small>{desc}</small>
-              </span>
-              <ArrowUpRight size={17} />
-            </button>
-          ))}
-        </div>
-      </section>
-      <div className="cms-overview-foot">
-        <span>
-          <i className="cms-status-dot" /> ฐานข้อมูลเชื่อมต่อปกติ
-        </span>
-        <span>BSIGN TECH CMS · v{system.version}</span>
-      </div>
-    </>
   );
 }
 function SystemPanel({ overview, onRefresh }) {
@@ -360,7 +169,8 @@ export default function Admin() {
     [search, setSearch] = useState(""),
     [section, setSection] = useState(null),
     [articleDirty, setArticleDirty] = useState(false),
-    [savedAt, setSavedAt] = useState(null);
+    [savedAt, setSavedAt] = useState(null),
+    [language, setLanguage] = useState("th");
   const currentTab = useRef(tab);
   currentTab.current = tab;
   const dirty = Boolean(
@@ -594,71 +404,44 @@ export default function Admin() {
           {tab === "system" && (
             <SystemPanel overview={overview} onRefresh={refreshOverview} />
           )}
+          {sections[tab] && (
+            <nav className="cms-website-tabs" aria-label="หน้าเว็บไซต์">
+              {[
+                ["global", "ข้อมูลบริษัท"],
+                ["home", "หน้าแรก"],
+                ["about", "เกี่ยวกับเรา"],
+                ["news", "ข่าวสาร"],
+                ["contact", "ติดต่อเรา"],
+                ["cta", "แบนเนอร์ติดต่อ"],
+              ].map(([key, label]) => (
+                <button
+                  key={key}
+                  aria-current={tab === key ? "page" : undefined}
+                  onClick={() => navigate(key)}
+                >
+                  {label}
+                </button>
+              ))}
+            </nav>
+          )}
+          {["styles", "icons"].includes(tab) && (
+            <nav className="cms-design-tabs" aria-label="การออกแบบเว็บไซต์">
+              {[
+                ["styles", "ตัวอักษร"],
+                ["icons", "ไอคอน"],
+              ].map(([key, label]) => (
+                <button
+                  key={key}
+                  aria-current={tab === key ? "page" : undefined}
+                  onClick={() => navigate(key)}
+                >
+                  {label}
+                </button>
+              ))}
+            </nav>
+          )}
           {docs[tab] && draft && draftTab === tab && (
             <>
-              <div className="cms-document-hint">
-                <LayoutTemplate size={17} />
-                <span>แก้ไขข้อมูลแล้วกดบันทึกเพื่อเผยแพร่บนเว็บไซต์</span>
-                <span
-                  className="cms-badge"
-                  data-tone={dirty ? "warning" : "success"}
-                >
-                  {dirty ? "ยังไม่บันทึก" : "ตรงกับข้อมูลที่บันทึก"}
-                </span>
-              </div>
-              {tab === "styles" ? (
-                <StyleEditor value={draft} onChange={setDraft} />
-              ) : tab === "icons" ? (
-                <IconEditor
-                  value={draft}
-                  onChange={setDraft}
-                  media={media}
-                  defaults={defaults.icons}
-                />
-              ) : (
-                <div className="cms-editor-layout">
-                  <nav className="cms-section-nav" aria-label="ส่วนที่ต้องการแก้ไข">
-                    {groups.map(([key, label, desc], index) => (
-                      <button
-                        key={key}
-                        onClick={() => setSection(key)}
-                        aria-current={active?.[0] === key ? "true" : undefined}
-                      >
-                        <span>{String(index + 1).padStart(2, "0")}</span>
-                        <div>
-                          <strong>{label}</strong>
-                          <small>{desc}</small>
-                        </div>
-                      </button>
-                    ))}
-                  </nav>
-                  {active && (
-                    <section className="cms-card cms-editor-card">
-                      <div className="cms-card-header">
-                        <div>
-                          <h3>{active[1]}</h3>
-                          <p>{active[2]}</p>
-                        </div>
-                      </div>
-                      <div className="cms-card-body cms-document-fields">
-                        {active[3]
-                          .filter((k) => Object.hasOwn(draft, k))
-                          .map((k) => (
-                            <Field
-                              key={tab + "." + k}
-                              path={tab + "." + k}
-                              value={draft[k]}
-                              media={media}
-                              onChange={(v) =>
-                                setDraft((d) => ({ ...d, [k]: v }))
-                              }
-                            />
-                          ))}
-                      </div>
-                    </section>
-                  )}
-                </div>
-              )}
               <div className="cms-savebar">
                 <div>
                   <span className="cms-save-indicator" data-dirty={dirty} />
@@ -698,6 +481,75 @@ export default function Admin() {
                   </button>
                 </div>
               </div>
+              {sections[tab] && (
+                <div className="cms-language-bar">
+                  <div>
+                    <Globe size={21} />
+                    <div>
+                      <strong>
+                        กำลังแก้ไขฉบับ{language === "th" ? "ภาษาไทย" : "English"}
+                      </strong>
+                      <p>แก้ไขภาษาที่เลือก แล้วบันทึกข้อมูลทั้งสองภาษาพร้อมกัน</p>
+                    </div>
+                  </div>
+                  <LanguageSwitcher value={language} onChange={setLanguage} />
+                </div>
+              )}
+              {tab === "styles" ? (
+                <StyleEditor value={draft} onChange={setDraft} />
+              ) : tab === "icons" ? (
+                <IconEditor
+                  value={draft}
+                  onChange={setDraft}
+                  media={media}
+                  defaults={defaults.icons}
+                />
+              ) : (
+                <div className="cms-editor-layout">
+                  <nav className="cms-section-nav" aria-label="ส่วนที่ต้องการแก้ไข">
+                    {groups.map(([key, label, desc], index) => (
+                      <button
+                        key={key}
+                        onClick={() => setSection(key)}
+                        aria-current={active?.[0] === key ? "true" : undefined}
+                      >
+                        <span>{String(index + 1).padStart(2, "0")}</span>
+                        <div>
+                          <strong>{label}</strong>
+                          <small>{desc}</small>
+                        </div>
+                      </button>
+                    ))}
+                  </nav>
+                  {active && (
+                    <section className="cms-card cms-editor-card">
+                      <div className="cms-card-header">
+                        <div>
+                          <h3>{active[1]}</h3>
+                          <p>{active[2]}</p>
+                        </div>
+                      </div>
+                      <div className="cms-card-body cms-document-fields">
+                        <EditorLanguageContext.Provider value={language}>
+                          {active[3]
+                            .filter((k) => Object.hasOwn(draft, k))
+                            .map((k) => (
+                              <Field
+                                key={tab + "." + k}
+                                path={tab + "." + k}
+                                value={draft[k]}
+                                media={media}
+                                onChange={(v) =>
+                                  setDraft((d) => ({ ...d, [k]: v }))
+                                }
+                              />
+                            ))}
+                        </EditorLanguageContext.Provider>
+                      </div>
+                    </section>
+                  )}
+                </div>
+              )}
               <div className="cms-editor-utilities">
                 <button
                   className="cms-text-button"

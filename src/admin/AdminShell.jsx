@@ -3,67 +3,43 @@ import { Link } from "react-router-dom";
 import {
   ArrowUpRight,
   ChevronRight,
-  CircleHelp,
   Database,
   FileText,
   Globe2,
-  House,
   Image,
   Inbox,
   LayoutDashboard,
-  LayoutTemplate,
   LogOut,
   Menu,
   Palette,
-  PanelTop,
   Search,
   Settings2,
   ShieldCheck,
-  Sparkles,
   Users,
   X,
 } from "lucide-react";
 import "./admin.css";
-const groups = [
-  { label: "พื้นที่ทำงาน", items: [["dashboard", "ภาพรวม", LayoutDashboard]] },
-  {
-    label: "เนื้อหาเว็บไซต์",
-    items: [
-      ["home", "หน้าแรก", House],
-      ["about", "เกี่ยวกับเรา", LayoutTemplate],
-      ["news", "ข่าวสาร / หมวดหมู่", FileText],
-      ["contact", "ติดต่อเรา / ฟอร์ม / แผนที่", Globe2],
-      ["global", "ส่วนกลาง / เมนู / บริษัท", Settings2],
-      ["cta", "แบนเนอร์ติดต่อ", PanelTop],
-    ],
-  },
-  {
-    label: "คลังคอนเทนต์",
-    items: [
-      ["articles", "จัดการบทความ", FileText],
-      ["media", "รูปภาพและไฟล์", Image],
-    ],
-  },
-  {
-    label: "ภาพลักษณ์แบรนด์",
-    items: [
-      ["styles", "สไตล์ตัวอักษร", Palette],
-      ["icons", "ไอคอน", Sparkles],
-    ],
-  },
-  {
-    label: "ดูแลและตั้งค่า",
-    items: [
-      ["contacts", "ข้อความติดต่อ", Inbox],
-      ["subscribers", "ผู้สมัครรับข่าวสาร", Users],
-      ["password", "เปลี่ยนรหัสผ่าน", ShieldCheck],
-      ["system", "ข้อมูลระบบ", Database],
-    ],
-  },
+
+const websiteViews = ["global", "home", "about", "news", "contact", "cta"];
+const items = [
+  ["dashboard", "ภาพรวม", LayoutDashboard, "overview"],
+  ["articles", "ข่าวสารและบทความ", FileText, "จัดการบทความ news posts"],
+  [
+    "global",
+    "ข้อมูลเว็บไซต์",
+    Settings2,
+    "หน้าแรก เกี่ยวกับเรา ข่าวสาร หมวดหมู่ ติดต่อเรา ฟอร์ม แผนที่ แบนเนอร์ เมนู บริษัท home about news contact cta",
+  ],
+  ["media", "คลังรูปภาพและไฟล์", Image, "รูปภาพและไฟล์ สื่อ media"],
+  ["styles", "สไตล์เว็บไซต์", Palette, "สไตล์ตัวอักษร ไอคอน styles icons"],
+  ["contacts", "กล่องข้อความ", Inbox, "ข้อความติดต่อ contacts"],
+  ["subscribers", "ผู้รับข่าวสาร", Users, "ผู้สมัครรับข่าวสาร subscribers"],
+  ["system", "ระบบและการสำรองข้อมูล", Database, "ข้อมูลระบบ ฐานข้อมูล system"],
 ];
-export function AdminBrand() {
+
+export function AdminBrand({ compact = false }) {
   return (
-    <span className="cms-brand">
+    <span className={"cms-brand" + (compact ? " cms-brand-compact" : "")}>
       <span className="cms-brand-mark" aria-hidden="true">
         B<span />
       </span>
@@ -71,11 +47,12 @@ export function AdminBrand() {
         <b>
           BSIGN<span>TECH</span>
         </b>
-        <small>CONTENT WORKSPACE</small>
+        <small>CONTENT MANAGEMENT</small>
       </span>
     </span>
   );
 }
+
 export default function AdminShell({
   tab,
   title,
@@ -96,6 +73,12 @@ export default function AdminShell({
     close = useRef(null),
     heading = useRef(null),
     previousTab = useRef(tab);
+  const active = websiteViews.includes(tab)
+    ? "global"
+    : tab === "icons"
+      ? "styles"
+      : tab;
+
   useEffect(() => {
     const query = window.matchMedia("(max-width: 900px)");
     const changed = () => {
@@ -119,25 +102,27 @@ export default function AdminShell({
       overflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     close.current?.focus();
-    const keydown = (e) => {
-      if (e.key === "Escape") {
-        e.preventDefault();
+    const keydown = (event) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
         setOpen(false);
         return;
       }
-      if (e.key !== "Tab") return;
+      if (event.key !== "Tab") return;
       const elements = [
         ...sidebar.current.querySelectorAll(
           "button:not(:disabled), input, a[href]",
         ),
-      ].filter((el) => el.offsetParent !== null && el.tabIndex >= 0);
+      ].filter(
+        (element) => element.offsetParent !== null && element.tabIndex >= 0,
+      );
       const first = elements[0],
         last = elements.at(-1);
-      if (e.shiftKey && document.activeElement === first) {
-        e.preventDefault();
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
         last?.focus();
-      } else if (!e.shiftKey && document.activeElement === last) {
-        e.preventDefault();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
         first?.focus();
       }
     };
@@ -148,18 +133,17 @@ export default function AdminShell({
       if (previous?.isConnected) previous.focus();
     };
   }, [open, mobile]);
+
   function navigate(key) {
     if (onNavigate(key) !== false) setOpen(false);
   }
   const query = search.trim().toLowerCase();
-  const visible = groups
-    .map((g) => ({
-      ...g,
-      items: g.items.filter(([k, l]) => (k + l).toLowerCase().includes(query)),
-    }))
-    .filter((g) => g.items.length);
+  const visible = items.filter(([key, label, , aliases]) =>
+    (key + label + aliases).toLowerCase().includes(query),
+  );
+
   return (
-    <div className={`admin cms${open ? " cms-menu-open" : ""}`}>
+    <div lang="th" className={"admin cms" + (open ? " cms-menu-open" : "")}>
       {mobile && open && (
         <button
           type="button"
@@ -195,33 +179,29 @@ export default function AdminShell({
           <span className="cms-sr-only">ค้นหาหมวด</span>
           <input
             value={search}
-            onChange={(e) => onSearch?.(e.target.value)}
+            onChange={(event) => onSearch?.(event.target.value)}
             placeholder="ค้นหาเมนู…"
           />
         </label>
+        <p className="cms-nav-label">WORKSPACE</p>
         <nav className="cms-navigation" aria-label="หมวดการจัดการ">
-          {visible.map((g) => (
-            <div className="cms-nav-group" key={g.label}>
-              <p className="cms-nav-label">{g.label}</p>
-              {g.items.map(([key, label, Glyph]) => (
-                <button
-                  key={key}
-                  type="button"
-                  className="cms-nav-button"
-                  aria-label={label}
-                  aria-current={tab === key ? "page" : undefined}
-                  onClick={() => navigate(key)}
-                >
-                  <Glyph size={18} strokeWidth={1.7} aria-hidden="true" />
-                  <span>{label}</span>
-                  {typeof counts[key] === "number" && counts[key] > 0 && (
-                    <small className="cms-nav-count" aria-hidden="true">
-                      {counts[key] > 99 ? "99+" : counts[key]}
-                    </small>
-                  )}
-                </button>
-              ))}
-            </div>
+          {visible.map(([key, label, Glyph]) => (
+            <button
+              key={key}
+              type="button"
+              className="cms-nav-button"
+              aria-label={label}
+              aria-current={active === key ? "page" : undefined}
+              onClick={() => navigate(key)}
+            >
+              <Glyph size={19} strokeWidth={1.6} aria-hidden="true" />
+              <span>{label}</span>
+              {key === "contacts" && counts.unread > 0 && (
+                <small className="cms-nav-count" aria-hidden="true">
+                  {counts.unread > 99 ? "99+" : counts.unread}
+                </small>
+              )}
+            </button>
           ))}
           {!visible.length && (
             <div className="cms-nav-empty">
@@ -234,21 +214,33 @@ export default function AdminShell({
           )}
         </nav>
         <div className="cms-sidebar-footer">
-          <div className="cms-sidebar-tip">
-            <CircleHelp size={17} aria-hidden="true" />
-            <span>
-              เลือกหมวด แล้วแก้ไขได้ทีละส่วน
-              <br />
-              <small>ตรวจตัวอย่างก่อนบันทึกทุกครั้ง</small>
-            </span>
-          </div>
+          <button
+            type="button"
+            className="cms-bottom-link"
+            aria-label="ความปลอดภัย"
+            aria-current={tab === "password" ? "page" : undefined}
+            onClick={() => navigate("password")}
+          >
+            <ShieldCheck size={19} strokeWidth={1.6} aria-hidden="true" />
+            <span>ความปลอดภัย</span>
+          </button>
+          <Link
+            to="/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="cms-bottom-link"
+          >
+            <Globe2 size={19} strokeWidth={1.6} aria-hidden="true" />
+            <span>ดูเว็บไซต์</span>
+            <ArrowUpRight size={16} aria-hidden="true" />
+          </Link>
           <div className="cms-account">
             <span className="cms-avatar" aria-hidden="true">
-              AD
+              B
             </span>
             <span>
-              <b>ผู้ดูแลเว็บไซต์</b>
-              <small>BSIGN TECH Workspace</small>
+              <b>ผู้ดูแลระบบ</b>
+              <small>สิทธิ์ผู้ดูแลเว็บไซต์</small>
             </span>
             <button
               type="button"
@@ -273,16 +265,17 @@ export default function AdminShell({
               aria-expanded={open}
               onClick={() => setOpen(true)}
             >
-              <Menu size={21} aria-hidden="true" />
+              <Menu size={22} aria-hidden="true" />
             </button>
-            <h1>BSIGN TECH · CMS</h1>
+            <h1 className="cms-sr-only">BSIGN TECH · CMS</h1>
+            <span className="cms-breadcrumb-home">พื้นที่จัดการ</span>
             <ChevronRight size={14} aria-hidden="true" />
             <span>{title}</span>
           </div>
           <div className="cms-topbar-actions">
             <span className="cms-workspace-label">
               <i />
-              {loading ? "กำลังโหลดข้อมูล" : "พื้นที่จัดการเว็บไซต์"}
+              {loading ? "กำลังโหลดข้อมูล" : "ระบบจัดการเว็บไซต์"}
             </span>
             <Link
               to="/"
@@ -302,24 +295,19 @@ export default function AdminShell({
         >
           <div className="cms-page-heading">
             <div>
-              <p className="cms-eyebrow">BSIGN TECH WORKSPACE</p>
+              <p className="cms-eyebrow">BSIGN TECH CONTENT MANAGEMENT</p>
               <h2 tabIndex={-1} ref={heading}>
                 {title}
               </h2>
               <p>{description}</p>
             </div>
-            <span className="cms-page-index" aria-hidden="true">
-              /{tab === "dashboard" ? "OVERVIEW" : tab.toUpperCase()}
-            </span>
           </div>
           <div className="cms-main-content">{children}</div>
-          <footer className="cms-workspace-footer">
-            <span>
-              BSIGN TECH <b>CONTENT WORKSPACE</b>
-            </span>
-            <span>พื้นที่ทำงานสำหรับผู้ดูแลเว็บไซต์</span>
-          </footer>
         </main>
+        <footer className="cms-workspace-footer">
+          <span>BSIGN TECH Content Management</span>
+          <span>พื้นที่สำหรับผู้ดูแลเว็บไซต์</span>
+        </footer>
       </div>
     </div>
   );

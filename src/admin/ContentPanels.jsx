@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 import { api } from "../api";
 import { Picture } from "../shared";
-import { Field } from "./Editors";
+import { EditorLanguageContext, Field, LanguageSwitcher } from "./Editors";
 
 const copy = (v) => structuredClone(v);
 const date = (v) => {
@@ -218,6 +218,7 @@ export function ArticlesPanel({
 }) {
   const { items, loading, error, reload } = useCollection("/admin/articles");
   const [article, setArticle] = useState(null),
+    [articleLanguage, setArticleLanguage] = useState("th"),
     [baseline, setBaseline] = useState(""),
     [query, setQuery] = useState(""),
     [filter, setFilter] = useState("all"),
@@ -237,6 +238,7 @@ export function ArticlesPanel({
   function openArticle(a) {
     const next = copy(a);
     setArticle(next);
+    setArticleLanguage("th");
     setBaseline(JSON.stringify(next));
   }
   function back() {
@@ -251,6 +253,7 @@ export function ArticlesPanel({
       return;
     }
     if (!article.title.th.trim()) {
+      setArticleLanguage("th");
       onNotice?.("กรุณาใส่ชื่อบทความภาษาไทย", "error");
       return;
     }
@@ -314,200 +317,221 @@ export function ArticlesPanel({
         ].includes(k),
     );
     return (
-      <form className="cms-article-form" onSubmit={save}>
-        <div className="cms-toolbar">
-          <button
-            type="button"
-            className="cms-secondary"
-            onClick={back}
-            disabled={busy}
-          >
-            <ArrowLeft size={16} />
-            กลับรายการ
-          </button>
-          <span className="cms-badge" data-tone={dirty ? "warning" : "neutral"}>
-            {dirty
-              ? "มีการแก้ไขที่ยังไม่บันทึก"
-              : article.id
-                ? "แก้ไขบทความ"
-                : "บทความใหม่"}
-          </span>
-        </div>
-        <div className="cms-editor-layout">
-          <div className="cms-article-content">
-            <section className="cms-card">
-              <div className="cms-card-header">
-                <div>
-                  <h3>เนื้อหาบทความ</h3>
-                  <p>เรียบเรียงเรื่องราวสำหรับผู้อ่านภาษาไทยและภาษาอังกฤษ</p>
-                </div>
-              </div>
-              <div className="cms-card-body">
-                <Field
-                  path="articles.title"
-                  value={article.title}
-                  onChange={(v) => update("title", v)}
-                />
-                <Field
-                  path="articles.excerpt"
-                  value={article.excerpt}
-                  onChange={(v) => update("excerpt", v)}
-                />
-                <Field
-                  path="articles.body"
-                  value={article.body}
-                  onChange={(v) => update("body", v)}
-                />
-              </div>
-            </section>
-            <section className="cms-card">
-              <div className="cms-card-header">
-                <div>
-                  <h3>รูปภาพบทความ</h3>
-                  <p>เลือกรูปหน้าปกและคำอธิบายเพื่อให้เข้าถึงเนื้อหาได้ครบถ้วน</p>
-                </div>
-              </div>
-              <div className="cms-card-body">
-                <Field
-                  path="articles.image"
-                  value={article.image}
-                  media={media}
-                  onChange={(v) => update("image", v)}
-                />
-                <Field
-                  path="articles.gallery"
-                  value={article.gallery}
-                  media={media}
-                  onChange={(v) => update("gallery", v)}
-                />
-              </div>
-            </section>
-            {extras.length > 0 && (
+      <EditorLanguageContext.Provider value={articleLanguage}>
+        <form className="cms-article-form" onSubmit={save}>
+          <div className="cms-toolbar">
+            <button
+              type="button"
+              className="cms-secondary"
+              onClick={back}
+              disabled={busy}
+            >
+              <ArrowLeft size={16} />
+              กลับรายการ
+            </button>
+            <span
+              className="cms-badge"
+              data-tone={dirty ? "warning" : "neutral"}
+            >
+              {dirty
+                ? "มีการแก้ไขที่ยังไม่บันทึก"
+                : article.id
+                  ? "แก้ไขบทความ"
+                  : "บทความใหม่"}
+            </span>
+          </div>
+          <section className="cms-language-bar">
+            <div>
+              <strong>
+                {articleLanguage === "th"
+                  ? "กำลังแก้ไขบทความภาษาไทย"
+                  : "กำลังแก้ไขบทความภาษาอังกฤษ"}
+              </strong>
+              <p>สลับภาษาเพื่อแก้เนื้อหา ข้อมูลทั้งสองภาษาจะบันทึกพร้อมกัน</p>
+            </div>
+            <LanguageSwitcher
+              value={articleLanguage}
+              onChange={setArticleLanguage}
+            />
+          </section>
+          <div className="cms-editor-layout cms-article-layout">
+            <div className="cms-article-content">
               <section className="cms-card">
                 <div className="cms-card-header">
-                  <h3>เนื้อหาและรูปภาพเพิ่มเติม</h3>
+                  <div>
+                    <h3>{article.id ? "แก้ไขบทความ" : "สร้างบทความใหม่"}</h3>
+                    <p>เรียบเรียงเรื่องราวและคำโปรยสำหรับผู้อ่าน</p>
+                  </div>
                 </div>
                 <div className="cms-card-body">
-                  {extras.map((k) =>
-                    article[k] === null &&
-                    ["heroImage", "inlineImage"].includes(k) ? (
-                      <button
-                        key={k}
-                        type="button"
-                        className="cms-secondary"
-                        onClick={() => update(k, imageEmpty())}
-                      >
-                        <ImagePlus size={16} />
-                        เพิ่ม{k === "heroImage" ? "ภาพส่วนหัวบทความ" : "ภาพในเนื้อหา"}
-                      </button>
-                    ) : (
-                      <Field
-                        key={k}
-                        path={"articles." + k}
-                        value={article[k]}
-                        media={media}
-                        onChange={(v) => update(k, v)}
-                      />
-                    ),
-                  )}
+                  <Field
+                    path="articles.title"
+                    value={article.title}
+                    onChange={(v) => update("title", v)}
+                  />
+                  <Field
+                    path="articles.excerpt"
+                    value={article.excerpt}
+                    onChange={(v) => update("excerpt", v)}
+                  />
+                  <Field
+                    path="articles.body"
+                    value={article.body}
+                    onChange={(v) => update("body", v)}
+                  />
                 </div>
               </section>
-            )}
-          </div>
-          <aside className="cms-article-settings cms-card">
-            <div className="cms-card-header">
-              <h3>ตั้งค่าการเผยแพร่</h3>
-            </div>
-            <div className="cms-card-body">
-              <label>
-                ลิงก์บทความ
-                <input
-                  name="slug"
-                  value={article.slug}
-                  onChange={(e) => update("slug", e.target.value)}
-                  pattern="[a-z0-9-]+"
-                  maxLength={150}
-                  required
-                  placeholder="company-news"
-                />
-                <small className="cms-muted">
-                  /news/{article.slug || "ชื่อบทความ"} · ใช้ a–z, 0–9 และ -
-                </small>
-              </label>
-              <label>
-                หมวดหมู่บทความ
-                <select
-                  name="category"
-                  value={article.category}
-                  onChange={(e) => update("category", e.target.value)}
-                  required
-                >
-                  {categories.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.label.th || c.id}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label>
-                สถานะบทความ
-                <select
-                  name="status"
-                  value={article.status}
-                  onChange={(e) => update("status", e.target.value)}
-                >
-                  <option value="draft">ฉบับร่าง</option>
-                  <option value="published">เผยแพร่</option>
-                </select>
-              </label>
-              <label>
-                วันและเวลาเผยแพร่
-                <input
-                  type="datetime-local"
-                  name="publishedAt"
-                  value={localDate(article.publishedAt)}
-                  required
-                  onChange={(e) =>
-                    update(
-                      "publishedAt",
-                      e.target.value
-                        ? new Date(e.target.value).toISOString()
-                        : "",
-                    )
-                  }
-                />
-                <small className="cms-muted">
-                  ใช้เวลาท้องถิ่นของเครื่อง หากเลือกเวลาในอนาคต บทความจะปรากฏเมื่อถึงกำหนด
-                </small>
-              </label>
-              <span
-                className="cms-badge"
-                data-tone={statusTone[effectiveStatus(article)]}
-              >
-                {statusNames[effectiveStatus(article)]}
-              </span>
-              <button className="cms-primary" type="submit" disabled={busy}>
-                <Save size={16} />
-                {busy ? "กำลังบันทึก…" : "บันทึกบทความ"}
-              </button>
-              {article.id && (
-                <a
-                  className="cms-secondary"
-                  href={"/news/" + article.slug}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <Eye size={16} />
-                  ดูหน้าบทความ
-                </a>
+              <section className="cms-card">
+                <div className="cms-card-header">
+                  <div>
+                    <h3>รูปภาพบทความ</h3>
+                    <p>เลือกรูปหน้าปกและคำอธิบายเพื่อให้เข้าถึงเนื้อหาได้ครบถ้วน</p>
+                  </div>
+                </div>
+                <div className="cms-card-body">
+                  <Field
+                    path="articles.image"
+                    value={article.image}
+                    media={media}
+                    onChange={(v) => update("image", v)}
+                  />
+                  <Field
+                    path="articles.gallery"
+                    value={article.gallery}
+                    media={media}
+                    onChange={(v) => update("gallery", v)}
+                  />
+                </div>
+              </section>
+              {extras.length > 0 && (
+                <section className="cms-card">
+                  <div className="cms-card-header">
+                    <h3>เนื้อหาและรูปภาพเพิ่มเติม</h3>
+                  </div>
+                  <div className="cms-card-body">
+                    {extras.map((k) =>
+                      article[k] === null &&
+                      ["heroImage", "inlineImage"].includes(k) ? (
+                        <button
+                          key={k}
+                          type="button"
+                          className="cms-secondary"
+                          onClick={() => update(k, imageEmpty())}
+                        >
+                          <ImagePlus size={16} />
+                          เพิ่ม
+                          {k === "heroImage" ? "ภาพส่วนหัวบทความ" : "ภาพในเนื้อหา"}
+                        </button>
+                      ) : (
+                        <Field
+                          key={k}
+                          path={"articles." + k}
+                          value={article[k]}
+                          media={media}
+                          onChange={(v) => update(k, v)}
+                        />
+                      ),
+                    )}
+                  </div>
+                </section>
               )}
-              <p className="cms-muted">
-                ฉบับร่างและบทความที่ยังไม่ถึงเวลาเผยแพร่จะไม่แสดงบนเว็บไซต์
-              </p>
             </div>
-          </aside>
-        </div>
-      </form>
+            <aside className="cms-article-settings cms-card">
+              <div className="cms-card-header">
+                <h3>ตั้งค่าการเผยแพร่</h3>
+              </div>
+              <div className="cms-card-body">
+                <label>
+                  ลิงก์บทความ
+                  <input
+                    name="slug"
+                    value={article.slug}
+                    onChange={(e) => update("slug", e.target.value)}
+                    pattern="[a-z0-9-]+"
+                    maxLength={150}
+                    required
+                    placeholder="company-news"
+                  />
+                  <small className="cms-muted">
+                    /news/{article.slug || "ชื่อบทความ"} · ใช้ a–z, 0–9 และ -
+                  </small>
+                </label>
+                <label>
+                  หมวดหมู่บทความ
+                  <select
+                    name="category"
+                    value={article.category}
+                    onChange={(e) => update("category", e.target.value)}
+                    required
+                  >
+                    {categories.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.label.th || c.id}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  สถานะบทความ
+                  <select
+                    name="status"
+                    value={article.status}
+                    onChange={(e) => update("status", e.target.value)}
+                  >
+                    <option value="draft">ฉบับร่าง</option>
+                    <option value="published">เผยแพร่</option>
+                  </select>
+                </label>
+                <label>
+                  วันและเวลาเผยแพร่
+                  <input
+                    type="datetime-local"
+                    name="publishedAt"
+                    value={localDate(article.publishedAt)}
+                    required
+                    onChange={(e) =>
+                      update(
+                        "publishedAt",
+                        e.target.value
+                          ? new Date(e.target.value).toISOString()
+                          : "",
+                      )
+                    }
+                  />
+                  <small className="cms-muted">
+                    ใช้เวลาท้องถิ่นของเครื่อง หากเลือกเวลาในอนาคต
+                    บทความจะปรากฏเมื่อถึงกำหนด
+                  </small>
+                </label>
+                <span
+                  className="cms-badge"
+                  data-tone={statusTone[effectiveStatus(article)]}
+                >
+                  {statusNames[effectiveStatus(article)]}
+                </span>
+                <button className="cms-primary" type="submit" disabled={busy}>
+                  <Save size={16} />
+                  {busy ? "กำลังบันทึก…" : "บันทึกบทความ"}
+                </button>
+                {article.id && (
+                  <a
+                    className="cms-secondary"
+                    href={"/news/" + article.slug}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <Eye size={16} />
+                    ดูหน้าบทความ
+                  </a>
+                )}
+                <p className="cms-muted">
+                  ฉบับร่างและบทความที่ยังไม่ถึงเวลาเผยแพร่จะไม่แสดงบนเว็บไซต์
+                </p>
+              </div>
+            </aside>
+          </div>
+        </form>
+      </EditorLanguageContext.Provider>
     );
   }
   const q = query.trim().toLowerCase();

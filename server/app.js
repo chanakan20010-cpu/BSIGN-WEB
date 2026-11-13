@@ -435,6 +435,11 @@ export function createApp({
         .map((a) => ({
           id: a.id,
           title: { th: a.title.th, en: a.title.en },
+          image: {
+            url: a.image?.url || "",
+            alt: { th: a.image?.alt?.th || "", en: a.image?.alt?.en || "" },
+            crop: a.image?.crop || null,
+          },
           status: a.status,
           publishedAt: a.publishedAt,
         })),
@@ -461,7 +466,8 @@ export function createApp({
         smtpConfigured: Boolean(
           process.env.SMTP_HOST && process.env.MAIL_FROM && process.env.MAIL_TO,
         ),
-        schemaVersion: db.prepare("SELECT max(version) AS version FROM migrations")
+        schemaVersion: db
+          .prepare("SELECT max(version) AS version FROM migrations")
           .get().version,
       },
     });

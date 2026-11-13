@@ -33,6 +33,7 @@ try {
     await page.screenshot({
       path: "test-results/" + name + ".png",
       fullPage: true,
+      animations: "disabled",
     });
   }
   async function audit(name) {
@@ -60,6 +61,17 @@ try {
     checks++;
   }
   async function navigate(label) {
+    const aliases = {
+      หน้าแรก: ["ข้อมูลเว็บไซต์", ".cms-website-tabs", "หน้าแรก"],
+      จัดการบทความ: ["ข่าวสารและบทความ"],
+      รูปภาพและไฟล์: ["คลังรูปภาพและไฟล์"],
+      สไตล์ตัวอักษร: ["สไตล์เว็บไซต์", ".cms-design-tabs", "ตัวอักษร"],
+      ไอคอน: ["สไตล์เว็บไซต์", ".cms-design-tabs", "ไอคอน"],
+      ข้อความติดต่อ: ["กล่องข้อความ"],
+      ผู้สมัครรับข่าวสาร: ["ผู้รับข่าวสาร"],
+      ข้อมูลระบบ: ["ระบบและการสำรองข้อมูล"],
+    };
+    const [parent, tabs, child] = aliases[label] || [label];
     const toggle = page.getByRole("button", {
       name: "เปิดเมนูจัดการ",
       exact: true,
@@ -71,12 +83,25 @@ try {
       await toggle.click();
     await page
       .locator(".cms-navigation")
-      .getByRole("button", { name: new RegExp("^" + label) })
+      .getByRole("button", { name: parent, exact: true })
       .click();
     await expect(page.locator(".cms-main")).not.toHaveAttribute(
       "aria-busy",
       "true",
     );
+    if (tabs)
+      await page
+        .locator(tabs)
+        .getByRole("button", { name: child, exact: true })
+        .click();
+  }
+  async function editLanguage(language) {
+    await page
+      .getByRole("button", {
+        name: language === "th" ? "แก้ไขภาษาไทย" : "แก้ไขภาษาอังกฤษ",
+        exact: true,
+      })
+      .click();
   }
   async function request(method, url, body) {
     return page.evaluate(
@@ -145,6 +170,8 @@ try {
   await page.getByLabel("ค้นหาหมวด", { exact: true }).fill("");
   checks++;
   await navigate("หน้าแรก");
+  await editLanguage("th");
+  const initialEnglish = (await content()).home.title[0].text.en;
   const homeTitle = page.getByLabel("ไทย", { exact: true }).first();
   await homeTitle.fill("หัวข้อจากตัวแก้ไข UX ใหม่");
   await expect(
@@ -153,7 +180,7 @@ try {
   page.once("dialog", (dialog) => dialog.dismiss());
   await page
     .locator(".cms-navigation")
-    .getByRole("button", { name: /^จัดการบทความ/ })
+    .getByRole("button", { name: "ข่าวสารและบทความ", exact: true })
     .click();
   await expect(page).toHaveURL(/view=home/);
   await expect(homeTitle).toHaveValue("หัวข้อจากตัวแก้ไข UX ใหม่");
@@ -163,6 +190,33 @@ try {
     .click();
   await page.getByText("บันทึกแล้ว", { exact: true }).waitFor();
   assert.equal((await content()).home.title[0].text.th, "หัวข้อจากตัวแก้ไข UX ใหม่");
+  assert.equal(
+    (await content()).home.title[0].text.en,
+    initialEnglish,
+    "Saving Thai must retain English content",
+  );
+  await editLanguage("en");
+  await expect(page.getByLabel("ไทย", { exact: true })).toHaveCount(0);
+  const englishTitle = page.getByLabel("English", { exact: true }).first();
+  await englishTitle.fill("English heading saved through the language tab");
+  await editLanguage("th");
+  await expect(homeTitle).toHaveValue("หัวข้อจากตัวแก้ไข UX ใหม่");
+  await editLanguage("en");
+  await expect(englishTitle).toHaveValue(
+    "English heading saved through the language tab",
+  );
+  await page
+    .getByRole("button", { name: "บันทึกการเปลี่ยนแปลง", exact: true })
+    .click();
+  await page.getByText("บันทึกแล้ว", { exact: true }).waitFor();
+  const bothLanguages = (await content()).home.title[0].text;
+  assert.equal(bothLanguages.th, "หัวข้อจากตัวแก้ไข UX ใหม่");
+  assert.equal(
+    bothLanguages.en,
+    "English heading saved through the language tab",
+  );
+  await editLanguage("th");
+  checks++;
   await shot("admin-home-editor");
   await audit("homepage editor desktop");
   checks++;
@@ -170,7 +224,7 @@ try {
   page.once("dialog", (dialog) => dialog.accept());
   await page
     .locator(".cms-navigation")
-    .getByRole("button", { name: /^จัดการบทความ/ })
+    .getByRole("button", { name: "ข่าวสารและบทความ", exact: true })
     .click();
   await expect(page).toHaveURL(/view=articles/);
   assert.equal((await content()).home.title[0].text.th, "หัวข้อจากตัวแก้ไข UX ใหม่");
@@ -179,23 +233,26 @@ try {
   // Real article creation, editing, filtering, pagination and deletion.
   await page.getByRole("button", { name: "เพิ่มบทความ", exact: true }).click();
   const title = "บทความทดสอบประสบการณ์ผู้ดูแล";
+  await editLanguage("th");
   await page.getByLabel("ไทย", { exact: true }).nth(0).fill(title);
-  await page
-    .getByLabel("English", { exact: true })
-    .nth(0)
-    .fill("Admin experience test article");
   await page
     .getByLabel("ไทย", { exact: true })
     .nth(1)
     .fill("คำโปรยสำหรับทดสอบบันทึกผ่านหน้าเว็บ");
   await page
-    .getByLabel("English", { exact: true })
-    .nth(1)
-    .fill("A saved article excerpt.");
-  await page
     .getByLabel("ไทย", { exact: true })
     .nth(2)
     .fill("เนื้อหาบทความที่บันทึกจริงจากตัวแก้ไขใหม่");
+  await editLanguage("en");
+  await expect(page.getByLabel("ไทย", { exact: true })).toHaveCount(0);
+  await page
+    .getByLabel("English", { exact: true })
+    .nth(0)
+    .fill("Admin experience test article");
+  await page
+    .getByLabel("English", { exact: true })
+    .nth(1)
+    .fill("A saved article excerpt.");
   await page
     .getByLabel("English", { exact: true })
     .nth(2)
@@ -235,6 +292,7 @@ try {
   await page
     .getByRole("button", { name: "แก้ไข " + title, exact: true })
     .click();
+  await editLanguage("th");
   await page
     .getByLabel("ไทย", { exact: true })
     .first()
@@ -405,6 +463,7 @@ try {
     await page.screenshot({
       path: "test-results/admin-failure.png",
       fullPage: true,
+      animations: "disabled",
     });
   }
   if (accessibility.length)
