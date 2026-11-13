@@ -702,7 +702,7 @@
   align-items: center;
   gap: 11px;
 }
-.cms-empty > svg {
+.admin.cms .cms-empty > svg {
   color: #7a8da5;
   background: #f3f6f9;
   box-sizing: content-box;

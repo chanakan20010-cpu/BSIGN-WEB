@@ -169,3 +169,11 @@ API ส่ง error code แทนข้อมูลภายในและไ�
 ## การแก้สคริปต์ตัวเปิดสำหรับนักพัฒนา
 
 หลังแก้ไฟล์ `.ps1` ใน `scripts/windows` ให้รัน `node scripts/windows/update-launcher.js` เพื่ออัปเดต hash ที่ฝังใน START-WINDOWS และตรวจด้วย `node scripts/windows/update-launcher.js --check` ก่อนส่งเวอร์ชัน ระบบยอมรับ LF/CRLF และ UTF-8 BOM เหมือนกัน ไฟล์ที่เปลี่ยนแต่ยังไม่อัปเดต hash จะถูกปฏิเสธก่อนปลดบล็อก
+
+## ภาพระบบหลังบ้าน v1.3.0
+
+ภาพจากการรันระบบจริงด้วยฐานข้อมูลชั่วคราวที่ใช้ข้อมูลเริ่มต้น ไม่แสดงรหัสผ่านผู้ดูแล
+
+![ภาพรวมระบบหลังบ้าน BSIGN TECH](docs/screenshots/admin-dashboard.png)
+
+[หน้าเข้าสู่ระบบ](docs/screenshots/admin-login.png) · [ภาพบนมือถือ](docs/screenshots/admin-mobile.png)
