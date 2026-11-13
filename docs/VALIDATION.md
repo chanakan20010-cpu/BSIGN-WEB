@@ -1,3 +1,33 @@
+# ผลการตรวจ v1.3.0 — 13 พฤศจิกายน 2026
+
+ระบบหลังบ้านออกแบบใหม่สำหรับ BSIGN TECH ใช้ภาพที่ผู้ใช้แนบเป็นแนวทางการใช้งาน ไม่มีการนำเลย์เอาต์หรือแบรนด์ Three Roses มาใช้ ข้อมูลทดสอบทั้งหมดอยู่ในฐานข้อมูลชั่วคราวแยกจากข้อมูลผู้ใช้
+
+| รายการ | ผล |
+|---|---|
+| npm ci / production build | ผ่าน Node.js 24.22.1 |
+| API 23 ชุด | ผ่านทั้งหมด ไม่มี skipped รวม auth/CSRF, revision/partial update, migration/restart, backup/restore รูป, sanitize และ overview ใหม่ |
+| Dashboard | จำนวนรายการและรายการล่าสุดจากฐานข้อมูลจริง; endpoint ต้องเข้าสู่ระบบ และไม่ส่ง password/path/credential |
+| Admin UX 59 กรณีใน Chromium | ผ่าน login/show password, dashboard, ค้นหาเมนู, คำเตือนแบบร่าง, บันทึกหน้าแรกลง API, CRUD ข่าว, filter/pagination, SVG upload/sanitize, live style/icon preview และบันทึก |
+| Responsive admin | ตรวจ 9 หมวดที่ 1440/768/390/320px ไม่พบ document แนวนอนล้น; ตารางเลื่อนภายในกรอบ |
+| Keyboard / accessibility | drawer focus trap, Shift+Tab/Tab, Escape/คืน focus ผ่าน; axe WCAG A/AA ไม่พบ violation ใน login/dashboard/editor/articles/media และหน้ามือถือที่ตรวจ |
+| Browser regression 53 กรณี | TH/EN, 5 หน้าสาธารณะ, รูป/overflow, public axe, ฟอร์มจริง, CMS edit/upload/icons, computed styles และ keyboard ผ่าน |
+| Setup / account file | สร้างบัญชีเองและกู้บัญชีผ่านหน้าที่ออกแบบใหม่ผ่าน; initial-admin login/logout และเข้าอีกครั้งหลัง restart ผ่าน |
+| Docker / Compose | build v1.3.0 ผ่าน, HTTP/API/non-root/volume persistence ผ่าน, Compose config ผ่าน |
+| การตรวจภาพ | ดูภาพ login/dashboard/editor/mobile จริงแล้ว; ตัวอย่างจากฐานข้อมูลเริ่มต้นอยู่ใน docs/screenshots ไม่มีรหัสผ่านในภาพ |
+
+Windows Server 2022 x64 / PowerShell 5.1 ผ่าน [Windows preview run #13](https://github.com/chanakan20010-cpu/BSIGN-WEB/actions/runs/43351823292) — implementation commit `f1bf856`:
+
+- แตก source ZIP ในโฟลเดอร์ที่มีช่องว่างและภาษาไทย ติด Internet Zone ให้สคริปต์เพื่อจำลองไฟล์ดาวน์โหลด
+- ยืนยันการบล็อกแบบเดิม ปฏิเสธไฟล์ที่แก้แล้วก่อนปลดบล็อก และเปิด START-WINDOWS พร้อม login/restart ด้วยบัญชีจากไฟล์ได้
+- เปิด GUI/VBS จากไฟล์ที่ติด Internet Zone ได้ โดยไม่เปลี่ยน Execution Policy ถาวร และไม่ปลดบล็อกไฟล์อื่น
+- API ทั้ง 23 ชุด ผ่าน; Edge browser สำหรับ setup/recovery, initial-admin และ Admin UX 59 กรณี ผ่านทั้งหมด
+
+CI ใช้ Edge headless และจำลอง Mark-of-the-Web ที่ไฟล์ที่แตกแล้ว ไม่ใช่การรัน Explorer หรือ screen reader บนเครื่องผู้ใช้จริง
+
+ข้อจำกัด: การผ่าน axe และ keyboard ไม่เท่ากับการทดสอบ screen reader จริง เช่น NVDA/VoiceOver; ยังไม่ได้ตรวจ Safari/Firefox หรือ Windows ARM64 หน้า System แสดงสถานะและคู่มือสำรอง ไม่ได้เพิ่มปุ่ม backup/restore ที่ทำงานบนเว็บ SMTP จริง, iframe Maps และ LinkedIn ยังต้องเติมข้อมูล/ทดสอบบริการตามขอบเขตเดิมด้านล่าง ไม่มีการ deploy สู่โดเมนสาธารณะหรือ push Docker image ไป registry ในรอบนี้
+
+---
+
 # ผลการตรวจ v1.2.1 — 12 พฤศจิกายน 2026
 
 แก้ข้อผิดพลาด RemoteSigned เมื่อไฟล์ .ps1 มี Mark-of-the-Web จาก ZIP ที่ดาวน์โหลด การทดสอบ v1.2.0 ก่อนหน้านี้ไม่ได้ติด Internet Zone ให้ไฟล์ จึงไม่ครอบคลุมข้อผิดพลาดนี้
