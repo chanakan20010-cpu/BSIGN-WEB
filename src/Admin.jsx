@@ -1,660 +1,613 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "react-router-dom";
+import {
+  ArrowUpRight,
+  ArrowRight,
+  FileText,
+  Image,
+  Inbox,
+  Users,
+  Globe,
+  Database,
+  ShieldCheck,
+  RefreshCw,
+  Save,
+  Undo2,
+  CheckCircle2,
+  AlertCircle,
+  Mail,
+  LayoutTemplate,
+  Palette,
+  HardDrive,
+} from "lucide-react";
 import { api } from "./api";
-import { useSite, Site, Typography, Picture, Icon, iconNames } from "./shared";
-const names = {
-  global: "ส่วนกลาง / เมนู / บริษัท",
-  home: "หน้าแรก",
-  about: "เกี่ยวกับเรา",
-  news: "ข่าวสาร / หมวดหมู่",
-  contact: "ติดต่อเรา / ฟอร์ม / แผนที่",
-  cta: "แบนเนอร์ติดต่อ",
-  styles: "สไตล์ตัวอักษร",
-  icons: "ไอคอน",
-  articles: "จัดการบทความ",
-  media: "รูปภาพและไฟล์",
-  contacts: "ข้อความติดต่อ",
-  subscribers: "ผู้สมัครรับข่าวสาร",
-  password: "เปลี่ยนรหัสผ่าน",
+import { useSite } from "./shared";
+import AdminShell from "./admin/AdminShell";
+import AdminLogin from "./admin/AdminLogin";
+import { Field, IconEditor, StyleEditor } from "./admin/Editors";
+import {
+  ArticlesPanel,
+  MediaPanel,
+  ContactsPanel,
+  SubscribersPanel,
+  SecurityPanel,
+} from "./admin/ContentPanels";
+import { pages, sections, dateText } from "./admin/config";
+const clone = (value) => structuredClone(value);
+const errors = {
+  REVISION_CONFLICT:
+    "ข้อมูลถูกแก้ไขจากหน้าต่างอื่น กรุณาเก็บข้อความที่กำลังแก้ไว้ แล้วโหลดข้อมูลล่าสุดก่อนบันทึกอีกครั้ง",
+  INVALID_CREDENTIALS: "อีเมลหรือรหัสผ่านไม่ถูกต้อง กรุณาลองอีกครั้ง",
+  VALIDATION: "ข้อมูลไม่ครบหรือรูปแบบไม่ถูกต้อง กรุณาตรวจช่องที่แก้ไข",
+  CATEGORY_IN_USE: "หมวดนี้มีบทความใช้งานอยู่ ย้ายบทความไปหมวดอื่นก่อนลบหมวด",
+  RATE_LIMIT: "มีการใช้งานถี่เกินไป กรุณารอสักครู่แล้วลองใหม่",
+  UNAUTHORIZED: "การเข้าสู่ระบบหมดอายุ กรุณาเข้าสู่ระบบอีกครั้ง",
 };
-const labels = {
-  title: "หัวข้อ",
-  intro: "ข้อความแนะนำ",
-  hero: "รูปหลัก",
-  cta: "ข้อความปุ่ม",
-  ctaHref: "ลิงก์ปุ่ม",
-  services: "บริการหลัก",
-  cards: "การ์ด",
-  why: "ทำไมต้องเลือกเรา",
-  advantages: "จุดเด่น",
-  team: "รูปทีมงาน",
-  badge: "ข้อความป้าย",
-  badgeTitle: "หัวข้อป้าย",
-  heading: "หัวข้อ",
-  eyebrow: "ข้อความเหนือหัวข้อ",
-  description: "คำอธิบาย",
-  body: "เนื้อหา",
-  text: "ข้อความ",
-  color: "สี",
-  url: "URL รูป",
-  alt: "คำอธิบายรูป",
-  label: "ชื่อที่แสดง",
-  href: "ลิงก์",
-  brand: "ชื่อแบรนด์",
-  company: "ชื่อบริษัท",
-  logo: "โลโก้",
-  favicon: "URL favicon",
-  nav: "เมนู",
-  email: "อีเมล",
-  phone: "โทรศัพท์",
-  address: "ที่อยู่",
-  size: "ขนาด Desktop (px)",
-  tablet: "ขนาด Tablet (px)",
-  mobile: "ขนาด Mobile (px)",
-  weight: "น้ำหนัก",
-  spacing: "ระยะตัวอักษร (px)",
-  line: "ระยะบรรทัด (ตัวคูณ)",
-  font: "ฟอนต์",
-  background: "สีพื้นหลัง",
-  name: "ชื่อ",
-  asset: "ไฟล์ไอคอน",
-  mode: "โหมดแสดงผล",
-  confirmed: "ยืนยันพิกัดแล้ว",
-  latitude: "ละติจูด",
-  longitude: "ลองจิจูด",
-  sourceUrl: "ลิงก์หมุดที่ผู้ใช้ยืนยัน",
-  map: "แผนที่",
-  th: "ไทย",
-  en: "English",
-  status: "สถานะ",
-  publishedAt: "วันเผยแพร่ ISO 8601",
-  slug: "URL slug",
-  category: "รหัสหมวดหมู่",
-  gallery: "รูปภาพเพิ่มเติม",
-  excerpt: "คำโปรย",
-  image: "รูปข่าว",
-  pageSize: "จำนวนข่าวต่อหน้า",
-};
-const clone = (v) => structuredClone(v);
-function Field({ value, onChange, path = "", media = [] }) {
-  const name = path.split(".").at(-1),
-    label = labels[name] || name;
-  if (value && typeof value === "object" && !Array.isArray(value)) {
-    if ("url" in value && "alt" in value)
-      return (
-        <fieldset>
-          <legend>{label}</legend>
-          <Field
-            path={path + ".url"}
-            value={value.url}
-            onChange={(v) => onChange({ ...value, url: v, crop: null })}
-          />
-          <label>
-            เลือกจากคลัง
-            <select
-              value=""
-              onChange={(e) =>
-                e.target.value &&
-                onChange({ ...value, url: e.target.value, crop: null })
-              }
-            >
-              <option value="">เลือกไฟล์…</option>
-              {media.map((m) => (
-                <option key={m.id} value={m.url}>
-                  {m.name}
-                </option>
-              ))}
-            </select>
-          </label>
-          <Field
-            path={path + ".alt"}
-            value={value.alt}
-            onChange={(v) => onChange({ ...value, alt: v })}
-          />
-          <Picture value={value} />
-          {value.crop && <p>ใช้บริเวณภาพจากต้นแบบ เปลี่ยน URL แล้วจะใช้รูปใหม่เต็มภาพ</p>}
-        </fieldset>
-      );
-    return (
-      <fieldset>
-        <legend>{label}</legend>
-        {Object.entries(value).map(([k, v]) => (
-          <Field
-            key={k}
-            path={path + "." + k}
-            value={v}
-            media={media}
-            onChange={(x) => onChange({ ...value, [k]: x })}
-          />
-        ))}
-      </fieldset>
-    );
-  }
-  if (Array.isArray(value))
-    return (
-      <fieldset>
-        <legend>{label}</legend>
-        {value.map((v, i) => (
-          <div className="array-item" key={i}>
-            <Field
-              path={path + "." + i}
-              value={v}
-              media={media}
-              onChange={(x) => onChange(value.map((o, j) => (j === i ? x : o)))}
-            />
-            <button
-              type="button"
-              onClick={() => onChange(value.filter((_, j) => j !== i))}
-            >
-              ลบรายการ {i + 1}
-            </button>
-            <button
-              type="button"
-              disabled={!i}
-              onClick={() => {
-                const a = [...value];
-                [a[i - 1], a[i]] = [a[i], a[i - 1]];
-                onChange(a);
-              }}
-            >
-              ย้ายขึ้น
-            </button>
-          </div>
-        ))}
-        <button
-          type="button"
-          onClick={() =>
-            onChange([
-              ...value,
-              clone(
-                value[0] ?? { url: "", alt: { th: "", en: "" }, crop: null },
-              ),
-            ])
-          }
-        >
-          เพิ่มรายการ
-        </button>
-      </fieldset>
-    );
-  if (value === null) return null;
-  if (typeof value === "boolean")
-    return (
-      <label className="check">
-        <input
-          type="checkbox"
-          checked={value}
-          onChange={(e) => onChange(e.target.checked)}
-        />
-        {label}
-      </label>
-    );
-  const opts =
-    name === "font"
-      ? ["Noto Sans Thai", "Noto Sans", "sans-serif", "serif"]
-      : name === "status"
-        ? ["draft", "published"]
-        : null;
+function Empty({ icon: Glyph = Inbox, title, children }) {
   return (
-    <label>
-      {label}
-      {opts ? (
-        <select
-          aria-label={label}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-        >
-          {opts.map((o) => (
-            <option key={o}>{o}</option>
-          ))}
-        </select>
-      ) : typeof value === "number" ? (
-        <input
-          aria-label={label}
-          type="number"
-          step="any"
-          value={value}
-          onChange={(e) => onChange(Number(e.target.value))}
-        />
-      ) : name.toLowerCase().endsWith("color") || name === "background" ? (
-        <input
-          aria-label={label}
-          type="color"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-        />
-      ) : (
-        <textarea
-          aria-label={label}
-          rows={String(value).length > 100 ? 4 : 1}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-        />
-      )}
-    </label>
+    <div className="cms-empty">
+      <Glyph size={32} aria-hidden="true" />
+      <h3>{title}</h3>
+      <p>{children}</p>
+    </div>
   );
 }
-const slots = [
-  "section.marker",
-  "home.services.marker",
-  "home.why.marker",
-  "news.section.marker",
-  "about.vision.marker",
-  "about.values.marker",
-  "about.foot.0",
-  "about.foot.1",
-  "about.foot.2",
-  "about.foot.3",
-  "news.category",
-  "news.latest",
-  "news.search",
-  "news.previous",
-  "news.next",
-  "header.menu",
-  "footer.mail",
-  "footer.phone",
-  "footer.pin",
-  "home.hero.arrow",
-  "home.badge",
-  ...Array.from({ length: 3 }, (_, i) => `home.service.${i}`),
-  ...Array.from({ length: 3 }, (_, i) => `home.advantage.${i}`),
-  "about.mission.0",
-  "about.mission.1",
-  ...Array.from({ length: 4 }, (_, i) => `about.value.${i}`),
-  "cta.arrow",
-  "news.card.arrow",
-  "news.featured.arrow",
-  "contact.mail",
-  "contact.phone",
-  "contact.clock",
-  "contact.office",
-  "contact.submit",
-  "social.0",
-  "social.1",
-  "social.2",
-];
-function IconEditor({ value, onChange, media, defaults }) {
-  const [scope, setScope] = useState("shared");
-  const [key, setKey] = useState("arrow");
-  const site = useSite();
-  const slotBase = (slot) => {
-    if (
-      slot.includes("marker") ||
-      slot.startsWith("about.foot.") ||
-      ["news.category", "news.latest"].includes(slot)
-    )
-      return "marker";
-    if (slot.startsWith("home.service.")) return "terminal";
-    if (slot.startsWith("home.advantage.")) return "rocket";
-    if (slot.startsWith("about.value."))
-      return ["speed", "engineering", "heart", "brain"][
-        Number(slot.split(".").at(-1)) % 4
-      ];
-    if (slot.startsWith("about.mission."))
-      return Number(slot.split(".").at(-1)) ? "rocket" : "eye";
-    if (slot.startsWith("social."))
-      return (
-        site.content.contact.socials[Number(slot.split(".").at(-1))]?.icon ||
-        "arrow"
-      );
+function Dashboard({ overview, onNavigate }) {
+  if (!overview)
     return (
-      {
-        "header.menu": "menu",
-        "home.badge": "bolt",
-        "contact.office": "building",
-        "contact.submit": "arrow",
-      }[slot] ||
-      (Object.hasOwn(value.shared, slot.split(".").at(-1))
-        ? slot.split(".").at(-1)
-        : "arrow")
+      <div className="cms-card cms-skeleton" role="status">
+        กำลังโหลดภาพรวม…
+      </div>
     );
-  };
-  const availableSlots = [
-    ...new Set([
-      ...slots,
-      ...site.content.home.cards.map((_, i) => `home.service.${i}`),
-      ...site.content.home.advantages.map((_, i) => `home.advantage.${i}`),
-      ...site.content.about.cards.flatMap((_, i) => [
-        `about.value.${i}`,
-        `about.foot.${i}`,
-      ]),
-      ...site.content.about.missions.map((_, i) => `about.mission.${i}`),
-      ...site.content.contact.socials.map((_, i) => `social.${i}`),
-    ]),
-  ];
-  const v = value[scope][key] || clone(value.shared[slotBase(key)]);
-  const update = (x) =>
-    onChange({ ...value, [scope]: { ...value[scope], [key]: { ...v, ...x } } });
+  const { counts, recentArticles, recentContacts, system } = overview;
   return (
     <>
-      <p>แบบใช้ร่วมกัน: เปลี่ยนทุกจุดที่อ้างอิงไอคอนนี้ • เฉพาะจุด: เปลี่ยนเฉพาะตำแหน่งที่เลือก</p>
-      <label>
-        ขอบเขต
-        <select
-          aria-label="ขอบเขต"
-          value={scope}
-          onChange={(e) => {
-            setScope(e.target.value);
-            setKey(e.target.value === "shared" ? "arrow" : "header.menu");
-          }}
-        >
-          <option value="shared">ทุกตำแหน่งที่ใช้ร่วมกัน</option>
-          <option value="overrides">เฉพาะจุด</option>
-        </select>
-      </label>
-      <label>
-        ตำแหน่ง
-        <select
-          aria-label="ตำแหน่ง"
-          value={key}
-          onChange={(e) => setKey(e.target.value)}
-        >
-          {(scope === "shared"
-            ? Object.keys(value.shared)
-            : availableSlots
-          ).map((k) => (
-            <option key={k}>{k}</option>
-          ))}
-        </select>
-      </label>
-      <label>
-        คลังไอคอน
-        <select
-          aria-label="คลังไอคอน"
-          value={v.name}
-          onChange={(e) => update({ name: e.target.value, asset: "" })}
-        >
-          {iconNames.map((k) => (
-            <option key={k}>{k}</option>
-          ))}
-        </select>
-      </label>
-      <label>
-        ไฟล์จากคลัง
-        <select
-          aria-label="ไฟล์จากคลัง"
-          value={v.asset}
-          onChange={(e) =>
-            update({
-              asset: e.target.value,
-              mode: e.target.value.endsWith(".svg") ? "mask" : "image",
-            })
-          }
-        >
-          <option value="">ใช้ไอคอนสำเร็จรูป</option>
-          {media.map((m) => (
-            <option key={m.id} value={m.url}>
-              {m.name}
-            </option>
-          ))}
-        </select>
-      </label>
-      <label>
-        สีไอคอน (SVG / ไอคอนสำเร็จรูป)
-        <input
-          type="color"
-          value={v.color}
-          disabled={v.asset !== "" && !v.asset.endsWith(".svg")}
-          onChange={(e) => update({ color: e.target.value })}
-        />
-      </label>
-      <label>
-        พื้นหลัง
-        <input
-          type="color"
-          value={v.background}
-          onChange={(e) => update({ background: e.target.value })}
-        />
-      </label>
-      {v.asset.endsWith(".svg") && (
-        <label>
-          การแสดง SVG
-          <select
-            aria-label="การแสดง SVG"
-            value={v.mode}
-            onChange={(e) => update({ mode: e.target.value })}
+      <section className="cms-overview-banner">
+        <div>
+          <span className="cms-eyebrow">YOUR CONTENT, CONNECTED</span>
+          <h3>
+            พื้นที่สำหรับทุกเรื่องราว
+            <br />
+            ของ BSIGN TECH
+          </h3>
+          <p>ดูแลเนื้อหาให้เป็นปัจจุบัน แล้วส่งต่อเรื่องราวที่ดีให้ผู้เข้าชม</p>
+          <button className="cms-primary" onClick={() => onNavigate("home")}>
+            แก้ไขหน้าแรก <ArrowUpRight size={17} />
+          </button>
+        </div>
+        <div className="cms-banner-art" aria-hidden="true">
+          <span>CONTENT</span>
+          <strong>
+            B<span>+</span>
+          </strong>
+          <small>DESIGN · BUILD · CONNECT</small>
+        </div>
+      </section>
+      <section className="cms-metrics" aria-label="สรุปข้อมูลเว็บไซต์">
+        {[
+          [
+            "articles",
+            "บทความทั้งหมด",
+            counts.articles,
+            counts.published + " เผยแพร่ · " + counts.draft + " ฉบับร่าง",
+            FileText,
+          ],
+          [
+            "contacts",
+            "ข้อความที่ยังไม่อ่าน",
+            counts.unread,
+            counts.contacts + " ข้อความทั้งหมด",
+            Inbox,
+          ],
+          ["media", "ไฟล์ในคลังสื่อ", counts.media, "ภาพและไอคอนที่อัปโหลด", Image],
+          [
+            "subscribers",
+            "ผู้สมัครรับข่าวสาร",
+            counts.subscribers,
+            "รายชื่ออีเมลที่บันทึกไว้",
+            Users,
+          ],
+        ].map(([key, label, note, detail, Glyph]) => (
+          <button
+            className="cms-metric"
+            key={key}
+            onClick={() => onNavigate(key)}
           >
-            <option value="mask">ใช้สีเดียวตามการตั้งค่า</option>
-            <option value="image">ใช้สีต้นฉบับ</option>
-          </select>
-        </label>
-      )}
-      <p>
-        ภาพ PNG/JPEG/WebP เปลี่ยนสีภายในไม่ได้ • ไอคอนของ Google Maps
-        และเบราว์เซอร์อยู่นอกการควบคุม
-      </p>
-      <Site.Provider
-        value={{ ...site, content: { ...site.content, icons: value } }}
-      >
-        <Icon
-          name={scope === "shared" ? key : "arrow"}
-          slot={scope === "overrides" ? key : "__preview"}
-        />
-      </Site.Provider>
-      <button
-        type="button"
-        onClick={() =>
-          onChange({
-            ...value,
-            [scope]: {
-              ...value[scope],
-              [key]: scope === "shared" ? clone(defaults.shared[key]) : null,
-            },
-          })
-        }
-      >
-        คืนค่าไอคอนนี้
-      </button>
+            <span className="cms-metric-top">
+              <Glyph size={20} />
+              <ArrowUpRight size={16} />
+            </span>
+            <span>{label}</span>
+            <strong>{note}</strong>
+            <small>{detail}</small>
+          </button>
+        ))}
+      </section>
+      <div className="cms-grid cms-grid-2">
+        <section className="cms-card">
+          <div className="cms-card-header">
+            <div>
+              <h3>ข่าวสารล่าสุด</h3>
+              <p>ติดตามบทความที่ทีมกำลังดูแล</p>
+            </div>
+            <button
+              className="cms-text-button"
+              onClick={() => onNavigate("articles")}
+            >
+              ดูทั้งหมด <ArrowRight size={16} />
+            </button>
+          </div>
+          {recentArticles.length ? (
+            <div className="cms-recent-list">
+              {recentArticles.map((a) => (
+                <button
+                  className="cms-recent-row"
+                  onClick={() => onNavigate("articles")}
+                  key={a.id}
+                >
+                  <span className="cms-recent-icon">
+                    <FileText size={19} />
+                  </span>
+                  <span>
+                    <strong>{a.title.th || a.title.en}</strong>
+                    <small>{dateText(a.publishedAt)}</small>
+                  </span>
+                  <span
+                    className="cms-badge"
+                    data-tone={a.status === "draft" ? "warning" : "success"}
+                  >
+                    {a.status === "draft"
+                      ? "ฉบับร่าง"
+                      : Date.parse(a.publishedAt) > Date.now()
+                        ? "ตั้งเวลา"
+                        : "เผยแพร่"}
+                  </span>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <Empty icon={FileText} title="เริ่มต้นด้วยบทความแรก">
+              เขียนข่าวหรือความเคลื่อนไหวจากทีมงานได้ที่จัดการบทความ
+            </Empty>
+          )}
+        </section>
+        <section className="cms-card">
+          <div className="cms-card-header">
+            <div>
+              <h3>ข้อความล่าสุด</h3>
+              <p>การติดต่อใหม่จากหน้าเว็บไซต์</p>
+            </div>
+            <button
+              className="cms-text-button"
+              onClick={() => onNavigate("contacts")}
+              aria-label="เปิดกล่องข้อความ"
+            >
+              <ArrowUpRight size={19} />
+            </button>
+          </div>
+          {recentContacts.length ? (
+            <div className="cms-recent-list">
+              {recentContacts.map((c) => (
+                <button
+                  className="cms-recent-row"
+                  onClick={() => onNavigate("contacts")}
+                  key={c.id}
+                >
+                  <span className="cms-avatar">{c.name.slice(0, 1)}</span>
+                  <span>
+                    <strong>{c.name}</strong>
+                    <small>{c.email}</small>
+                  </span>
+                  <span
+                    className="cms-badge"
+                    data-tone={c.status === "new" ? "warning" : "success"}
+                  >
+                    {c.status === "new" ? "ใหม่" : "อ่านแล้ว"}
+                  </span>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <Empty title="ยังไม่มีข้อความใหม่">
+              เมื่อมีผู้ติดต่อผ่านแบบฟอร์ม ข้อความจะแสดงที่นี่
+            </Empty>
+          )}
+        </section>
+      </div>
+      <section className="cms-card">
+        <div className="cms-card-header">
+          <div>
+            <h3>เลือกงานที่ต้องการทำ</h3>
+            <p>เข้าถึงส่วนที่ใช้บ่อยได้จากที่เดียว</p>
+          </div>
+        </div>
+        <div className="cms-quick-grid">
+          {[
+            ["global", "ข้อมูลและแบรนด์", "โลโก้ เมนู และข้อมูลบริษัท", Globe],
+            ["styles", "สไตล์ตัวอักษร", "ตัวอักษรที่สอดคล้องทุกหน้า", Palette],
+            ["system", "ข้อมูลระบบ", "ตรวจสถานะและการสำรอง", ShieldCheck],
+          ].map(([key, label, desc, Glyph]) => (
+            <button
+              className="cms-quick-link"
+              onClick={() => onNavigate(key)}
+              key={key}
+            >
+              <Glyph size={22} />
+              <span>
+                <strong>{label}</strong>
+                <small>{desc}</small>
+              </span>
+              <ArrowUpRight size={17} />
+            </button>
+          ))}
+        </div>
+      </section>
+      <div className="cms-overview-foot">
+        <span>
+          <i className="cms-status-dot" /> ฐานข้อมูลเชื่อมต่อปกติ
+        </span>
+        <span>BSIGN TECH CMS · v{system.version}</span>
+      </div>
     </>
+  );
+}
+function SystemPanel({ overview, onRefresh }) {
+  if (!overview) return null;
+  const { system, counts } = overview;
+  return (
+    <div className="cms-grid cms-grid-2">
+      <section className="cms-card">
+        <div className="cms-card-header">
+          <div>
+            <h3>สถานะระบบ</h3>
+            <p>ข้อมูลปัจจุบันจากฐานข้อมูลเว็บไซต์</p>
+          </div>
+          <Database size={23} />
+        </div>
+        <div className="cms-card-body">
+          <div className="cms-system-state">
+            <CheckCircle2 size={30} />
+            <div>
+              <strong>เชื่อมต่อฐานข้อมูลได้</strong>
+              <p>ระบบอ่านข้อมูลเว็บไซต์ได้ตามปกติ</p>
+            </div>
+          </div>
+          <dl className="cms-definition-list">
+            <div>
+              <dt>เวอร์ชันเว็บไซต์</dt>
+              <dd>v{system.version}</dd>
+            </div>
+            <div>
+              <dt>ฐานข้อมูล</dt>
+              <dd>{system.database}</dd>
+            </div>
+            <div>
+              <dt>ไฟล์ในคลัง</dt>
+              <dd>
+                {counts.media} ไฟล์ ·{" "}
+                {(system.uploadsBytes / 1048576).toFixed(2)} MB
+              </dd>
+            </div>
+            <div>
+              <dt>บัญชีผู้ดูแล</dt>
+              <dd>{counts.admins} บัญชี</dd>
+            </div>
+            <div>
+              <dt>การส่งอีเมล</dt>
+              <dd>{system.smtpConfigured ? "ตั้งค่าครบแล้ว" : "ยังไม่ได้ตั้งค่า"}</dd>
+            </div>
+          </dl>
+          <p className="cms-hint">
+            การรับข้อความลงฐานข้อมูลทำงานแยกจากการส่งอีเมล
+            สถานะตั้งค่าอีเมลไม่ได้ยืนยันว่าปลายทางได้รับอีเมลแล้ว
+          </p>
+          <button className="cms-secondary" onClick={onRefresh}>
+            <RefreshCw size={16} />
+            ตรวจสถานะอีกครั้ง
+          </button>
+        </div>
+      </section>
+      <section className="cms-card">
+        <div className="cms-card-header">
+          <div>
+            <h3>สำรองข้อมูลก่อนอัปเดต</h3>
+            <p>เก็บเนื้อหา ภาพ และบัญชีผู้ดูแลให้ครบ</p>
+          </div>
+          <HardDrive size={23} />
+        </div>
+        <div className="cms-card-body">
+          <ol className="cms-checklist">
+            <li>หยุดพรีวิวด้วย Ctrl+C ในหน้าต่าง START-WINDOWS</li>
+            <li>เก็บสำเนาโฟลเดอร์โปรเจกต์เดิมไว้ในพื้นที่ที่คุณควบคุมได้</li>
+            <li>
+              ก่อนเปิดรุ่นใหม่ คัดลอกโฟลเดอร์ .data และไฟล์ .env ไปด้วย
+              หากใช้โฟลเดอร์ข้อมูลอื่น ให้เก็บโฟลเดอร์นั้นตามที่ตั้งค่าไว้
+            </li>
+          </ol>
+          <a
+            className="cms-secondary"
+            href="https://github.com/chanakan20010-cpu/BSIGN-WEB/blob/main/README.md#backup--restore"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            ดูคู่มือสำรองและกู้คืน <ArrowUpRight size={16} />
+          </a>
+          <p className="cms-hint">
+            สำหรับเซิร์ฟเวอร์และ Docker มีขั้นตอนสำรอง SQLite
+            พร้อมรูปภาพและตรวจความครบถ้วนในคู่มือ
+          </p>
+        </div>
+      </section>
+    </div>
   );
 }
 export default function Admin() {
   const site = useSite();
-  const [authenticated, setAuthenticated] = useState(false),
+  const [params, setParams] = useSearchParams();
+  const requested = params.get("view") || "dashboard";
+  const tab = pages[requested] ? requested : "dashboard";
+  const [authenticated, setAuthenticated] = useState(null),
     [docs, setDocs] = useState(null),
     [defaults, setDefaults] = useState(null),
-    [tab, setTab] = useState("home"),
     [draft, setDraft] = useState(null),
+    [draftTab, setDraftTab] = useState(null),
     [media, setMedia] = useState([]),
+    [overview, setOverview] = useState(null),
     [status, setStatus] = useState(""),
+    [tone, setTone] = useState("success"),
     [busy, setBusy] = useState(false),
-    [list, setList] = useState([]),
-    [article, setArticle] = useState(null),
-    [search, setSearch] = useState("");
+    [loading, setLoading] = useState(false),
+    [search, setSearch] = useState(""),
+    [section, setSection] = useState(null),
+    [articleDirty, setArticleDirty] = useState(false),
+    [savedAt, setSavedAt] = useState(null);
+  const currentTab = useRef(tab);
+  currentTab.current = tab;
+  const dirty = Boolean(
+    docs?.[tab] &&
+    draftTab === tab &&
+    draft &&
+    JSON.stringify(draft) !== JSON.stringify(docs[tab].value),
+  );
+  const notice = (message, nextTone = "success") => {
+    setStatus(message);
+    setTone(nextTone);
+  };
   const report = (e) =>
-    setStatus(
-      e.message === "REVISION_CONFLICT"
-        ? "ข้อมูลมีการเปลี่ยนแปลงจากหน้าต่างอื่น กรุณาโหลดข้อมูลใหม่ก่อนแก้ไข (ข้อมูลในช่องยังอยู่)"
-        : e.message === "INVALID_CREDENTIALS"
-          ? "อีเมลหรือรหัสผ่านไม่ถูกต้อง"
-          : e.message === "VALIDATION"
-            ? "ข้อมูลไม่ถูกต้อง กรุณาตรวจช่องและรูปแบบข้อมูล"
-            : "ไม่สำเร็จ: " + e.message,
+    notice(
+      errors[e.message] || "ยังทำรายการไม่สำเร็จ กรุณาตรวจข้อมูลแล้วลองอีกครั้ง",
+      "error",
     );
+  const refreshOverview = async () => {
+    try {
+      setOverview(await api("/admin/overview"));
+    } catch (e) {
+      report(e);
+    }
+  };
+  const refreshMedia = async () => {
+    setMedia(await api("/admin/media"));
+    await refreshOverview();
+  };
   async function load() {
-    const [d, f, m] = await Promise.all([
-      api("/admin/documents"),
-      api("/admin/defaults"),
-      api("/admin/media"),
-    ]);
-    setDocs(d);
-    setDefaults(f);
-    setMedia(m);
-    setDraft(clone(d[tab]?.value));
+    setLoading(true);
+    try {
+      const [d, f, m, o] = await Promise.all([
+        api("/admin/documents"),
+        api("/admin/defaults"),
+        api("/admin/media"),
+        api("/admin/overview"),
+      ]);
+      setDocs(d);
+      setDefaults(f);
+      setMedia(m);
+      setOverview(o);
+      setDraft(d[tab] ? clone(d[tab].value) : null);
+      setDraftTab(tab);
+    } catch (e) {
+      report(e);
+    } finally {
+      setLoading(false);
+    }
   }
   useEffect(() => {
-    api("/session").then((s) => setAuthenticated(s.authenticated));
+    let live = true;
+    api("/session")
+      .then((s) => live && setAuthenticated(s.authenticated))
+      .catch((e) => {
+        if (live) {
+          setAuthenticated(false);
+          report(e);
+        }
+      });
+    return () => {
+      live = false;
+    };
   }, []);
   useEffect(() => {
-    if (authenticated) load().catch(report);
+    if (authenticated) load();
   }, [authenticated]);
   useEffect(() => {
+    setDraft(docs?.[tab] ? clone(docs[tab].value) : null);
+    setDraftTab(tab);
+    setSection(null);
+    setArticleDirty(false);
+    setSavedAt(null);
+  }, [tab]);
+  useEffect(() => {
+    if (!dirty && !articleDirty) return;
+    const warn = (e) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [dirty, articleDirty]);
+  function navigate(key) {
+    if (key === tab) return true;
+    if (busy || loading) {
+      notice("กำลังเตรียมหรือบันทึกข้อมูล กรุณารอสักครู่", "warning");
+      return false;
+    }
+    if (
+      (dirty || articleDirty) &&
+      !window.confirm("มีการแก้ไขที่ยังไม่บันทึก ต้องการออกจากหน้านี้หรือไม่?")
+    )
+      return false;
     setStatus("");
-    setArticle(null);
-    if (docs?.[tab]) setDraft(clone(docs[tab].value));
-    if (authenticated && ["articles", "contacts", "subscribers"].includes(tab))
-      api("/admin/" + tab)
-        .then(setList)
-        .catch(report);
-  }, [tab, authenticated]);
+    setSearch("");
+    setParams(key === "dashboard" ? {} : { view: key });
+    window.scrollTo({ top: 0, behavior: "instant" });
+    return true;
+  }
+  async function endSession(message = "") {
+    setAuthenticated(false);
+    setDocs(null);
+    setDraft(null);
+    setDraftTab(null);
+    setOverview(null);
+    setArticleDirty(false);
+    setParams({});
+    await api("/session");
+    notice(message);
+  }
+  async function logout() {
+    if (
+      (dirty || articleDirty) &&
+      !window.confirm("มีการแก้ไขที่ยังไม่บันทึก ต้องการออกจากระบบหรือไม่?")
+    )
+      return;
+    try {
+      await api("/logout", { method: "POST" });
+      await endSession();
+    } catch (e) {
+      report(e);
+    }
+  }
   async function save() {
     setBusy(true);
+    setStatus("");
     try {
       const saved = await api("/admin/documents/" + tab, {
         method: "PATCH",
         body: { revision: docs[tab].revision, patch: draft },
       });
-      setDocs({ ...docs, [tab]: saved });
-      site.setContent({ ...site.content, [tab]: saved.value });
-      setStatus("บันทึกแล้ว");
+      setDocs((d) => ({ ...d, [tab]: saved }));
+      if (currentTab.current === tab) setDraft(clone(saved.value));
+      site.setContent((c) => ({ ...c, [tab]: saved.value }));
+      setSavedAt(new Date());
+      notice("บันทึกแล้ว");
     } catch (e) {
       report(e);
     } finally {
       setBusy(false);
     }
   }
+  const knownGroups = sections[tab] || [];
+  const leftovers =
+    draft && draftTab === tab
+      ? Object.keys(draft).filter(
+          (k) => !knownGroups.some((g) => g[3].includes(k)),
+        )
+      : [];
+  const groups = [
+    ...knownGroups,
+    ...(leftovers.length
+      ? [["other", "รายละเอียดเพิ่มเติม", "ข้อความและข้อมูลเพิ่มเติมของหน้านี้", leftovers]]
+      : []),
+  ];
+  const active = groups.find((g) => g[0] === section) || groups[0];
+  if (authenticated === null)
+    return (
+      <div className="admin cms-auth">
+        <div className="cms-auth-loading" role="status">
+          กำลังตรวจสอบการเข้าสู่ระบบ…
+        </div>
+      </div>
+    );
   if (!authenticated)
     return (
-      <main className="admin login">
-        <h1>BSIGN TECH · ผู้ดูแลระบบ</h1>
-        <form
-          onSubmit={async (e) => {
-            e.preventDefault();
-            setBusy(true);
-            try {
-              await api("/login", {
-                method: "POST",
-                body: Object.fromEntries(new FormData(e.currentTarget)),
-              });
-              setAuthenticated(true);
-            } catch (e) {
-              report(e);
-            } finally {
-              setBusy(false);
-            }
-          }}
-        >
-          <label>
-            อีเมล
-            <input name="email" type="email" autoComplete="username" required />
-          </label>
-          <label>
-            รหัสผ่าน
-            <input
-              name="password"
-              type="password"
-              autoComplete="current-password"
-              required
-            />
-          </label>
-          <button disabled={busy}>เข้าสู่ระบบ</button>
-        </form>
-        <p role="status">{status}</p>
-        <p>
-          เปิดไฟล์ initial-admin.txt ในโฟลเดอร์ข้อมูลที่ CMD แสดง แล้วใช้ Username (อีเมล)
-          และ Password เข้าสู่ระบบ ค่าเริ่มต้นอยู่ที่ .data/initial-admin.txt
-        </p>
-        <p>
-          หากเปลี่ยนรหัสผ่านแล้ว ให้ใช้รหัสใหม่ หากใช้บัญชีจากรุ่นก่อน ให้ใช้อีเมลและรหัสเดิม
-          หรือตั้งรหัสใหม่ผ่าน “บัญชีแอดมิน / ลืมรหัสผ่าน” ใน OPEN-PREVIEW.vbs หลังหยุดพรีวิวนี้
-        </p>
-      </main>
+      <AdminLogin
+        busy={busy}
+        status={status}
+        onSubmit={async (e) => {
+          e.preventDefault();
+          const body = Object.fromEntries(new FormData(e.currentTarget));
+          setBusy(true);
+          setStatus("");
+          try {
+            await api("/login", { method: "POST", body });
+            setAuthenticated(true);
+          } catch (error) {
+            report(error);
+          } finally {
+            setBusy(false);
+          }
+        }}
+      />
     );
   return (
-    <div className="admin">
-      <div className="admin-top">
-        <h1>BSIGN TECH · CMS</h1>
-        <Link to="/" target="_blank">
-          เปิดเว็บไซต์
-        </Link>
-        <button
-          onClick={async () => {
-            await api("/logout", { method: "POST" });
-            await api("/session");
-            setAuthenticated(false);
-          }}
+    <AdminShell
+      tab={tab}
+      title={pages[tab][0]}
+      description={pages[tab][1]}
+      counts={overview?.counts}
+      search={search}
+      onSearch={setSearch}
+      onNavigate={navigate}
+      onLogout={logout}
+      loading={loading}
+    >
+      {status && (
+        <div
+          className="cms-status"
+          data-tone={tone}
+          role={tone === "error" ? "alert" : "status"}
         >
-          ออกจากระบบ
-        </button>
-      </div>
-      <div className="admin-layout">
-        <aside>
-          <label>
-            ค้นหาหมวด
-            <input value={search} onChange={(e) => setSearch(e.target.value)} />
-          </label>
-          {Object.entries(names)
-            .filter(([k, v]) =>
-              (k + v).toLowerCase().includes(search.toLowerCase()),
-            )
-            .map(([k, v]) => (
-              <button
-                aria-current={tab === k ? "page" : undefined}
-                key={k}
-                onClick={() => {
-                  if (
-                    docs?.[tab] &&
-                    JSON.stringify(draft) !== JSON.stringify(docs[tab].value) &&
-                    !confirm("มีการแก้ไขที่ยังไม่บันทึก ต้องการออกจากหมวดนี้หรือไม่?")
-                  )
-                    return;
-                  setDraft(null);
-                  setTab(k);
-                }}
-              >
-                {v}
-              </button>
-            ))}
-        </aside>
-        <main>
-          <h2>{names[tab]}</h2>
-          <p role="status" className="admin-status">
-            {status}
-          </p>
-          {docs?.[tab] && draft && (
+          {tone === "error" ? (
+            <AlertCircle size={19} />
+          ) : (
+            <CheckCircle2 size={19} />
+          )}
+          <span>{status}</span>
+          <button aria-label="ปิดข้อความสถานะ" onClick={() => setStatus("")}>
+            ×
+          </button>
+        </div>
+      )}
+      {loading && !docs ? (
+        <div className="cms-card cms-skeleton" role="status">
+          กำลังเตรียมพื้นที่ทำงาน…
+        </div>
+      ) : !docs ? (
+        <div className="cms-card">
+          <Empty title="ยังโหลดข้อมูลไม่ได้">ตรวจการเชื่อมต่อแล้วลองอีกครั้ง</Empty>
+          <button className="cms-secondary" onClick={load}>
+            ลองโหลดอีกครั้ง
+          </button>
+        </div>
+      ) : (
+        <>
+          {tab === "dashboard" && (
+            <Dashboard overview={overview} onNavigate={navigate} />
+          )}
+          {tab === "system" && (
+            <SystemPanel overview={overview} onRefresh={refreshOverview} />
+          )}
+          {docs[tab] && draft && draftTab === tab && (
             <>
-              <div className="admin-actions">
-                <button disabled={busy} onClick={save}>
-                  บันทึกการเปลี่ยนแปลง
-                </button>
-                <button onClick={() => setDraft(clone(defaults[tab]))}>
-                  คืนค่าเริ่มต้น (ดูตัวอย่างก่อนบันทึก)
-                </button>
-                <button
-                  onClick={() =>
-                    load()
-                      .then(() => setStatus("โหลดข้อมูลใหม่แล้ว"))
-                      .catch(report)
-                  }
+              <div className="cms-document-hint">
+                <LayoutTemplate size={17} />
+                <span>แก้ไขข้อมูลแล้วกดบันทึกเพื่อเผยแพร่บนเว็บไซต์</span>
+                <span
+                  className="cms-badge"
+                  data-tone={dirty ? "warning" : "success"}
                 >
-                  โหลดข้อมูลใหม่
-                </button>
+                  {dirty ? "ยังไม่บันทึก" : "ตรงกับข้อมูลที่บันทึก"}
+                </span>
               </div>
               {tab === "styles" ? (
-                <>
-                  {Object.entries(draft).map(([k, v]) => (
-                    <section className="style-editor" key={k}>
-                      <Field
-                        path={k}
-                        value={v}
-                        onChange={(x) => setDraft({ ...draft, [k]: x })}
-                      />
-                      <Typography styles={draft}>
-                        <div
-                          className={"style-preview type-" + k}
-                          style={{
-                            background: ["inverse", "footer"].includes(k)
-                              ? "#000"
-                              : "#fff",
-                          }}
-                        >
-                          ตัวอย่างภาษาไทย — BSIGN TECH
-                          <br />
-                          Digital architecture & intelligent engineering
-                        </div>
-                      </Typography>
-                    </section>
-                  ))}
-                </>
+                <StyleEditor value={draft} onChange={setDraft} />
               ) : tab === "icons" ? (
                 <IconEditor
                   value={draft}
@@ -663,274 +616,150 @@ export default function Admin() {
                   defaults={defaults.icons}
                 />
               ) : (
-                <Field
-                  path={tab}
-                  value={draft}
-                  onChange={setDraft}
-                  media={media}
-                />
+                <div className="cms-editor-layout">
+                  <nav className="cms-section-nav" aria-label="ส่วนที่ต้องการแก้ไข">
+                    {groups.map(([key, label, desc], index) => (
+                      <button
+                        key={key}
+                        onClick={() => setSection(key)}
+                        aria-current={active?.[0] === key ? "true" : undefined}
+                      >
+                        <span>{String(index + 1).padStart(2, "0")}</span>
+                        <div>
+                          <strong>{label}</strong>
+                          <small>{desc}</small>
+                        </div>
+                      </button>
+                    ))}
+                  </nav>
+                  {active && (
+                    <section className="cms-card cms-editor-card">
+                      <div className="cms-card-header">
+                        <div>
+                          <h3>{active[1]}</h3>
+                          <p>{active[2]}</p>
+                        </div>
+                      </div>
+                      <div className="cms-card-body cms-document-fields">
+                        {active[3]
+                          .filter((k) => Object.hasOwn(draft, k))
+                          .map((k) => (
+                            <Field
+                              key={tab + "." + k}
+                              path={tab + "." + k}
+                              value={draft[k]}
+                              media={media}
+                              onChange={(v) =>
+                                setDraft((d) => ({ ...d, [k]: v }))
+                              }
+                            />
+                          ))}
+                      </div>
+                    </section>
+                  )}
+                </div>
               )}
-            </>
-          )}
-          {tab === "media" && (
-            <>
-              <form
-                onSubmit={async (e) => {
-                  e.preventDefault();
-                  const f = e.currentTarget;
-                  try {
-                    await api("/admin/media", {
-                      method: "POST",
-                      body: new FormData(f),
-                    });
-                    setMedia(await api("/admin/media"));
-                    f.reset();
-                    setStatus("อัปโหลดแล้ว");
-                  } catch (e) {
-                    report(e);
-                  }
-                }}
-              >
-                <label>
-                  SVG / PNG / JPEG / WebP (ไม่เกิน 8 MB)
-                  <input
-                    name="file"
-                    type="file"
-                    accept="image/svg+xml,image/png,image/jpeg,image/webp"
-                    required
-                  />
-                </label>
-                <label>
-                  แหล่งที่มา / URL
-                  <input name="source" required />
-                </label>
-                <label>
-                  สิทธิ์การใช้งาน / เจ้าของ
-                  <input name="license" required />
-                </label>
-                <button>อัปโหลดและตรวจไฟล์</button>
-              </form>
-              <div className="media-list">
-                {media.map((m) => (
-                  <figure key={m.id}>
-                    <img src={m.url} alt={m.name} />
-                    <figcaption>
-                      {m.name}
-                      <input aria-label="URL" readOnly value={m.url} />
-                      {m.source} · {m.license}
-                    </figcaption>
-                  </figure>
-                ))}
+              <div className="cms-savebar">
+                <div>
+                  <span className="cms-save-indicator" data-dirty={dirty} />
+                  <span>
+                    {busy
+                      ? "กำลังบันทึก…"
+                      : dirty
+                        ? "คุณมีการแก้ไขที่ยังไม่บันทึก"
+                        : savedAt
+                          ? "บันทึกเมื่อ " +
+                            savedAt.toLocaleTimeString("th-TH", {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })
+                          : "ข้อมูลทั้งหมดบันทึกแล้ว"}
+                  </span>
+                </div>
+                <div className="cms-row-actions">
+                  <button
+                    className="cms-secondary"
+                    disabled={!dirty || busy}
+                    onClick={() => {
+                      if (confirm("ยกเลิกการแก้ไขที่ยังไม่บันทึก?"))
+                        setDraft(clone(docs[tab].value));
+                    }}
+                  >
+                    <Undo2 size={16} />
+                    ยกเลิกการแก้ไข
+                  </button>
+                  <button
+                    className="cms-primary"
+                    disabled={!dirty || busy}
+                    onClick={save}
+                  >
+                    <Save size={16} />
+                    {busy ? "กำลังบันทึก…" : "บันทึกการเปลี่ยนแปลง"}
+                  </button>
+                </div>
+              </div>
+              <div className="cms-editor-utilities">
+                <button
+                  className="cms-text-button"
+                  disabled={busy}
+                  onClick={() => {
+                    if (
+                      confirm(
+                        "นำค่าเริ่มต้นของหมวดนี้มาแทนในแบบร่าง? ยังไม่บันทึกจนกว่าคุณจะกดบันทึก",
+                      )
+                    )
+                      setDraft(clone(defaults[tab]));
+                  }}
+                >
+                  คืนค่าเริ่มต้น
+                </button>
+                <button
+                  className="cms-text-button"
+                  disabled={busy}
+                  onClick={() => {
+                    if (
+                      !dirty ||
+                      confirm("โหลดข้อมูลใหม่และยกเลิกแบบร่างที่ยังไม่บันทึก?")
+                    )
+                      load().then(() => notice("โหลดข้อมูลใหม่แล้ว"));
+                  }}
+                >
+                  <RefreshCw size={14} />
+                  โหลดข้อมูลใหม่
+                </button>
               </div>
             </>
           )}
           {tab === "articles" && (
-            <>
-              <button
-                onClick={() =>
-                  setArticle({
-                    slug: "",
-                    title: { th: "", en: "" },
-                    excerpt: { th: "", en: "" },
-                    body: { th: "", en: "" },
-                    category: docs.news.value.categories[0].id,
-                    status: "draft",
-                    publishedAt: new Date().toISOString(),
-                    image: { url: "", alt: { th: "", en: "" }, crop: null },
-                    gallery: [],
-                  })
-                }
-              >
-                เพิ่มบทความ
-              </button>
-              {article ? (
-                <>
-                  <Field
-                    path="บทความ"
-                    value={Object.fromEntries(
-                      Object.entries(article).filter(
-                        ([k]) => !["id", "revision"].includes(k),
-                      ),
-                    )}
-                    onChange={(x) => setArticle({ ...article, ...x })}
-                    media={media}
-                  />
-                  <button
-                    onClick={async () => {
-                      try {
-                        await api(
-                          "/admin/articles" +
-                            (article.id ? "/" + article.id : ""),
-                          {
-                            method: article.id ? "PATCH" : "POST",
-                            body: article.id
-                              ? {
-                                  revision: article.revision,
-                                  patch: Object.fromEntries(
-                                    Object.entries(article).filter(
-                                      ([k]) => !["id", "revision"].includes(k),
-                                    ),
-                                  ),
-                                }
-                              : article,
-                          },
-                        );
-                        setList(await api("/admin/articles"));
-                        setArticle(null);
-                        setStatus("บันทึกบทความแล้ว");
-                      } catch (e) {
-                        report(e);
-                      }
-                    }}
-                  >
-                    บันทึกบทความ
-                  </button>
-                  <button onClick={() => setArticle(null)}>กลับรายการ</button>
-                </>
-              ) : (
-                list.map((a) => (
-                  <article className="admin-list-item" key={a.id}>
-                    <strong>{a.title.th}</strong>
-                    <span>
-                      {a.status} · {a.publishedAt}
-                    </span>
-                    <button onClick={() => setArticle(clone(a))}>แก้ไข</button>
-                    <button
-                      onClick={async () => {
-                        if (!confirm("ลบบทความนี้?")) return;
-                        try {
-                          await api("/admin/articles/" + a.id, {
-                            method: "DELETE",
-                            body: { revision: a.revision },
-                          });
-                          setList(await api("/admin/articles"));
-                        } catch (e) {
-                          report(e);
-                        }
-                      }}
-                    >
-                      ลบ
-                    </button>
-                  </article>
-                ))
-              )}
-            </>
+            <ArticlesPanel
+              categories={docs.news.value.categories}
+              media={media}
+              onNotice={notice}
+              onChanged={refreshOverview}
+              onDirtyChange={setArticleDirty}
+            />
           )}
-          {tab === "contacts" &&
-            list.map((c) => (
-              <article className="admin-list-item" key={c.id}>
-                <strong>
-                  {c.value.name} · {c.value.email}
-                </strong>
-                <p>
-                  {c.value.company} · {c.value.phone}
-                </p>
-                <p className="prose">{c.value.message}</p>
-                <small>
-                  {c.created_at} · อีเมล: {c.mail_status}
-                </small>
-                <label>
-                  สถานะ
-                  <select
-                    value={c.status}
-                    onChange={async (e) => {
-                      try {
-                        await api("/admin/contacts/" + c.id, {
-                          method: "PATCH",
-                          body: { status: e.target.value },
-                        });
-                        setList(await api("/admin/contacts"));
-                      } catch (e) {
-                        report(e);
-                      }
-                    }}
-                  >
-                    {["new", "read", "resolved"].map((s) => (
-                      <option key={s}>{s}</option>
-                    ))}
-                  </select>
-                </label>
-                <button
-                  onClick={async () => {
-                    if (confirm("ลบข้อมูลติดต่ออย่างถาวร?")) {
-                      await api("/admin/contacts/" + c.id, {
-                        method: "DELETE",
-                      });
-                      setList(await api("/admin/contacts"));
-                    }
-                  }}
-                >
-                  ลบข้อมูลส่วนบุคคล
-                </button>
-              </article>
-            ))}
+          {tab === "media" && (
+            <MediaPanel
+              media={media}
+              onRefresh={refreshMedia}
+              onNotice={notice}
+            />
+          )}
+          {tab === "contacts" && (
+            <ContactsPanel onNotice={notice} onChanged={refreshOverview} />
+          )}
           {tab === "subscribers" && (
-            <>
-              <p>
-                ต้นแบบไม่มีฟอร์มสมัครรับข่าวสาร จึงไม่เพิ่มฟอร์มบนเว็บไซต์ API
-                รับข้อมูลและหน้าจัดการพร้อมใช้งาน แต่ยังไม่มีระบบส่งแคมเปญ
-              </p>
-              {list.map((s) => (
-                <article className="admin-list-item" key={s.id}>
-                  {s.email} · {s.created_at}
-                  <button
-                    onClick={async () => {
-                      if (confirm("ลบผู้สมัครนี้?")) {
-                        await api("/admin/subscribers/" + s.id, {
-                          method: "DELETE",
-                        });
-                        setList(await api("/admin/subscribers"));
-                      }
-                    }}
-                  >
-                    ลบ
-                  </button>
-                </article>
-              ))}
-            </>
+            <SubscribersPanel onNotice={notice} onChanged={refreshOverview} />
           )}
           {tab === "password" && (
-            <form
-              onSubmit={async (e) => {
-                e.preventDefault();
-                try {
-                  await api("/password", {
-                    method: "POST",
-                    body: Object.fromEntries(new FormData(e.currentTarget)),
-                  });
-                  setAuthenticated(false);
-                  await api("/session");
-                  setStatus("เปลี่ยนรหัสผ่านแล้ว กรุณาเข้าสู่ระบบใหม่");
-                } catch (e) {
-                  report(e);
-                }
-              }}
-            >
-              <label>
-                รหัสผ่านปัจจุบัน
-                <input
-                  type="password"
-                  name="current"
-                  autoComplete="current-password"
-                  required
-                />
-              </label>
-              <label>
-                รหัสผ่านใหม่ (12 ตัวอักษรขึ้นไป)
-                <input
-                  type="password"
-                  name="password"
-                  autoComplete="new-password"
-                  minLength={12}
-                  maxLength={200}
-                  required
-                />
-              </label>
-              <button>เปลี่ยนรหัสผ่านและออกจากทุก session</button>
-            </form>
+            <SecurityPanel
+              onNotice={notice}
+              onLoggedOut={() => endSession("เปลี่ยนรหัสผ่านแล้ว กรุณาเข้าสู่ระบบใหม่")}
+            />
           )}
-        </main>
-      </div>
-    </div>
+        </>
+      )}
+    </AdminShell>
   );
 }

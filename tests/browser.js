@@ -149,6 +149,7 @@ try {
   await page.getByLabel("รหัสผ่าน", { exact: true }).fill(password);
   await page.getByRole("button", { name: "เข้าสู่ระบบ", exact: true }).click();
   await page.getByRole("heading", { name: "BSIGN TECH · CMS" }).waitFor();
+  await page.getByRole("button", { name: "หน้าแรก", exact: true }).click();
   await page
     .getByLabel("ไทย", { exact: true })
     .first()

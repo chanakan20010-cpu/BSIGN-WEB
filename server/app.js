@@ -8,7 +8,13 @@ import createDOMPurify from "dompurify";
 import { JSDOM } from "jsdom";
 import nodemailer from "nodemailer";
 import { randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
-import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import {
+  readFileSync,
+  writeFileSync,
+  existsSync,
+  readdirSync,
+  statSync,
+} from "node:fs";
 import path from "node:path";
 import { z } from "zod";
 import { openDb, readDoc, merge, SqliteStore } from "./db.js";
@@ -390,6 +396,76 @@ export function createApp({
     r.json(a);
   });
   app.get("/api/admin/articles", auth, (_q, r) => r.json(rows()));
+  app.get("/api/admin/overview", auth, (_q, r) => {
+    const articles = rows();
+    const now = Date.now();
+    const count = (table, where = "") =>
+      db.prepare(`SELECT count(*) AS total FROM ${table}${where}`).get().total;
+    const uploads = path.join(directory, "uploads");
+    let uploadsBytes = 0;
+    for (const entry of readdirSync(uploads, { withFileTypes: true })) {
+      if (!entry.isFile()) continue;
+      try {
+        const file = statSync(path.join(uploads, entry.name));
+        if (file.isFile()) uploadsBytes += file.size;
+      } catch (error) {
+        // A file removed between directory listing and stat is already gone.
+        if (error.code !== "ENOENT" && error.code !== "ENOTDIR") throw error;
+      }
+    }
+    r.json({
+      counts: {
+        articles: articles.length,
+        published: articles.filter(
+          (a) => a.status === "published" && Date.parse(a.publishedAt) <= now,
+        ).length,
+        draft: articles.filter((a) => a.status === "draft").length,
+        scheduled: articles.filter(
+          (a) => a.status === "published" && Date.parse(a.publishedAt) > now,
+        ).length,
+        contacts: count("contacts"),
+        unread: count("contacts", " WHERE status='new'"),
+        subscribers: count("subscribers"),
+        media: count("media"),
+        admins: count("users"),
+      },
+      recentArticles: [...articles]
+        .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
+        .slice(0, 5)
+        .map((a) => ({
+          id: a.id,
+          title: { th: a.title.th, en: a.title.en },
+          status: a.status,
+          publishedAt: a.publishedAt,
+        })),
+      recentContacts: db
+        .prepare(
+          "SELECT id,value,status,created_at FROM contacts ORDER BY created_at DESC LIMIT 3",
+        )
+        .all()
+        .map((c) => {
+          const value = JSON.parse(c.value);
+          return {
+            id: c.id,
+            name: value.name,
+            email: value.email,
+            status: c.status,
+            createdAt: c.created_at,
+          };
+        }),
+      system: {
+        version,
+        database: "SQLite",
+        healthy: db.prepare("SELECT 1 AS ok").get().ok === 1,
+        uploadsBytes,
+        smtpConfigured: Boolean(
+          process.env.SMTP_HOST && process.env.MAIL_FROM && process.env.MAIL_TO,
+        ),
+        schemaVersion: db.prepare("SELECT max(version) AS version FROM migrations")
+          .get().version,
+      },
+    });
+  });
   const validArticle = (value, id) => {
     const a = articleSchema.parse(value);
     if (!readDoc(db, "news").value.categories.some((c) => c.id === a.category))

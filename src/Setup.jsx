@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { api } from "./api";
+import { AdminAuthFrame } from "./admin/AdminLogin";
 export default function Setup() {
   const navigate = useNavigate();
   const recovery = new URLSearchParams(location.search).get("recover") === "1";
@@ -20,7 +21,9 @@ export default function Setup() {
       await api("/session");
       if (!token) {
         if (live)
-          setMessage("กด “บัญชีแอดมิน / ลืมรหัสผ่าน” ในหน้าต่างเปิดพรีวิว เพื่อสร้างบัญชีครั้งแรก");
+          setMessage(
+            "กด “บัญชีแอดมิน / ลืมรหัสผ่าน” ในหน้าต่างเปิดพรีวิว เพื่อสร้างบัญชีครั้งแรก",
+          );
         return;
       }
       const s = await api("/setup", { headers: { "X-BSIGN-Setup": token } });
@@ -45,7 +48,9 @@ export default function Setup() {
     })().catch(
       () =>
         live &&
-        setMessage("ลิงก์นี้หมดอายุแล้ว กรุณากด “บัญชีแอดมิน / ลืมรหัสผ่าน” ในหน้าต่างเปิดพรีวิวอีกครั้ง"),
+        setMessage(
+          "ลิงก์นี้หมดอายุแล้ว กรุณากด “บัญชีแอดมิน / ลืมรหัสผ่าน” ในหน้าต่างเปิดพรีวิวอีกครั้ง",
+        ),
     );
     return () => {
       live = false;
@@ -82,13 +87,14 @@ export default function Setup() {
     }
   }
   return (
-    <main className="admin login">
-      <h1>{recovery ? "ตั้งรหัสผ่านแอดมินใหม่" : "สร้างบัญชีแอดมิน BSIGN TECH"}</h1>
-      <p>
-        {recovery
+    <AdminAuthFrame
+      title={recovery ? "ตั้งรหัสผ่านแอดมินใหม่" : "สร้างบัญชีแอดมิน BSIGN TECH"}
+      description={
+        recovery
           ? "เลือกบัญชีในเครื่องนี้แล้วตั้งรหัสผ่านใหม่ ข้อมูลเว็บไซต์จะคงอยู่ และทุกบัญชีจะออกจากระบบ"
-          : "ไม่มี username หรือ password สำเร็จรูป ตั้งอีเมลและรหัสผ่านของคุณเอง อีเมลนี้ใช้เป็นชื่อเข้าสู่ระบบ"}
-      </p>
+          : "ตั้งอีเมลและรหัสผ่านของคุณเพื่อเริ่มจัดการเว็บไซต์ อีเมลนี้ใช้เป็นชื่อเข้าสู่ระบบ"
+      }
+    >
       {ready && (
         <form onSubmit={submit}>
           <label>
@@ -144,13 +150,13 @@ export default function Setup() {
         </form>
       )}
       <p role="status">{message}</p>
-      <div className="admin-actions">
+      <div className="cms-auth-links">
         <Link to="/">ดูเว็บไซต์ก่อน</Link>
         <Link to="/admin">
           {done ? "เข้าสู่ระบบด้วยรหัสผ่านใหม่" : "มีบัญชีแล้ว · เข้าสู่ระบบ"}
         </Link>
       </div>
       <p>ข้อมูลจะอยู่ในเครื่องของคุณเมื่อปิดและเปิดพรีวิวใหม่</p>
-    </main>
+    </AdminAuthFrame>
   );
 }
