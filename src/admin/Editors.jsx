@@ -257,7 +257,13 @@ function TextControl({ value, onChange, path, label }) {
       {multiline ? (
         <textarea
           aria-label={label}
-          lang={path.endsWith(".en") ? "en" : undefined}
+          lang={
+            path.endsWith(".en")
+              ? "en"
+              : path.endsWith(".th")
+                ? "th"
+                : undefined
+          }
           value={value}
           rows={heading ? 2 : /body|privacy/.test(path) ? 7 : 4}
           onChange={(e) => onChange(e.target.value)}
@@ -265,7 +271,13 @@ function TextControl({ value, onChange, path, label }) {
       ) : (
         <input
           aria-label={label}
-          lang={path.endsWith(".en") ? "en" : undefined}
+          lang={
+            path.endsWith(".en")
+              ? "en"
+              : path.endsWith(".th")
+                ? "th"
+                : undefined
+          }
           value={value}
           type="text"
           onChange={(e) => onChange(e.target.value)}
@@ -362,7 +374,12 @@ export function Field({ value, onChange, path = "", media = [] }) {
       );
     if ("url" in value && "alt" in value)
       return (
-        <fieldset className="cms-field-group cms-image-editor">
+        <fieldset
+          className={
+            "cms-field-group cms-image-editor" +
+            (["logo", "footerLogo"].includes(key) ? " cms-logo-editor" : "")
+          }
+        >
           <legend>{label}</legend>
           <div className="cms-field-grid">
             <Field

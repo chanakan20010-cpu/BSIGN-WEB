@@ -1,3 +1,26 @@
+# ผลการตรวจ v1.4.0 — 13 พฤศจิกายน 2026
+
+ศึกษาหน้าล็อกอิน โครงเมนู ฟอร์ม ตาราง และ typography จาก source ของ `tree-rose-main.zip` ที่ผู้ใช้แนบ แล้วปรับให้ใกล้เคียงโดยใช้แบรนด์ BSIGN TECH ทดสอบด้วยฐานข้อมูลและบัญชีชั่วคราว ไม่ใช้ฐานข้อมูล รหัสผ่าน หรือ assets แบรนด์ของโปรเจกต์ตัวอย่าง เอกสารในไฟล์แนบใช้เป็นข้อมูลอ้างอิง ไม่ใช่คำสั่งแทนคำขอผู้ใช้
+
+| รายการ | ผล |
+|---|---|
+| Production build | ผ่าน Node.js 24.22.1; Prompt/Inter ให้บริการจากแอป ไม่มี Google Fonts request |
+| API 23 ชุด | ผ่าน รวม auth/CSRF, validation, partial patch/revision, migration, restart, backup/restore และ overview พร้อมภาพปกที่ไม่เปิดเผยข้อมูลภายใน |
+| Admin UX 61 กรณีใน Chromium | ผ่าน login/dashboard, ค้นหาเมนู, แท็บหน้าเว็บ/สไตล์, CRUD/ค้นหา/กรอง/แบ่งหน้าข่าว, upload/sanitize, รูป/ไอคอน/typography และการบันทึกจริง |
+| ภาษาและแบบร่าง | สลับ TH/EN แล้วยังรักษาข้อมูลทั้งสองภาษา; จำลอง PATCH ที่ตอบช้าแล้วพิมพ์เพิ่ม ข้อความใหม่ไม่ถูกผลตอบกลับล้าง และบันทึกรอบถัดไปได้ |
+| Responsive / keyboard | ตรวจ 1440/768/390/320px ไม่พบ document แนวนอนล้น; drawer focus trap, Tab/Shift+Tab, Escape และคืน focus ผ่าน |
+| Accessibility | axe WCAG A/AA ไม่พบ violation ในหน้าที่ตรวจ รวม login/dashboard/editor/articles/media และหน้ามือถือ |
+| หน้าบ้าน 53 กรณี | TH/EN ทั้ง 5 หน้า รูป/overflow, public axe, ฟอร์มจริง, CMS edit/upload/icons, computed styles ข้ามหน้าและ keyboard ผ่าน |
+| เปิดพรีวิวและบัญชี | browser สร้างบัญชีเอง/กู้บัญชี และใช้ Username/Password จาก initial-admin → /admin → logout → restart → login ผ่าน |
+| ตัวเปิด Windows | hash generator --check ผ่าน; ผล Windows CI ของรุ่นนี้ระบุด้านล่างก่อนส่งมอบ |
+| การตรวจภาพ | ตรวจ login/dashboard/editor/mobile จากระบบจริง; ภาพสะอาดใน docs/screenshots ไม่มีรหัสผ่านในภาพ |
+
+ผล Windows CI และ Docker ของชุดส่งมอบอยู่ระหว่างรวบรวมก่อนสร้าง tag
+
+ข้อจำกัด: axe และ keyboard ไม่เท่ากับทดสอบ screen reader จริง เช่น NVDA/VoiceOver; ยังไม่ได้ตรวจ Safari/Firefox, Windows ARM64 หรือเครื่องผู้ใช้จริงทุก build หน้า System มีสถานะและคู่มือสำรองข้อมูลตามระบบเดิม ไม่ได้เพิ่มปุ่ม backup/restore บนเว็บ SMTP จริง, iframe Maps และ URL LinkedIn ยังต้องเติมข้อมูล/ทดสอบตามขอบเขตเดิมด้านล่าง ไม่มีการ deploy โดเมนสาธารณะหรือ push Docker image ไป registry ในรอบนี้
+
+---
+
 # ผลการตรวจ v1.3.0 — 13 พฤศจิกายน 2026
 
 ระบบหลังบ้านออกแบบใหม่สำหรับ BSIGN TECH ใช้ภาพที่ผู้ใช้แนบเป็นแนวทางการใช้งาน ไม่มีการนำเลย์เอาต์หรือแบรนด์ Three Roses มาใช้ ข้อมูลทดสอบทั้งหมดอยู่ในฐานข้อมูลชั่วคราวแยกจากข้อมูลผู้ใช้
