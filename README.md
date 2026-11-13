@@ -113,7 +113,7 @@ Production ต้องตั้ง `NODE_ENV=production`, `APP_ORIGIN=https://�
 Docker build ใน Codex cloud ต้องส่ง CA ให้ npm โดยรักษา TLS verification:
 
 ```sh
-docker build --secret id=proxy_ca,src="$CODEX_PROXY_CERT" -t bsign-web:1.3.0 .
+docker build --secret id=proxy_ca,src="$CODEX_PROXY_CERT" -t bsign-web:1.4.0 .
 docker compose up --no-build -d
 ```
 
@@ -170,4 +170,4 @@ API ส่ง error code แทนข้อมูลภายในและไ�
 
 ![ภาพรวมระบบหลังบ้าน BSIGN TECH](docs/screenshots/admin-dashboard.png)
 
-[หน้าเข้าสู่ระบบ](docs/screenshots/admin-login.png) · [หน้าจัดการข้อมูลเว็บไซต์](docs/screenshots/admin-editor.png) · [ภาพบนมือถือ](docs/screenshots/admin-mobile.png)
+[หน้าเข้าสู่ระบบ](docs/screenshots/admin-login.png) · [หน้าจัดการข้อมูลเว็บไซต์](docs/screenshots/admin-editor.png) · [สไตล์เว็บไซต์](docs/screenshots/admin-styles.png) · [ภาพบนมือถือ](docs/screenshots/admin-mobile.png)

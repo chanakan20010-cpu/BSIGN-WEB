@@ -12,10 +12,17 @@
 | Accessibility | axe WCAG A/AA ไม่พบ violation ในหน้าที่ตรวจ รวม login/dashboard/editor/articles/media และหน้ามือถือ |
 | หน้าบ้าน 53 กรณี | TH/EN ทั้ง 5 หน้า รูป/overflow, public axe, ฟอร์มจริง, CMS edit/upload/icons, computed styles ข้ามหน้าและ keyboard ผ่าน |
 | เปิดพรีวิวและบัญชี | browser สร้างบัญชีเอง/กู้บัญชี และใช้ Username/Password จาก initial-admin → /admin → logout → restart → login ผ่าน |
-| ตัวเปิด Windows | hash generator --check ผ่าน; ผล Windows CI ของรุ่นนี้ระบุด้านล่างก่อนส่งมอบ |
+| Docker / Compose | build image v1.4.0 ผ่าน, HTTP/API, non-root และข้อมูลอยู่หลังเปลี่ยน container ผ่าน; Compose config ผ่าน |
+| ตัวเปิด Windows | hash generator --check และ Windows CI ของรุ่นนี้ผ่าน รายละเอียดด้านล่าง |
 | การตรวจภาพ | ตรวจ login/dashboard/editor/mobile จากระบบจริง; ภาพสะอาดใน docs/screenshots ไม่มีรหัสผ่านในภาพ |
 
-ผล Windows CI และ Docker ของชุดส่งมอบอยู่ระหว่างรวบรวมก่อนสร้าง tag
+Windows Server 2022 x64 / PowerShell 5.1 ผ่าน [Windows preview run #14](https://github.com/chanakan20010-cpu/BSIGN-WEB/actions/runs/43440206336) — implementation commit `f070bd51ec8e66b200d89b13c1253022af39482f` สถานะ workflow และ job เป็น Success (2 นาที 34 วินาที):
+
+- แตก source ZIP ลงโฟลเดอร์ที่มีช่องว่างและภาษาไทย ตรวจ START-WINDOWS กับ NTFS Zone.Identifier เพื่อจำลองไฟล์ดาวน์โหลด รวมการปฏิเสธไฟล์ที่ถูกแก้และปลดบล็อกเฉพาะสคริปต์ที่ตรวจ hash แล้ว
+- ตรวจ CMD/portable Node, initial-admin login/restart, WinForms และ GUI/VBS โดยไม่เปลี่ยน Execution Policy ถาวร
+- API 23 ชุด และ Edge browser สำหรับ setup/recovery, initial-admin และ Admin UX 61 กรณีผ่านตามขั้นตอนที่กำหนดใน workflow
+
+CI ใช้ Edge headless; ยืนยันสถานะสำเร็จจากหน้า workflow/job สาธารณะ ไม่ได้อ่าน log รายขั้นที่ต้องเข้าสู่ระบบ การจำลอง Mark-of-the-Web บนไฟล์ที่แตกแล้วไม่ใช่การดาวน์โหลดผ่านเบราว์เซอร์และแตก ZIP ด้วย Explorer บนเครื่องผู้ใช้จริง
 
 ข้อจำกัด: axe และ keyboard ไม่เท่ากับทดสอบ screen reader จริง เช่น NVDA/VoiceOver; ยังไม่ได้ตรวจ Safari/Firefox, Windows ARM64 หรือเครื่องผู้ใช้จริงทุก build หน้า System มีสถานะและคู่มือสำรองข้อมูลตามระบบเดิม ไม่ได้เพิ่มปุ่ม backup/restore บนเว็บ SMTP จริง, iframe Maps และ URL LinkedIn ยังต้องเติมข้อมูล/ทดสอบตามขอบเขตเดิมด้านล่าง ไม่มีการ deploy โดเมนสาธารณะหรือ push Docker image ไป registry ในรอบนี้
 
