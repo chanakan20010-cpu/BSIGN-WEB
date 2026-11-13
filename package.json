@@ -17,7 +17,8 @@
     "restore": "node --env-file-if-exists=.env scripts/restore.js",
     "test:docker": "node tests/docker-smoke.js",
     "test:dev": "node tests/dev-smoke.js",
-    "test:preview": "node tests/preview-browser.js"
+    "test:preview": "node tests/preview-browser.js",
+    "test:admin": "node tests/admin-browser.js"
   },
   "dependencies": {
     "@fontsource/noto-sans": "^5.3.0",

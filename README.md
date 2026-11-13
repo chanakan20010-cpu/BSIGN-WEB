@@ -147,6 +147,7 @@ npm test
 npm run build
 npm run test:browser
 npm run test:preview
+npm run test:admin
 ```
 
 Browser tests ใช้ Chromium (`CHROMIUM_PATH` เปลี่ยนตำแหน่ง binary ได้) ใช้ฐานข้อมูลและบัญชีสุ่มชั่วคราว ไม่เขียนข้อมูลทดสอบลง `.data` สร้าง screenshots ใน test-results ซึ่งไม่ commit
@@ -161,7 +162,7 @@ Browser tests ใช้ Chromium (`CHROMIUM_PATH` เปลี่ยนตำแ
 
 POST `/api/login`, `/api/logout`, `/api/password`, `/api/contact`, `/api/subscribe`
 
-ผู้ดูแล: GET `/api/admin/documents`, PATCH `/api/admin/documents/:key` ส่ง `{revision,patch}`; CRUD `/api/admin/articles`; GET/POST multipart `/api/admin/media`; GET/PATCH/DELETE `/api/admin/contacts`; GET/DELETE `/api/admin/subscribers`
+ผู้ดูแล: GET `/api/admin/overview` สำหรับภาพรวมและสถานะระบบ; GET `/api/admin/documents`, PATCH `/api/admin/documents/:key` ส่ง `{revision,patch}`; CRUD `/api/admin/articles`; GET/POST multipart `/api/admin/media`; GET/PATCH/DELETE `/api/admin/contacts`; GET/DELETE `/api/admin/subscribers`
 
 API ส่ง error code แทนข้อมูลภายในและไม่แสดง stack/รหัสผ่านให้ client; HTML ไม่รับ raw content จาก CMS ใช้ text rendering เพื่อป้องกัน XSS
 
