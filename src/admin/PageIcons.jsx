@@ -54,6 +54,11 @@ export function pageIconSlots(page, group, value) {
     ],
     "news.intro": [
       ...sharedNews,
+      [
+        "section.marker",
+        "marker",
+        "เครื่องหมายหัวข้อข่าวที่เกี่ยวข้อง (หน้ารายละเอียดข่าว)",
+      ],
       ["news.latest", "marker", "ป้ายข่าวล่าสุด"],
       ["news.featured.arrow", "arrow", "ลูกศรปุ่มข่าวเด่น"],
       ["news.search", "search", "ไอคอนค้นหาข่าว"],

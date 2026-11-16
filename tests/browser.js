@@ -187,15 +187,32 @@ try {
   checks++;
   await adminNavigate("ข้อมูลเว็บไซต์", ".cms-website-tabs", "หน้าแรก");
   await page.getByRole("button", { name: "แก้ไขภาษาไทย", exact: true }).click();
-  await page.getByLabel("เลือกจากคลัง").first().selectOption({ index: 1 });
+  await expect(page.getByLabel("เลือกจากคลัง", { exact: true })).toHaveCount(0);
+  await page
+    .locator(".cms-image-editor input[type=file]")
+    .first()
+    .setInputFiles({
+      name: "hero-direct.svg",
+      mimeType: "image/svg+xml",
+      buffer: Buffer.from(
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 40"><path fill="#123456" d="M0 0h80v40H0z"/></svg>',
+      ),
+    });
+  await page
+    .getByText("อัปโหลดแล้ว 1 ภาพ กรุณาบันทึกการเปลี่ยนแปลง", { exact: true })
+    .waitFor();
   await page
     .getByRole("button", { name: "บันทึกการเปลี่ยนแปลง", exact: true })
     .click();
   await page.getByText("บันทึกแล้ว", { exact: true }).waitFor();
   checks++;
-  await adminNavigate("สไตล์เว็บไซต์", ".cms-design-tabs", "ไอคอน");
-  await page.getByLabel("คลังไอคอน").selectOption("Rocket");
-  await page.getByLabel("สีไอคอน (SVG / ไอคอนสำเร็จรูป)").fill("#123456");
+  const scopedArrow = page.locator(".cms-inline-icon-editor").filter({
+    has: page.getByLabel("รหัสสีไอคอน home.hero.arrow", { exact: true }),
+  });
+  await scopedArrow.getByRole("combobox").first().selectOption("Rocket");
+  await scopedArrow
+    .getByLabel("รหัสสีไอคอน home.hero.arrow", { exact: true })
+    .fill("#123456");
   await page
     .getByRole("button", { name: "บันทึกการเปลี่ยนแปลง", exact: true })
     .click();

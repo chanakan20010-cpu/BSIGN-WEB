@@ -66,7 +66,7 @@ try {
       จัดการบทความ: ["ข่าวสารและบทความ"],
       รูปภาพและไฟล์: ["คลังรูปภาพและไฟล์"],
       สไตล์ตัวอักษร: ["สไตล์เว็บไซต์", ".cms-design-tabs", "ตัวอักษร"],
-      ไอคอน: ["สไตล์เว็บไซต์", ".cms-design-tabs", "ไอคอน"],
+      ติดต่อเรา: ["ข้อมูลเว็บไซต์", ".cms-website-tabs", "ติดต่อเรา"],
       ข้อความติดต่อ: ["กล่องข้อความ"],
       ผู้สมัครรับข่าวสาร: ["ผู้รับข่าวสาร"],
       ข้อมูลระบบ: ["ระบบและการสำรองข้อมูล"],
@@ -165,7 +165,7 @@ try {
   await shot("admin-dashboard");
   await audit("dashboard desktop");
 
-  await page.getByLabel("ค้นหาหมวด", { exact: true }).fill("ไอคอน");
+  await page.getByLabel("ค้นหาหมวด", { exact: true }).fill("หน้าแรก");
   await expect(page.locator(".cms-nav-button")).toHaveCount(1);
   await page.getByLabel("ค้นหาหมวด", { exact: true }).fill("");
   checks++;
@@ -419,12 +419,15 @@ try {
   );
   checks += 2;
 
-  await navigate("ไอคอน");
-  await page.getByLabel("คลังไอคอน", { exact: true }).selectOption("Rocket");
-  await page
-    .getByLabel("สีไอคอน (SVG / ไอคอนสำเร็จรูป)", { exact: true })
+  await navigate("หน้าแรก");
+  const inlineIcon = page.locator(".cms-inline-icon-editor").filter({
+    has: page.getByLabel("รหัสสีไอคอน home.hero.arrow", { exact: true }),
+  });
+  await inlineIcon.getByRole("combobox").first().selectOption("Rocket");
+  await inlineIcon
+    .getByLabel("รหัสสีไอคอน home.hero.arrow", { exact: true })
     .fill("#234567");
-  await expect(page.locator(".cms-icon-sample .icon")).toHaveCSS(
+  await expect(inlineIcon.locator(".cms-icon-sample .icon")).toHaveCSS(
     "color",
     "rgb(35, 69, 103)",
   );
@@ -432,8 +435,14 @@ try {
     .getByRole("button", { name: "บันทึกการเปลี่ยนแปลง", exact: true })
     .click();
   await page.getByText("บันทึกแล้ว", { exact: true }).waitFor();
-  assert.equal((await content()).icons.shared.arrow.name, "Rocket");
-  assert.equal((await content()).icons.shared.arrow.color, "#234567");
+  assert.equal(
+    (await content()).icons.overrides["home.hero.arrow"].name,
+    "Rocket",
+  );
+  assert.equal(
+    (await content()).icons.overrides["home.hero.arrow"].color,
+    "#234567",
+  );
   checks++;
 
   // Verify representative real content in each responsive view, not only the shell.
@@ -443,7 +452,7 @@ try {
     "จัดการบทความ",
     "รูปภาพและไฟล์",
     "สไตล์ตัวอักษร",
-    "ไอคอน",
+    "ติดต่อเรา",
     "ข้อความติดต่อ",
     "ผู้สมัครรับข่าวสาร",
     "ข้อมูลระบบ",
