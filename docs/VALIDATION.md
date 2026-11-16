@@ -12,10 +12,17 @@
 | Maintenance | ผ่านทุกหน้าสาธารณะที่ตรวจ TH/EN รวมแท็บผู้เข้าชมที่เปิดอยู่ก่อนปิดเว็บ (poll 3 วินาที), API สาธารณะ 503, เก็บเนื้อหาออกจาก public content response, admin login ขณะปิด, restart และเปิดเว็บกลับ |
 | รักษาข้อมูล | migration ทำซ้ำได้และรักษาไอคอนที่ผู้ใช้ปรับไว้; client เก่าที่ไม่ส่ง blocks ไม่ล้างย่อหน้าใหม่; backup/restore รักษารูปกับเนื้อหาใหม่ |
 | บัญชีพรีวิว | browser setup/recovery และบัญชีจาก initial-admin → /admin → logout → restart → login ผ่าน |
-| ตัวเปิด Windows | generator --check ผ่าน; ผล Windows CI ของชุดส่งมอบระบุก่อนสร้าง tag |
+| Docker / Compose | build v1.5.0, HTTP/API, non-root และข้อมูลอยู่หลังเปลี่ยน container ผ่าน; Compose config ผ่าน |
+| ตัวเปิด Windows | generator --check และ Windows CI ของชุดส่งมอบผ่าน รายละเอียดด้านล่าง |
 | ตรวจภาพจริง | ตรวจ dashboard, editor, paragraph/image controls, public news/contact และ maintenance; ภาพตัวอย่างใน docs/screenshots ไม่มีรหัสผ่าน |
 
-ผล Windows CI และ Docker ชุดส่งมอบอยู่ระหว่างบันทึกก่อนสร้าง tag
+Windows Server 2022 x64 / PowerShell 5.1 ผ่าน [Windows preview run #15](https://github.com/chanakan20010-cpu/BSIGN-WEB/actions/runs/43800619302) — implementation commit `8138184`, workflow Success (2 นาที 25 วินาที), job succeeded (2 นาที 21 วินาที):
+
+- แตก source ZIP ในโฟลเดอร์ที่มีช่องว่างและภาษาไทย ตรวจ START-WINDOWS กับ Internet Zone รวมการปฏิเสธสคริปต์ที่ถูกแก้ ตรวจ hash และปลดบล็อกเฉพาะไฟล์ที่กำหนด
+- ตรวจ portable Node, initial-admin login/restart, WinForms/GUI/VBS โดยไม่เปลี่ยน Execution Policy ถาวร
+- API ทั้ง 27 ชุด และ Edge browser สำหรับ setup/recovery, initial-admin, Admin UX 61 กรณี และรายการแก้ไข 01 อีก 40 กรณีผ่านตามขั้นตอนที่กำหนดใน workflow
+
+CI ใช้ Edge headless และจำลอง Mark-of-the-Web บนไฟล์ที่แตกแล้ว ยืนยันสถานะสำเร็จจากหน้า workflow/job สาธารณะ ไม่ได้อ่าน log ที่ต้องเข้าสู่ระบบ ไม่เท่ากับการดาวน์โหลดและแตก ZIP ด้วย Explorer หรือการทดสอบ screen reader บนเครื่องผู้ใช้จริง
 
 ข้อจำกัดต้นฉบับ: ข่าวเดิม 3 เรื่องมีเพียงคำโปรยในไฟล์ที่ได้รับ จึงแสดงข้อความที่บันทึกจริงครั้งเดียวและมีเครื่องมือเพิ่มเนื้อหาฉบับเต็ม ไม่แต่งรายละเอียดกิจกรรมบริษัทที่ไม่มีต้นทาง บรรทัดท้ายเอกสารหลังบ้าน “แก้ไขให้รายจัด” ไม่สมบูรณ์จึงยังระบุการแก้ไขเพิ่มเติมจากบรรทัดนี้ไม่ได้
 
