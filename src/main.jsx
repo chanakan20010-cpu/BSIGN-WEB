@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { createRoot } from "react-dom/client";
 import {
   BrowserRouter,
@@ -28,6 +28,7 @@ import {
 } from "./shared";
 import Admin from "./Admin";
 import Setup from "./Setup";
+import MaintenancePage from "./MaintenancePage";
 import "./style.css";
 function App() {
   const [content, setContent] = useState(null);
@@ -36,12 +37,49 @@ function App() {
     localStorage.getItem("bsign-lang") === "en" ? "en" : "th",
   );
   const location = useLocation();
+  const contentRef = useRef(content);
+  contentRef.current = content;
   useEffect(() => {
     api("/content")
       .then(setContent)
       .catch(() => setError(true));
     if (location.pathname !== "/setup") api("/session").catch(() => {});
   }, []);
+  useEffect(() => {
+    if (
+      location.pathname.startsWith("/admin") ||
+      location.pathname === "/setup"
+    )
+      return;
+    let cancelled = false,
+      checking = false;
+    async function checkStatus() {
+      if (checking) return;
+      checking = true;
+      try {
+        const { maintenance } = await api("/status");
+        if (cancelled || !contentRef.current) return;
+        if (maintenance.enabled) {
+          setContent((current) => ({ ...current, maintenance }));
+        } else if (contentRef.current.maintenance?.enabled) {
+          const fullContent = await api("/content");
+          if (!cancelled) setContent(fullContent);
+        }
+      } catch {
+        /* Keep the last confirmed state during a temporary connection failure. */
+      } finally {
+        checking = false;
+      }
+    }
+    checkStatus();
+    const timer = setInterval(checkStatus, 3000);
+    window.addEventListener("focus", checkStatus);
+    return () => {
+      cancelled = true;
+      clearInterval(timer);
+      window.removeEventListener("focus", checkStatus);
+    };
+  }, [location.pathname]);
   useEffect(() => {
     document.documentElement.lang = lang;
     localStorage.setItem("bsign-lang", lang);
@@ -73,11 +111,13 @@ function App() {
   const t = (v) => (typeof v === "string" ? v : v?.[lang] || "");
   return (
     <Site.Provider value={{ content, setContent, lang, setLang, t }}>
-      <Typography styles={content.styles}>
+      <Typography styles={content.styles || {}}>
         {location.pathname === "/setup" ? (
           <Setup />
         ) : location.pathname.startsWith("/admin") ? (
           <Admin />
+        ) : content.maintenance?.enabled ? (
+          <MaintenancePage />
         ) : (
           <>
             <Header />
@@ -419,7 +459,12 @@ function NewsCard({ a }) {
   } = useSite();
   return (
     <article className="card news-card">
-      <Link to={"/news/" + a.slug} tabIndex={-1} aria-hidden="true">
+      <Link
+        className="news-card-media"
+        to={"/news/" + a.slug}
+        tabIndex={-1}
+        aria-hidden="true"
+      >
         <Picture value={a.image} />
       </Link>
       <div className="news-card-body">
@@ -463,7 +508,7 @@ function NewsCards({ limit = 6, exclude, category = "" }) {
       .catch(() => setFailed(true));
   }, [lang, limit, exclude, category]);
   return (
-    <div className="cards three">
+    <div className="cards three news-grid">
       {items ? (
         items.map((a) => <NewsCard a={a} key={a.id} />)
       ) : (
@@ -545,7 +590,14 @@ function News() {
           <>
             {page === 1 && !category && !params.get("q") && data.items[0] && (
               <article className="featured card">
-                <Picture value={data.items[0].image} />
+                <Link
+                  className="featured-media"
+                  to={"/news/" + data.items[0].slug}
+                  tabIndex={-1}
+                  aria-hidden="true"
+                >
+                  <Picture value={data.items[0].image} />
+                </Link>
                 <div>
                   <span className="category type-highlight">
                     <Icon name="marker" slot="news.latest" />
@@ -564,7 +616,7 @@ function News() {
               </article>
             )}
             <SectionHeading value={n.section} slot="news.section.marker" />
-            <div className="cards three">
+            <div className="cards three news-grid">
               {data.items
                 .filter(
                   (a, i) =>
@@ -601,6 +653,79 @@ function News() {
     </div>
   );
 }
+const articleImageRatios = {
+  "16:9": "16 / 9",
+  "4:3": "4 / 3",
+  "1:1": "1 / 1",
+  "3:4": "3 / 4",
+};
+function ArticleParagraph({ block }) {
+  const { t } = useSite();
+  const text = t(block.text);
+  const ratio = articleImageRatios[block.ratio] ? block.ratio : "original";
+  const align = ["left", "right"].includes(block.align)
+    ? block.align
+    : "center";
+  if (!text.trim() && !block.image?.url) return null;
+  return (
+    <div className="article-paragraph" data-align={align}>
+      {block.image?.url && (
+        <figure
+          className="article-paragraph-image"
+          data-ratio={ratio}
+          style={{ "--article-image-ratio": articleImageRatios[ratio] }}
+        >
+          <Picture value={block.image} />
+        </figure>
+      )}
+      {text.trim() && <p className="prose type-body">{text}</p>}
+    </div>
+  );
+}
+function ArticleContent({ article }) {
+  const { t } = useSite();
+  // An explicitly empty block list is an intentional empty body. Older records
+  // retain their original fields until the editor saves a block-based body.
+  if (Array.isArray(article.blocks))
+    return (
+      <div className="article-paragraphs">
+        {article.blocks.map((block, i) => (
+          <ArticleParagraph key={block.id || i} block={block} />
+        ))}
+      </div>
+    );
+  const normalise = (value) => value.replace(/\s+/g, " ").trim();
+  const body = t(article.body).trim();
+  const lead = t(article.lead || article.excerpt).trim();
+  const secondary = t(article.secondaryBody).trim();
+  return (
+    <div className="article-paragraphs">
+      {lead &&
+        (body || secondary) &&
+        normalise(lead) !== normalise(body) &&
+        !normalise(body).includes(normalise(lead)) && (
+          <p className="type-subheading article-lead">{lead}</p>
+        )}
+      {(body || (!secondary && lead)).split(/\n\s*\n/).map((paragraph, i) =>
+        paragraph.trim() ? (
+          <p className="prose type-body" key={i}>
+            {paragraph}
+          </p>
+        ) : null,
+      )}
+      {(secondary || article.inlineImage?.url) && (
+        <ArticleParagraph
+          block={{
+            text: article.secondaryBody,
+            image: article.inlineImage,
+            align: "left",
+            ratio: "original",
+          }}
+        />
+      )}
+    </div>
+  );
+}
 function Article() {
   const { slug } = useParams();
   const {
@@ -631,20 +756,15 @@ function Article() {
               </h1>
             </div>
             <div className="article-body">
-              <p className="type-subheading">{t(a.lead || a.excerpt)}</p>
-              <div className="prose type-body">{t(a.body)}</div>
-              {a.secondaryBody && (
-                <div className="article-split">
-                  <Picture value={a.inlineImage} />
-                  <div className="prose type-body">{t(a.secondaryBody)}</div>
-                </div>
-              )}
-              {a.gallery.length > 0 && (
+              <ArticleContent article={a} />
+              {a.gallery?.length > 0 && (
                 <>
                   <h2 className="type-heading">{t(n.gallery)}</h2>
-                  <div className="cards three">
+                  <div className="cards three article-gallery">
                     {a.gallery.map((v, i) => (
-                      <Picture value={v} key={i} />
+                      <div className="article-gallery-image" key={i}>
+                        <Picture value={v} />
+                      </div>
                     ))}
                   </div>
                 </>

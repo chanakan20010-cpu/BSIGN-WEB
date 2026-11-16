@@ -1,0 +1,55 @@
+.admin.cms .cms-device-upload {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  margin: 12px 0;
+  padding: 16px;
+  border: 1px dashed var(--cms-line);
+  border-radius: 6px;
+  background: #fcfbf8;
+}
+.admin.cms .cms-device-upload label > span {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.admin.cms .cms-device-upload > p {
+  font-size: 12px;
+}
+.admin.cms .cms-device-upload summary {
+  cursor: pointer;
+  font-size: 12px;
+}
+.admin.cms .cms-device-upload details[open] > div {
+  margin-top: 12px;
+}
+.admin.cms .cms-inline-icon-editor {
+  margin-top: 16px;
+}
+.admin.cms .cms-inline-icon-heading {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.admin.cms .cms-inline-icon-heading > span {
+  flex-shrink: 0;
+}
+.admin.cms .cms-inline-icon-scope {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin: 16px 0;
+}
+.admin.cms .cms-inline-icon-scope > button {
+  margin-left: auto;
+}
+.admin.cms .cms-transparent-toggle {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+}

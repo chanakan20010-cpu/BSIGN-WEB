@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
   ArrowUpRight,
@@ -26,12 +26,13 @@ import AdminShell from "./admin/AdminShell";
 import AdminLogin from "./admin/AdminLogin";
 import {
   Field,
-  IconEditor,
   StyleEditor,
   EditorLanguageContext,
   LanguageSwitcher,
 } from "./admin/Editors";
 import Dashboard from "./admin/Dashboard";
+import PageIcons from "./admin/PageIcons";
+import { ImageUploadBusyContext } from "./admin/DeviceImageUpload";
 import "./admin/fonts.css";
 import {
   ArticlesPanel,
@@ -154,7 +155,12 @@ export default function Admin() {
   const site = useSite();
   const [params, setParams] = useSearchParams();
   const requested = params.get("view") || "dashboard";
-  const tab = pages[requested] ? requested : "dashboard";
+  const tab =
+    requested === "icons"
+      ? "global"
+      : pages[requested]
+        ? requested
+        : "dashboard";
   const [authenticated, setAuthenticated] = useState(null),
     [docs, setDocs] = useState(null),
     [defaults, setDefaults] = useState(null),
@@ -170,15 +176,30 @@ export default function Admin() {
     [section, setSection] = useState(null),
     [articleDirty, setArticleDirty] = useState(false),
     [savedAt, setSavedAt] = useState(null),
-    [language, setLanguage] = useState("th");
+    [language, setLanguage] = useState("th"),
+    [iconDraft, setIconDraft] = useState(null),
+    [pendingUploads, setPendingUploads] = useState(0),
+    [maintenanceDirty, setMaintenanceDirty] = useState(false);
+  const uploadBusy = useCallback(
+    (uploading) =>
+      setPendingUploads((n) => Math.max(0, n + (uploading ? 1 : -1))),
+    [],
+  );
   const currentTab = useRef(tab);
   currentTab.current = tab;
-  const dirty = Boolean(
+  const documentDirty = Boolean(
     docs?.[tab] &&
     draftTab === tab &&
     draft &&
     JSON.stringify(draft) !== JSON.stringify(docs[tab].value),
   );
+  const iconsDirty = Boolean(
+    sections[tab] &&
+    iconDraft &&
+    docs?.icons &&
+    JSON.stringify(iconDraft) !== JSON.stringify(docs.icons.value),
+  );
+  const dirty = documentDirty || iconsDirty;
   const notice = (message, nextTone = "success") => {
     setStatus(message);
     setTone(nextTone);
@@ -209,6 +230,12 @@ export default function Admin() {
         api("/admin/overview"),
       ]);
       setDocs(d);
+      site.setContent(
+        Object.fromEntries(
+          Object.entries(d).map(([key, doc]) => [key, doc.value]),
+        ),
+      );
+      setIconDraft(clone(d.icons.value));
       setDefaults(f);
       setMedia(m);
       setOverview(o);
@@ -240,27 +267,28 @@ export default function Admin() {
   useEffect(() => {
     setDraft(docs?.[tab] ? clone(docs[tab].value) : null);
     setDraftTab(tab);
+    setIconDraft(docs?.icons ? clone(docs.icons.value) : null);
     setSection(null);
     setArticleDirty(false);
     setSavedAt(null);
   }, [tab]);
   useEffect(() => {
-    if (!dirty && !articleDirty) return;
+    if (!dirty && !articleDirty && !maintenanceDirty && !pendingUploads) return;
     const warn = (e) => {
       e.preventDefault();
       e.returnValue = "";
     };
     window.addEventListener("beforeunload", warn);
     return () => window.removeEventListener("beforeunload", warn);
-  }, [dirty, articleDirty]);
+  }, [dirty, articleDirty, maintenanceDirty, pendingUploads]);
   function navigate(key) {
     if (key === tab) return true;
-    if (busy || loading) {
+    if (busy || loading || pendingUploads) {
       notice("กำลังเตรียมหรือบันทึกข้อมูล กรุณารอสักครู่", "warning");
       return false;
     }
     if (
-      (dirty || articleDirty) &&
+      (dirty || articleDirty || maintenanceDirty) &&
       !window.confirm("มีการแก้ไขที่ยังไม่บันทึก ต้องการออกจากหน้านี้หรือไม่?")
     )
       return false;
@@ -277,13 +305,18 @@ export default function Admin() {
     setDraftTab(null);
     setOverview(null);
     setArticleDirty(false);
+    setMaintenanceDirty(false);
     setParams({});
     await api("/session");
     notice(message);
   }
   async function logout() {
+    if (pendingUploads) {
+      notice("กำลังอัปโหลดรูปภาพ กรุณารอให้เสร็จก่อนออกจากระบบ", "warning");
+      return;
+    }
     if (
-      (dirty || articleDirty) &&
+      (dirty || articleDirty || maintenanceDirty || pendingUploads) &&
       !window.confirm("มีการแก้ไขที่ยังไม่บันทึก ต้องการออกจากระบบหรือไม่?")
     )
       return;
@@ -295,29 +328,63 @@ export default function Admin() {
     }
   }
   async function save() {
-    const submitted = clone(draft);
+    const submitted = documentDirty ? clone(draft) : null;
+    const submittedIcons = iconsDirty ? clone(iconDraft) : null;
     setBusy(true);
     setStatus("");
+    let savedPart = false;
     try {
-      const saved = await api("/admin/documents/" + tab, {
-        method: "PATCH",
-        body: { revision: docs[tab].revision, patch: submitted },
-      });
-      setDocs((d) => ({ ...d, [tab]: saved }));
-      if (currentTab.current === tab)
-        setDraft((current) =>
-          JSON.stringify(current) === JSON.stringify(submitted)
+      if (submitted) {
+        const saved = await api("/admin/documents/" + tab, {
+          method: "PATCH",
+          body: { revision: docs[tab].revision, patch: submitted },
+        });
+        setDocs((d) => ({ ...d, [tab]: saved }));
+        if (currentTab.current === tab)
+          setDraft((current) =>
+            JSON.stringify(current) === JSON.stringify(submitted)
+              ? clone(saved.value)
+              : current,
+          );
+        site.setContent((c) => ({ ...c, [tab]: saved.value }));
+        savedPart = true;
+      }
+      if (submittedIcons) {
+        const saved = await api("/admin/documents/icons", {
+          method: "PATCH",
+          body: { revision: docs.icons.revision, patch: submittedIcons },
+        });
+        setDocs((d) => ({ ...d, icons: saved }));
+        setIconDraft((current) =>
+          JSON.stringify(current) === JSON.stringify(submittedIcons)
             ? clone(saved.value)
             : current,
         );
-      site.setContent((c) => ({ ...c, [tab]: saved.value }));
+        site.setContent((c) => ({ ...c, icons: saved.value }));
+      }
       setSavedAt(new Date());
       notice("บันทึกแล้ว");
     } catch (e) {
-      report(e);
+      if (savedPart)
+        notice(
+          "เนื้อหาบันทึกแล้ว แต่ไอคอนยังไม่บันทึก: " +
+            (errors[e.message] || "กรุณาลองบันทึกอีกครั้ง"),
+          "error",
+        );
+      else report(e);
     } finally {
       setBusy(false);
     }
+  }
+  async function saveMaintenance(value) {
+    const saved = await api("/admin/documents/maintenance", {
+      method: "PATCH",
+      body: { revision: docs.maintenance.revision, patch: value },
+    });
+    setDocs((d) => ({ ...d, maintenance: saved }));
+    site.setContent((c) => ({ ...c, maintenance: saved.value }));
+    await refreshOverview();
+    return saved;
   }
   const knownGroups = sections[tab] || [];
   const leftovers =
@@ -333,6 +400,8 @@ export default function Admin() {
       : []),
   ];
   const active = groups.find((g) => g[0] === section) || groups[0];
+  const stacked = ["home", "about", "news", "contact"].includes(tab);
+  const visibleGroups = stacked ? groups : active ? [active] : [];
   if (authenticated === null)
     return (
       <div className="admin cms-auth">
@@ -363,261 +432,288 @@ export default function Admin() {
       />
     );
   return (
-    <AdminShell
-      tab={tab}
-      title={pages[tab][0]}
-      description={pages[tab][1]}
-      counts={overview?.counts}
-      search={search}
-      onSearch={setSearch}
-      onNavigate={navigate}
-      onLogout={logout}
-      loading={loading}
-    >
-      {status && (
-        <div
-          className="cms-status"
-          data-tone={tone}
-          role={tone === "error" ? "alert" : "status"}
-        >
-          {tone === "error" ? (
-            <AlertCircle size={19} />
-          ) : (
-            <CheckCircle2 size={19} />
-          )}
-          <span>{status}</span>
-          <button aria-label="ปิดข้อความสถานะ" onClick={() => setStatus("")}>
-            ×
-          </button>
-        </div>
-      )}
-      {loading && !docs ? (
-        <div className="cms-card cms-skeleton" role="status">
-          กำลังเตรียมพื้นที่ทำงาน…
-        </div>
-      ) : !docs ? (
-        <div className="cms-card">
-          <Empty title="ยังโหลดข้อมูลไม่ได้">ตรวจการเชื่อมต่อแล้วลองอีกครั้ง</Empty>
-          <button className="cms-secondary" onClick={load}>
-            ลองโหลดอีกครั้ง
-          </button>
-        </div>
-      ) : (
-        <>
-          {tab === "dashboard" && (
-            <Dashboard overview={overview} onNavigate={navigate} />
-          )}
-          {tab === "system" && (
-            <SystemPanel overview={overview} onRefresh={refreshOverview} />
-          )}
-          {sections[tab] && (
-            <nav className="cms-website-tabs" aria-label="หน้าเว็บไซต์">
-              {[
-                ["global", "ข้อมูลบริษัท"],
-                ["home", "หน้าแรก"],
-                ["about", "เกี่ยวกับเรา"],
-                ["news", "ข่าวสาร"],
-                ["contact", "ติดต่อเรา"],
-                ["cta", "แบนเนอร์ติดต่อ"],
-              ].map(([key, label]) => (
-                <button
-                  key={key}
-                  aria-current={tab === key ? "page" : undefined}
-                  onClick={() => navigate(key)}
-                >
-                  {label}
-                </button>
-              ))}
-            </nav>
-          )}
-          {["styles", "icons"].includes(tab) && (
-            <nav className="cms-design-tabs" aria-label="การออกแบบเว็บไซต์">
-              {[
-                ["styles", "ตัวอักษร"],
-                ["icons", "ไอคอน"],
-              ].map(([key, label]) => (
-                <button
-                  key={key}
-                  aria-current={tab === key ? "page" : undefined}
-                  onClick={() => navigate(key)}
-                >
-                  {label}
-                </button>
-              ))}
-            </nav>
-          )}
-          {docs[tab] && draft && draftTab === tab && (
-            <>
-              <div className="cms-savebar">
-                <div>
-                  <span className="cms-save-indicator" data-dirty={dirty} />
-                  <span>
-                    {busy
-                      ? "กำลังบันทึก…"
-                      : dirty
-                        ? "คุณมีการแก้ไขที่ยังไม่บันทึก"
-                        : savedAt
-                          ? "บันทึกเมื่อ " +
-                            savedAt.toLocaleTimeString("th-TH", {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })
-                          : "ข้อมูลทั้งหมดบันทึกแล้ว"}
-                  </span>
-                </div>
-                <div className="cms-row-actions">
+    <ImageUploadBusyContext.Provider value={uploadBusy}>
+      <AdminShell
+        tab={tab}
+        title={pages[tab][0]}
+        description={pages[tab][1]}
+        counts={overview?.counts}
+        search={search}
+        onSearch={setSearch}
+        onNavigate={navigate}
+        onLogout={logout}
+        loading={loading}
+      >
+        {status && (
+          <div
+            className="cms-status"
+            data-tone={tone}
+            role={tone === "error" ? "alert" : "status"}
+          >
+            {tone === "error" ? (
+              <AlertCircle size={19} />
+            ) : (
+              <CheckCircle2 size={19} />
+            )}
+            <span>{status}</span>
+            <button aria-label="ปิดข้อความสถานะ" onClick={() => setStatus("")}>
+              ×
+            </button>
+          </div>
+        )}
+        {loading && !docs ? (
+          <div className="cms-card cms-skeleton" role="status">
+            กำลังเตรียมพื้นที่ทำงาน…
+          </div>
+        ) : !docs ? (
+          <div className="cms-card">
+            <Empty title="ยังโหลดข้อมูลไม่ได้">ตรวจการเชื่อมต่อแล้วลองอีกครั้ง</Empty>
+            <button className="cms-secondary" onClick={load}>
+              ลองโหลดอีกครั้ง
+            </button>
+          </div>
+        ) : (
+          <>
+            {tab === "dashboard" && (
+              <Dashboard
+                overview={overview}
+                onNavigate={navigate}
+                maintenanceDoc={docs.maintenance}
+                onSaveMaintenance={saveMaintenance}
+                onMaintenanceDirty={setMaintenanceDirty}
+              />
+            )}
+            {tab === "system" && (
+              <SystemPanel overview={overview} onRefresh={refreshOverview} />
+            )}
+            {sections[tab] && (
+              <nav className="cms-website-tabs" aria-label="หน้าเว็บไซต์">
+                {[
+                  ["global", "ข้อมูลบริษัท"],
+                  ["home", "หน้าแรก"],
+                  ["about", "เกี่ยวกับเรา"],
+                  ["news", "ข่าวสาร"],
+                  ["contact", "ติดต่อเรา"],
+                  ["cta", "แบนเนอร์ติดต่อ"],
+                ].map(([key, label]) => (
                   <button
-                    className="cms-secondary"
-                    disabled={!dirty || busy}
-                    onClick={() => {
-                      if (confirm("ยกเลิกการแก้ไขที่ยังไม่บันทึก?"))
-                        setDraft(clone(docs[tab].value));
-                    }}
+                    key={key}
+                    aria-current={tab === key ? "page" : undefined}
+                    onClick={() => navigate(key)}
                   >
-                    <Undo2 size={16} />
-                    ยกเลิกการแก้ไข
+                    {label}
                   </button>
+                ))}
+              </nav>
+            )}
+            {tab === "styles" && (
+              <nav className="cms-design-tabs" aria-label="การออกแบบเว็บไซต์">
+                {[["styles", "ตัวอักษร"]].map(([key, label]) => (
                   <button
-                    className="cms-primary"
-                    disabled={!dirty || busy}
-                    onClick={save}
+                    key={key}
+                    aria-current={tab === key ? "page" : undefined}
+                    onClick={() => navigate(key)}
                   >
-                    <Save size={16} />
-                    {busy ? "กำลังบันทึก…" : "บันทึกการเปลี่ยนแปลง"}
+                    {label}
                   </button>
-                </div>
-              </div>
-              {sections[tab] && (
-                <div className="cms-language-bar">
+                ))}
+              </nav>
+            )}
+            {docs[tab] && draft && draftTab === tab && (
+              <>
+                <div className="cms-savebar">
                   <div>
-                    <Globe size={21} />
+                    <span className="cms-save-indicator" data-dirty={dirty} />
+                    <span>
+                      {busy
+                        ? "กำลังบันทึก…"
+                        : pendingUploads
+                          ? "กำลังอัปโหลดรูปภาพ…"
+                          : dirty
+                            ? "คุณมีการแก้ไขที่ยังไม่บันทึก"
+                            : savedAt
+                              ? "บันทึกเมื่อ " +
+                                savedAt.toLocaleTimeString("th-TH", {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })
+                              : "ข้อมูลทั้งหมดบันทึกแล้ว"}
+                    </span>
+                  </div>
+                  <div className="cms-row-actions">
+                    <button
+                      className="cms-secondary"
+                      disabled={!dirty || busy || pendingUploads > 0}
+                      onClick={() => {
+                        if (confirm("ยกเลิกการแก้ไขที่ยังไม่บันทึก?")) {
+                          setDraft(clone(docs[tab].value));
+                          setIconDraft(clone(docs.icons.value));
+                        }
+                      }}
+                    >
+                      <Undo2 size={16} />
+                      ยกเลิกการแก้ไข
+                    </button>
+                    <button
+                      className="cms-primary"
+                      disabled={!dirty || busy || pendingUploads > 0}
+                      onClick={save}
+                    >
+                      <Save size={16} />
+                      {busy ? "กำลังบันทึก…" : "บันทึกการเปลี่ยนแปลง"}
+                    </button>
+                  </div>
+                </div>
+                {sections[tab] && (
+                  <div className="cms-language-bar">
                     <div>
-                      <strong>
-                        กำลังแก้ไขฉบับ{language === "th" ? "ภาษาไทย" : "English"}
-                      </strong>
-                      <p>แก้ไขภาษาที่เลือก แล้วบันทึกข้อมูลทั้งสองภาษาพร้อมกัน</p>
+                      <Globe size={21} />
+                      <div>
+                        <strong>
+                          กำลังแก้ไขฉบับ{language === "th" ? "ภาษาไทย" : "English"}
+                        </strong>
+                        <p>แก้ไขภาษาที่เลือก แล้วบันทึกข้อมูลทั้งสองภาษาพร้อมกัน</p>
+                      </div>
+                    </div>
+                    <LanguageSwitcher value={language} onChange={setLanguage} />
+                  </div>
+                )}
+                {tab === "styles" ? (
+                  <StyleEditor value={draft} onChange={setDraft} />
+                ) : (
+                  <div
+                    className={
+                      "cms-editor-layout" +
+                      (stacked ? " cms-stacked-editor" : "")
+                    }
+                  >
+                    {!stacked && (
+                      <nav
+                        className="cms-section-nav"
+                        aria-label="ส่วนที่ต้องการแก้ไข"
+                      >
+                        {groups.map(([key, label, desc], index) => (
+                          <button
+                            key={key}
+                            onClick={() => setSection(key)}
+                            aria-current={
+                              active?.[0] === key ? "true" : undefined
+                            }
+                          >
+                            <span>{String(index + 1).padStart(2, "0")}</span>
+                            <div>
+                              <strong>{label}</strong>
+                              <small>{desc}</small>
+                            </div>
+                          </button>
+                        ))}
+                      </nav>
+                    )}
+                    <div className="cms-stacked-groups">
+                      {visibleGroups.map((group) => (
+                        <section
+                          className="cms-card cms-editor-card"
+                          key={tab + group[0]}
+                        >
+                          <div className="cms-card-header">
+                            <div>
+                              <h3>{group[1]}</h3>
+                              <p>{group[2]}</p>
+                            </div>
+                          </div>
+                          <div className="cms-card-body cms-document-fields">
+                            <EditorLanguageContext.Provider value={language}>
+                              {group[3]
+                                .filter((k) => Object.hasOwn(draft, k))
+                                .map((k) => (
+                                  <Field
+                                    key={tab + "." + k}
+                                    path={tab + "." + k}
+                                    value={draft[k]}
+                                    media={media}
+                                    onChange={(v) =>
+                                      setDraft((d) => ({ ...d, [k]: v }))
+                                    }
+                                  />
+                                ))}
+                            </EditorLanguageContext.Provider>
+                            <PageIcons
+                              page={tab}
+                              group={group[0]}
+                              value={draft}
+                              icons={iconDraft}
+                              defaults={defaults.icons}
+                              onChange={setIconDraft}
+                            />
+                          </div>
+                        </section>
+                      ))}
                     </div>
                   </div>
-                  <LanguageSwitcher value={language} onChange={setLanguage} />
-                </div>
-              )}
-              {tab === "styles" ? (
-                <StyleEditor value={draft} onChange={setDraft} />
-              ) : tab === "icons" ? (
-                <IconEditor
-                  value={draft}
-                  onChange={setDraft}
-                  media={media}
-                  defaults={defaults.icons}
-                />
-              ) : (
-                <div className="cms-editor-layout">
-                  <nav className="cms-section-nav" aria-label="ส่วนที่ต้องการแก้ไข">
-                    {groups.map(([key, label, desc], index) => (
-                      <button
-                        key={key}
-                        onClick={() => setSection(key)}
-                        aria-current={active?.[0] === key ? "true" : undefined}
-                      >
-                        <span>{String(index + 1).padStart(2, "0")}</span>
-                        <div>
-                          <strong>{label}</strong>
-                          <small>{desc}</small>
-                        </div>
-                      </button>
-                    ))}
-                  </nav>
-                  {active && (
-                    <section className="cms-card cms-editor-card">
-                      <div className="cms-card-header">
-                        <div>
-                          <h3>{active[1]}</h3>
-                          <p>{active[2]}</p>
-                        </div>
-                      </div>
-                      <div className="cms-card-body cms-document-fields">
-                        <EditorLanguageContext.Provider value={language}>
-                          {active[3]
-                            .filter((k) => Object.hasOwn(draft, k))
-                            .map((k) => (
-                              <Field
-                                key={tab + "." + k}
-                                path={tab + "." + k}
-                                value={draft[k]}
-                                media={media}
-                                onChange={(v) =>
-                                  setDraft((d) => ({ ...d, [k]: v }))
-                                }
-                              />
-                            ))}
-                        </EditorLanguageContext.Provider>
-                      </div>
-                    </section>
-                  )}
-                </div>
-              )}
-              <div className="cms-editor-utilities">
-                <button
-                  className="cms-text-button"
-                  disabled={busy}
-                  onClick={() => {
-                    if (
-                      confirm(
-                        "นำค่าเริ่มต้นของหมวดนี้มาแทนในแบบร่าง? ยังไม่บันทึกจนกว่าคุณจะกดบันทึก",
+                )}
+                <div className="cms-editor-utilities">
+                  <button
+                    className="cms-text-button"
+                    disabled={busy || pendingUploads > 0}
+                    onClick={() => {
+                      if (
+                        confirm(
+                          "นำค่าเริ่มต้นของหมวดนี้มาแทนในแบบร่าง? ยังไม่บันทึกจนกว่าคุณจะกดบันทึก",
+                        )
                       )
-                    )
-                      setDraft(clone(defaults[tab]));
-                  }}
-                >
-                  คืนค่าเริ่มต้น
-                </button>
-                <button
-                  className="cms-text-button"
-                  disabled={busy}
-                  onClick={() => {
-                    if (
-                      !dirty ||
-                      confirm("โหลดข้อมูลใหม่และยกเลิกแบบร่างที่ยังไม่บันทึก?")
-                    )
-                      load().then(() => notice("โหลดข้อมูลใหม่แล้ว"));
-                  }}
-                >
-                  <RefreshCw size={14} />
-                  โหลดข้อมูลใหม่
-                </button>
-              </div>
-            </>
-          )}
-          {tab === "articles" && (
-            <ArticlesPanel
-              categories={docs.news.value.categories}
-              media={media}
-              onNotice={notice}
-              onChanged={refreshOverview}
-              onDirtyChange={setArticleDirty}
-            />
-          )}
-          {tab === "media" && (
-            <MediaPanel
-              media={media}
-              onRefresh={refreshMedia}
-              onNotice={notice}
-            />
-          )}
-          {tab === "contacts" && (
-            <ContactsPanel onNotice={notice} onChanged={refreshOverview} />
-          )}
-          {tab === "subscribers" && (
-            <SubscribersPanel onNotice={notice} onChanged={refreshOverview} />
-          )}
-          {tab === "password" && (
-            <SecurityPanel
-              onNotice={notice}
-              onLoggedOut={() => endSession("เปลี่ยนรหัสผ่านแล้ว กรุณาเข้าสู่ระบบใหม่")}
-            />
-          )}
-        </>
-      )}
-    </AdminShell>
+                        setDraft(clone(defaults[tab]));
+                    }}
+                  >
+                    คืนค่าเริ่มต้น
+                  </button>
+                  <button
+                    className="cms-text-button"
+                    disabled={busy || pendingUploads > 0}
+                    onClick={() => {
+                      if (
+                        !dirty ||
+                        confirm("โหลดข้อมูลใหม่และยกเลิกแบบร่างที่ยังไม่บันทึก?")
+                      )
+                        load().then(() => notice("โหลดข้อมูลใหม่แล้ว"));
+                    }}
+                  >
+                    <RefreshCw size={14} />
+                    โหลดข้อมูลใหม่
+                  </button>
+                </div>
+              </>
+            )}
+            {tab === "articles" && (
+              <ArticlesPanel
+                categories={docs.news.value.categories}
+                media={media}
+                onNotice={notice}
+                onChanged={refreshOverview}
+                onDirtyChange={setArticleDirty}
+              />
+            )}
+            {tab === "media" && (
+              <MediaPanel
+                media={media}
+                onRefresh={refreshMedia}
+                onNotice={notice}
+              />
+            )}
+            {tab === "contacts" && (
+              <ContactsPanel onNotice={notice} onChanged={refreshOverview} />
+            )}
+            {tab === "subscribers" && (
+              <SubscribersPanel onNotice={notice} onChanged={refreshOverview} />
+            )}
+            {tab === "password" && (
+              <SecurityPanel
+                onNotice={notice}
+                onLoggedOut={() => endSession("เปลี่ยนรหัสผ่านแล้ว กรุณาเข้าสู่ระบบใหม่")}
+              />
+            )}
+          </>
+        )}
+      </AdminShell>
+    </ImageUploadBusyContext.Provider>
   );
 }

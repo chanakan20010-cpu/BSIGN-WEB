@@ -67,6 +67,14 @@ const slot = (name) => ({
   mode: "mask",
 });
 export const defaults = {
+  maintenance: {
+    enabled: false,
+    title: bi("เว็บไซต์กำลังปรับปรุง", "Website maintenance"),
+    message: bi(
+      "เว็บไซต์กำลังปิดปรับปรุง กรุณากลับมาใหม่อีกครั้ง",
+      "Our website is currently undergoing maintenance. Please check back soon.",
+    ),
+  },
   global: {
     brand: bi("BSIGN TECH", "BSIGN TECH"),
     company: bi("บริษัท บีไซน์ เทค จำกัด", "BSIGN TECH Co., Ltd."),
@@ -400,6 +408,74 @@ export const defaults = {
     overrides: {},
   },
 };
+const iconAppearanceUpdates = {
+  "home.hero.arrow": { key: "arrow", background: "transparent" },
+  "cta.arrow": { key: "arrow", background: "transparent" },
+  "news.featured.arrow": { key: "arrow", background: "transparent" },
+  "news.card.arrow": { key: "arrow", background: "transparent" },
+  "contact.submit": { key: "arrow", background: "transparent" },
+  "news.search": { key: "search", background: "transparent" },
+  "social.0": { key: "line", color: "#06C755", background: "transparent" },
+  "social.1": { key: "linkedin", color: "#0A66C2", background: "transparent" },
+  "social.2": { key: "facebook", color: "#0866FF", background: "transparent" },
+};
+for (const [position, { key, ...appearance }] of Object.entries(
+  iconAppearanceUpdates,
+))
+  defaults.icons.overrides[position] = {
+    ...slot(defaults.icons.shared[key].name),
+    ...appearance,
+  };
+
+// Change only the old, untouched shipped appearance. A shared or per-position
+// customization keeps its behavior, and unknown future fields remain stored.
+function migrateIconAppearance(db) {
+  if (db.prepare("SELECT 1 FROM migrations WHERE version=2").get()) return;
+  db.exec("BEGIN IMMEDIATE");
+  try {
+    if (!db.prepare("SELECT 1 FROM migrations WHERE version=2").get()) {
+      const row = db
+        .prepare("SELECT value FROM documents WHERE key='icons'")
+        .get();
+      const icons = JSON.parse(row.value);
+      const contact = JSON.parse(
+        db.prepare("SELECT value FROM documents WHERE key='contact'").get()
+          .value,
+      );
+      let changed = false;
+      for (const [position, { key, ...appearance }] of Object.entries(
+        iconAppearanceUpdates,
+      )) {
+        if (
+          position.startsWith("social.") &&
+          contact.socials[Number(position.split(".")[1])]?.icon !== key
+        )
+          continue;
+        const current = icons.overrides?.[position] || icons.shared?.[key];
+        const historical = slot(defaults.icons.shared[key].name);
+        if (
+          !current ||
+          !Object.entries(historical).every(([k, v]) => current[k] === v)
+        )
+          continue;
+        icons.overrides ??= {};
+        icons.overrides[position] = { ...current, ...appearance };
+        changed = true;
+      }
+      if (changed)
+        db.prepare(
+          "UPDATE documents SET value=?,revision=revision+1 WHERE key='icons'",
+        ).run(JSON.stringify(icons));
+      db.prepare(
+        "INSERT INTO migrations(version,applied_at) VALUES(2,datetime('now'))",
+      ).run();
+    }
+    db.exec("COMMIT");
+  } catch (error) {
+    db.exec("ROLLBACK");
+    throw error;
+  }
+}
 defaults.home.why.description = bi(
   "ในฐานะบริษัทเทคโนโลยีเปิดใหม่ เรามอบความยืดหยุ่น ความเร็วในการปรับตัว และความทุ่มเทให้กับทุกโครงการด้วยเทคโนโลยีที่ทันสมัยที่สุดในปัจจุบัน",
   "As a new technology company, we bring flexibility, responsiveness and dedication to every project with modern technology.",
@@ -498,4 +574,5 @@ export function seed(db) {
       "true",
     );
   }
+  migrateIconAppearance(db);
 }

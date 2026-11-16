@@ -6,12 +6,18 @@ import {
   Inbox,
   Users,
   Globe,
-  CheckCircle2,
   Image as ImageIcon,
 } from "lucide-react";
 import { Picture } from "../shared";
 import { dateText } from "./config";
-export default function Dashboard({ overview, onNavigate }) {
+import MaintenanceControls from "./MaintenanceControls";
+export default function Dashboard({
+  overview,
+  onNavigate,
+  maintenanceDoc,
+  onSaveMaintenance,
+  onMaintenanceDirty,
+}) {
   if (!overview)
     return (
       <div className="cms-card cms-skeleton" role="status">
@@ -21,39 +27,12 @@ export default function Dashboard({ overview, onNavigate }) {
   const { counts, recentArticles, recentContacts, system } = overview;
   return (
     <>
-      <section className="cms-site-status cms-card">
-        <div className="cms-card-body">
-          <div className="cms-site-status-heading">
-            <span className="cms-site-status-icon">
-              <Globe size={26} />
-            </span>
-            <div>
-              <h3>สถานะเว็บไซต์</h3>
-              <p>
-                <i className="cms-status-dot" />
-                ระบบเชื่อมต่อฐานข้อมูลปกติ
-              </p>
-            </div>
-            <a
-              className="cms-secondary"
-              href="/"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              ดูเว็บไซต์ <ArrowUpRight size={16} />
-            </a>
-          </div>
-          <p className="cms-muted">
-            จัดการข้อมูลและเนื้อหาจากพื้นที่นี้ การเปลี่ยนแปลงจะแสดงบนเว็บไซต์เมื่อคุณกดบันทึก
-          </p>
-          <div className="cms-site-status-footer">
-            <span>
-              <CheckCircle2 size={15} /> ข้อมูลพร้อมสำหรับการจัดการ
-            </span>
-            <span>BSIGN TECH CMS · v{system.version}</span>
-          </div>
-        </div>
-      </section>
+      <MaintenanceControls
+        document={maintenanceDoc}
+        onSave={onSaveMaintenance}
+        version={system.version}
+        onDirtyChange={onMaintenanceDirty}
+      />
       <section className="cms-metrics" aria-label="สรุปข้อมูลเว็บไซต์">
         {[
           [

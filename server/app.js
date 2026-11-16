@@ -266,7 +266,23 @@ export function createApp({
     db.prepare("DELETE FROM sessions").run();
     q.session.destroy(() => r.json({ ok: true }));
   });
-  app.get("/api/content", (_q, r) =>
+  const maintenance = () => {
+    const { enabled, title, message } = readDoc(db, "maintenance").value;
+    return { enabled, title, message };
+  };
+  app.get("/api/status", (_q, r) => r.json({ maintenance: maintenance() }));
+  app.get("/api/content", (_q, r) => {
+    const state = maintenance();
+    if (state.enabled) {
+      // Keep the login and public maintenance screen bootable without exposing
+      // unpublished website content through the ordinary content endpoint.
+      const { brand, favicon, languages } = readDoc(db, "global").value;
+      return r.json({
+        maintenance: state,
+        global: { brand, favicon, languages },
+        styles: readDoc(db, "styles").value,
+      });
+    }
     r.json(
       Object.fromEntries(
         db
@@ -275,7 +291,15 @@ export function createApp({
           .filter((x) => !x.key.startsWith("_"))
           .map((x) => [x.key, JSON.parse(x.value)]),
       ),
-    ),
+    );
+  });
+  app.use(
+    ["/api/articles", "/api/contact", "/api/subscribe"],
+    (_q, r, next) => {
+      if (!maintenance().enabled) return next();
+      r.set("Retry-After", "300");
+      r.status(503).json({ error: "MAINTENANCE" });
+    },
   );
   app.get("/api/admin/documents", auth, (_q, r) =>
     r.json(
@@ -296,7 +320,13 @@ export function createApp({
     const value = merge(old.value, q.body.patch);
     try {
       validateTree(value);
-      validateShape(defaults[q.params.key], value);
+      // Position overrides form an optional dictionary. Newly shipped slots
+      // must not become mandatory when an existing custom appearance is kept.
+      const template =
+        q.params.key === "icons"
+          ? { ...defaults.icons, overrides: {} }
+          : defaults[q.params.key];
+      validateShape(template, value);
     } catch {
       throw fail(400, "VALIDATION");
     }
@@ -340,7 +370,10 @@ export function createApp({
         z.object({
           name: z.string().max(50),
           color: z.string().regex(/^#[a-fA-F0-9]{6}$/),
-          background: z.string().regex(/^#[a-fA-F0-9]{6}$/),
+          background: z.union([
+            z.string().regex(/^#[a-fA-F0-9]{6}$/),
+            z.literal("transparent"),
+          ]),
           asset: z.string().regex(/^$|^\/uploads\/[a-f0-9-]+\.(svg|png|webp)$/),
           mode: z.enum(["mask", "image"]),
         }).parse(s);
@@ -377,9 +410,12 @@ export function createApp({
     const all = published().filter(
       (a) =>
         (!category || a.category === category) &&
-        [a.title[lang], a.excerpt[lang], a.body[lang]].some((t) =>
-          t.toLowerCase().includes(search),
-        ),
+        [
+          a.title[lang],
+          a.excerpt[lang],
+          a.body[lang],
+          ...(a.blocks || []).map((block) => block.text[lang]),
+        ].some((t) => t.toLowerCase().includes(search)),
     );
     const size = readDoc(db, "news").value.pageSize;
     const page = Math.max(1, Math.min(100000, parseInt(q.query.page) || 1));
@@ -414,6 +450,7 @@ export function createApp({
       }
     }
     r.json({
+      maintenance: readDoc(db, "maintenance"),
       counts: {
         articles: articles.length,
         published: articles.filter(
@@ -473,6 +510,11 @@ export function createApp({
     });
   });
   const validArticle = (value, id) => {
+    try {
+      validateTree(value);
+    } catch {
+      throw fail(400, "VALIDATION");
+    }
     const a = articleSchema.parse(value);
     if (!readDoc(db, "news").value.categories.some((c) => c.id === a.category))
       throw fail(400, "INVALID_CATEGORY");
@@ -494,6 +536,12 @@ export function createApp({
     const old = rows().find((a) => a.id === q.params.id);
     if (!old) throw fail(404, "NOT_FOUND");
     if (q.body.revision !== old.revision) throw fail(409, "REVISION_CONFLICT");
+    if (
+      !q.body.patch ||
+      typeof q.body.patch !== "object" ||
+      Array.isArray(q.body.patch)
+    )
+      throw fail(400, "INVALID_PATCH");
     const combined = merge(old, q.body.patch);
     validArticle(combined, old.id);
     delete combined.id;

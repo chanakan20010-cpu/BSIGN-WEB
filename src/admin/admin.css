@@ -3059,3 +3059,49 @@
     transition: none !important;
   }
 }
+
+/* Revision 01: page content stays in reading order with controls at its source. */
+.admin.cms .cms-editor-layout.cms-stacked-editor {
+  display: block;
+}
+.cms-stacked-groups {
+  display: grid;
+  gap: 24px;
+  min-width: 0;
+}
+.cms-page-icons {
+  margin-top: 30px;
+  padding-top: 24px;
+  border-top: 1px solid var(--cms-line);
+}
+.cms-page-icons > h4 {
+  font-size: 16px;
+  margin-bottom: 6px;
+}
+.cms-page-icons-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 18px;
+}
+@media (max-width: 1100px) {
+  .cms-page-icons-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.admin.cms .cms-inline-icon-heading .cms-icon-sample {
+  width: 64px;
+  height: 64px;
+  min-height: 0;
+  padding: 10px;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+}
+.admin.cms .cms-inline-icon-heading .cms-icon-sample > .icon {
+  width: 36px;
+  height: 36px;
+}
+.admin.cms .cms-inline-icon-editor .cms-field-grid {
+  align-items: start;
+}

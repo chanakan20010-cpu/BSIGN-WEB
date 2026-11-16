@@ -264,7 +264,7 @@ header {
   margin-bottom: 40px;
 }
 .hero .hero-grid {
-  padding-top: 80px;
+  padding: 80px 0 50px;
   align-items: stretch;
 }
 .hero .hero-grid > div:first-child {
@@ -279,7 +279,6 @@ header {
 }
 .services {
   background: #f1f2f4;
-  padding-bottom: 0;
 }
 .service {
   padding: 40px;
@@ -330,16 +329,30 @@ header {
 .advantages .type-body {
   margin-top: 3px;
 }
-.news-card .crop {
-  border-radius: 0;
+.news-card {
+  display: flex;
+  flex-direction: column;
 }
-.news-card .picture {
+.news-card-media {
+  display: block;
   aspect-ratio: 1.8;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.news-card-media > :is(.crop, .picture) {
+  display: block;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   border-radius: 0;
 }
 .news-card-body {
   padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex: 1;
+  min-width: 0;
 }
 .category {
   display: inline-block;
@@ -361,12 +374,13 @@ header {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  margin-top: 24px;
+  margin-top: auto;
+  padding-top: 24px;
+  width: 100%;
 }
 .card-bottom .icon {
   width: 20px;
   height: 20px;
-  background: transparent !important;
 }
 .card-bottom a {
   display: flex;
@@ -537,7 +551,19 @@ footer {
   grid-template-columns: 1fr 1fr;
   margin-bottom: 45px;
 }
-.featured > .crop {
+.featured-media {
+  display: block;
+  position: relative;
+  min-height: 360px;
+  overflow: hidden;
+}
+.featured-media > :is(.crop, .picture) {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   border-radius: 0;
 }
 .featured > div:last-child {
@@ -581,8 +607,53 @@ footer {
 .article-body {
   padding: 50px 64px;
 }
-.article-body .prose {
-  margin: 28px 0 50px;
+.article-paragraphs {
+  display: grid;
+  gap: 28px;
+}
+.article-paragraph {
+  display: flow-root;
+  min-width: 0;
+}
+.article-paragraph-image {
+  width: 100%;
+  max-width: 740px;
+  margin: 0 auto 20px;
+  overflow: hidden;
+  border-radius: 8px;
+}
+.article-paragraph-image:not([data-ratio="original"]) {
+  position: relative;
+  aspect-ratio: var(--article-image-ratio);
+}
+.article-paragraph-image:not([data-ratio="original"]) > :is(.crop, .picture) {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.article-paragraph[data-align="left"] .article-paragraph-image {
+  float: left;
+  width: 46%;
+  max-width: 440px;
+  margin: 0 28px 18px 0;
+}
+.article-paragraph[data-align="right"] .article-paragraph-image {
+  float: right;
+  width: 46%;
+  max-width: 440px;
+  margin: 0 0 18px 28px;
+}
+.article-gallery-image {
+  aspect-ratio: 1.8;
+  overflow: hidden;
+  border-radius: 8px;
+}
+.article-gallery-image > :is(.crop, .picture) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 .article-body h2 {
   margin: 30px 0;
@@ -640,7 +711,6 @@ footer {
 }
 .social > div > * {
   padding: 10px 4px;
-  background: #f2f3f5;
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -789,7 +859,7 @@ footer {
     grid-template-columns: 1fr;
   }
   .hero .hero-grid {
-    padding-top: 35px;
+    padding: 35px 0 32px;
     gap: 20px;
   }
   .hero .hero-grid > div:first-child {
@@ -868,8 +938,9 @@ footer {
   .cta-actions {
     justify-content: flex-start;
   }
-  .featured .crop {
-    aspect-ratio: 1.4 !important;
+  .featured-media {
+    min-height: 0;
+    aspect-ratio: 1.4;
   }
   .featured > div:last-child {
     padding: 24px;
@@ -892,6 +963,12 @@ footer {
   }
   .article-body {
     padding: 25px;
+  }
+  .article-paragraph[data-align] .article-paragraph-image {
+    float: none;
+    width: 100%;
+    max-width: 100%;
+    margin: 0 0 20px;
   }
   .article-hero h1 {
     padding: 22px;

@@ -1,0 +1,98 @@
+.admin.cms .cms-paragraph-block {
+  min-width: 0;
+  border: 1px solid var(--cms-line);
+  border-radius: 8px;
+  padding: 20px;
+  margin: 0 0 24px;
+  background: #fcfbf8;
+}
+.admin.cms .cms-paragraph-block > legend {
+  padding: 0 8px;
+  font-weight: 600;
+}
+.cms-paragraph-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.cms-paragraph-toolbar .cms-row-actions {
+  flex-shrink: 0;
+}
+.cms-paragraph-image-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin: 20px 0;
+}
+.cms-paragraph-image-tools {
+  margin-top: 20px;
+}
+.cms-paragraph-image-tools > p {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+.cms-paragraph-image-preview {
+  overflow: hidden;
+  max-width: 100%;
+  width: 360px;
+  margin: 16px 0;
+  background: #f2eee7;
+  border-radius: 6px;
+}
+.cms-paragraph-image-preview[data-align="center"] {
+  margin-inline: auto;
+}
+.cms-paragraph-image-preview[data-align="right"] {
+  margin-left: auto;
+}
+.cms-paragraph-image-preview > :is(.crop, .picture) {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.cms-paragraph-image-preview[data-ratio="original"] > :is(.crop, .picture) {
+  height: auto;
+}
+.admin.cms .cms-paragraph-help {
+  margin-top: 14px;
+  font-size: 12px;
+}
+.cms-article-gallery-tools {
+  margin-bottom: 20px;
+}
+.admin.cms .cms-article-editing-fields {
+  min-width: 0;
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+.cms-article-gallery-item {
+  margin-top: 24px;
+  border-top: 1px solid var(--cms-line);
+  padding-top: 20px;
+}
+.cms-article-gallery > h4 {
+  margin-bottom: 8px;
+}
+.cms-article-gallery-empty {
+  padding: 20px;
+  border: 1px dashed var(--cms-line);
+  border-radius: 6px;
+}
+@media (max-width: 600px) {
+  .admin.cms .cms-paragraph-block {
+    padding: 15px;
+  }
+  .cms-paragraph-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .cms-paragraph-image-options {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

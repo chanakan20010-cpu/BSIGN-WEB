@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useRef, useState } from "react";
 import {
   ArrowDown,
   ArrowUp,
@@ -9,6 +9,7 @@ import {
   Palette,
 } from "lucide-react";
 import { useSite, Site, Typography, Picture, Icon, iconNames } from "../shared";
+import { DeviceImageUpload } from "./DeviceImageUpload";
 
 // A language switch changes the visible controls, never the stored object.
 // Leaving the context empty retains paired controls for existing integrations.
@@ -305,10 +306,130 @@ function emptyArrayItem(path) {
   return image();
 }
 
+function ImageFieldEditor({ value, onChange, path, media }) {
+  const latest = useRef(value),
+    key = path.split(".").at(-1),
+    label = fieldLabel(path);
+  latest.current = value;
+  return (
+    <fieldset
+      className={
+        "cms-field-group cms-image-editor" +
+        (["logo", "footerLogo"].includes(key) ? " cms-logo-editor" : "")
+      }
+    >
+      <legend>{label}</legend>
+      <DeviceImageUpload
+        key={path}
+        label={`อัปโหลด${label}จากอุปกรณ์`}
+        onUploaded={(images) => {
+          if (!images[0]) return;
+          const previous = latest.current;
+          onChange({
+            ...previous,
+            ...images[0],
+            alt:
+              previous.alt?.th || previous.alt?.en
+                ? previous.alt
+                : images[0].alt,
+          });
+        }}
+      />
+      {value.url ? (
+        <>
+          <div className="cms-preview">
+            <Picture value={value} />
+          </div>
+          <button
+            type="button"
+            className="cms-secondary"
+            onClick={() => onChange({ ...value, url: "", crop: null })}
+          >
+            <Trash2 size={16} aria-hidden="true" /> นำภาพนี้ออก
+          </button>
+        </>
+      ) : (
+        <div className="cms-empty">
+          <ImageIcon size={30} aria-hidden="true" />
+          <p>ยังไม่ได้เลือกภาพ</p>
+          <small>เลือกไฟล์ภาพจากอุปกรณ์เพื่ออัปโหลด</small>
+        </div>
+      )}
+      <details>
+        <summary>ตั้งค่าลิงก์ภาพขั้นสูง</summary>
+        <Field
+          value={value.url}
+          path={`${path}.url`}
+          onChange={(url) => onChange({ ...value, url, crop: null })}
+        />
+      </details>
+      <Field
+        value={value.alt}
+        path={`${path}.alt`}
+        onChange={(alt) => onChange({ ...value, alt })}
+        media={media}
+      />
+      {value.crop && (
+        <p className="cms-muted">
+          ภาพนี้ใช้ส่วนที่ตัดจากดีไซน์ต้นฉบับ เมื่อเปลี่ยนภาพจะแสดงไฟล์ใหม่เต็มภาพ
+        </p>
+      )}
+      {Object.entries(value)
+        .filter(([name]) => !["url", "alt", "crop"].includes(name))
+        .map(([name, field]) => (
+          <Field
+            key={name}
+            value={field}
+            path={`${path}.${name}`}
+            media={media}
+            onChange={(next) => onChange({ ...value, [name]: next })}
+          />
+        ))}
+    </fieldset>
+  );
+}
+function FaviconField({ value, onChange, path }) {
+  return (
+    <fieldset className="cms-field-group cms-logo-editor">
+      <legend>ไอคอนแท็บเว็บไซต์ (Favicon)</legend>
+      <DeviceImageUpload
+        key={path}
+        label="อัปโหลด Favicon จากอุปกรณ์"
+        onUploaded={(images) => images[0] && onChange(images[0].url)}
+      />
+      {value && (
+        <div className="cms-preview">
+          <img src={value} width="64" height="64" alt="ตัวอย่างไอคอนแท็บเว็บไซต์" />
+        </div>
+      )}
+      {value && (
+        <button
+          type="button"
+          className="cms-secondary"
+          onClick={() => onChange("")}
+        >
+          นำ Favicon ออก
+        </button>
+      )}
+      <details>
+        <summary>ตั้งค่าลิงก์ Favicon ขั้นสูง</summary>
+        <TextControl
+          value={value}
+          onChange={onChange}
+          path={path}
+          label="URL Favicon"
+        />
+      </details>
+    </fieldset>
+  );
+}
+
 export function Field({ value, onChange, path = "", media = [] }) {
   const language = useContext(EditorLanguageContext);
   const key = path.split(".").at(-1),
     label = fieldLabel(path);
+  if (key === "favicon" && typeof value === "string")
+    return <FaviconField value={value} onChange={onChange} path={path} />;
   if (isBilingual(value))
     return (
       <fieldset className="cms-field-group cms-bilingual-field">
@@ -374,72 +495,12 @@ export function Field({ value, onChange, path = "", media = [] }) {
       );
     if ("url" in value && "alt" in value)
       return (
-        <fieldset
-          className={
-            "cms-field-group cms-image-editor" +
-            (["logo", "footerLogo"].includes(key) ? " cms-logo-editor" : "")
-          }
-        >
-          <legend>{label}</legend>
-          <div className="cms-field-grid">
-            <Field
-              value={value.url}
-              path={`${path}.url`}
-              onChange={(url) => onChange({ ...value, url, crop: null })}
-            />
-            <label>
-              เลือกจากคลัง
-              <select
-                aria-label="เลือกจากคลัง"
-                value=""
-                onChange={(e) =>
-                  e.target.value &&
-                  onChange({ ...value, url: e.target.value, crop: null })
-                }
-              >
-                <option value="">เลือกภาพที่อัปโหลดไว้…</option>
-                {media.map((item) => (
-                  <option key={item.id} value={item.url}>
-                    {item.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
-          {value.url ? (
-            <div className="cms-preview">
-              <Picture value={value} />
-            </div>
-          ) : (
-            <div className="cms-empty">
-              <ImageIcon size={30} aria-hidden="true" />
-              <p>ยังไม่ได้เลือกภาพ</p>
-              <small>วาง URL หรือเลือกจากคลังภาพ</small>
-            </div>
-          )}
-          <Field
-            value={value.alt}
-            path={`${path}.alt`}
-            onChange={(alt) => onChange({ ...value, alt })}
-            media={media}
-          />
-          {value.crop && (
-            <p className="cms-muted">
-              ภาพนี้ใช้ส่วนที่ตัดจากดีไซน์ต้นฉบับ เมื่อเปลี่ยนภาพจะแสดงไฟล์ใหม่เต็มภาพ
-            </p>
-          )}
-          {Object.entries(value)
-            .filter(([k]) => !["url", "alt", "crop"].includes(k))
-            .map(([k, v]) => (
-              <Field
-                key={k}
-                value={v}
-                path={`${path}.${k}`}
-                media={media}
-                onChange={(x) => onChange({ ...value, [k]: x })}
-              />
-            ))}
-        </fieldset>
+        <ImageFieldEditor
+          value={value}
+          onChange={onChange}
+          path={path}
+          media={media}
+        />
       );
     return (
       <fieldset className="cms-field-group">
@@ -755,6 +816,181 @@ function slotLabel(key) {
     ? `${groups[group]} ${index + 1}`
     : key;
 }
+function IconBackgroundField({ value, onChange }) {
+  const transparent = value === "transparent";
+  return (
+    <div>
+      <ColorField
+        label="พื้นหลังไอคอน"
+        hexLabel="รหัสพื้นหลัง HEX"
+        path="icon.background"
+        value={transparent ? "#ffffff" : value}
+        onChange={onChange}
+        disabled={transparent}
+      />
+      <label className="cms-transparent-toggle">
+        <input
+          type="checkbox"
+          checked={transparent}
+          onChange={(event) =>
+            onChange(event.target.checked ? "transparent" : "#fff3dc")
+          }
+        />
+        ไม่มีพื้นหลัง
+      </label>
+    </div>
+  );
+}
+
+export function InlineIconEditor({
+  slot,
+  iconKey = "arrow",
+  label,
+  icons,
+  onChange,
+  defaults,
+}) {
+  const site = useSite(),
+    latest = useRef(icons),
+    base = icons.shared[iconKey] ||
+      icons.shared.arrow || {
+        name: "ArrowRight",
+        color: "#805b00",
+        background: "transparent",
+        asset: "",
+        mode: "mask",
+      },
+    current = { asset: "", mode: "mask", ...base, ...icons.overrides[slot] },
+    raster =
+      Boolean(current.asset) &&
+      (!current.asset.endsWith(".svg") || current.mode === "image");
+  latest.current = icons;
+  const update = (patch) => {
+    const value = latest.current,
+      shared = value.shared[iconKey] || value.shared.arrow || base,
+      previous = {
+        asset: "",
+        mode: "mask",
+        ...shared,
+        ...value.overrides[slot],
+      };
+    onChange({
+      ...value,
+      overrides: { ...value.overrides, [slot]: { ...previous, ...patch } },
+    });
+  };
+  return (
+    <section
+      className="cms-card cms-inline-icon-editor"
+      aria-label={label || slotLabel(slot)}
+    >
+      <div className="cms-card-body">
+        <div className="cms-inline-icon-heading">
+          <div>
+            <h4>{label || slotLabel(slot)}</h4>
+            <p className="cms-muted">ปรับไอคอนตำแหน่งนี้ แล้วบันทึกการเปลี่ยนแปลง</p>
+          </div>
+          <span className="cms-icon-sample">
+            <Site.Provider
+              value={{ ...site, content: { ...site.content, icons } }}
+            >
+              <Icon name={iconKey} slot={slot} />
+            </Site.Provider>
+          </span>
+        </div>
+        <label>
+          ไอคอน
+          <select
+            aria-label={`ไอคอน ${label || slot}`}
+            value={current.name}
+            onChange={(event) =>
+              update({ name: event.target.value, asset: "" })
+            }
+          >
+            {iconNames.map((name) => (
+              <option key={name} value={name}>
+                {name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <div className="cms-field-grid">
+          <ColorField
+            label="สีไอคอน"
+            hexLabel={`รหัสสีไอคอน ${slot}`}
+            path={`${slot}.color`}
+            value={current.color}
+            onChange={(color) => update({ color })}
+            disabled={raster}
+          />
+          <IconBackgroundField
+            value={current.background}
+            onChange={(background) => update({ background })}
+          />
+        </div>
+        <details>
+          <summary>ใช้ไฟล์ไอคอนจากอุปกรณ์</summary>
+          <DeviceImageUpload
+            key={slot}
+            label={`อัปโหลดไฟล์ไอคอน ${label || slot}`}
+            onUploaded={(images) =>
+              images[0] &&
+              update({
+                asset: images[0].url,
+                mode: images[0].url.endsWith(".svg") ? "mask" : "image",
+              })
+            }
+          />
+          {current.asset && (
+            <button
+              type="button"
+              className="cms-secondary"
+              onClick={() => update({ asset: "" })}
+            >
+              กลับไปใช้ไอคอนสำเร็จรูป
+            </button>
+          )}
+          {current.asset?.endsWith(".svg") && (
+            <label>
+              รูปแบบ SVG
+              <select
+                value={current.mode}
+                onChange={(event) => update({ mode: event.target.value })}
+              >
+                <option value="mask">ใช้สีเดียวตามที่กำหนด</option>
+                <option value="image">ใช้สีต้นฉบับ</option>
+              </select>
+            </label>
+          )}
+        </details>
+        {raster && <p className="cms-muted">ภาพใช้สีต้นฉบับ ปรับได้เฉพาะสีพื้นหลัง</p>}
+        <div className="cms-inline-icon-scope">
+          <small className="cms-muted">มีผลเฉพาะตำแหน่งนี้ ({slot})</small>
+          <button
+            type="button"
+            className="cms-text-button"
+            disabled={!icons.overrides[slot] && !defaults?.overrides?.[slot]}
+            onClick={() =>
+              onChange({
+                ...icons,
+                overrides: {
+                  ...icons.overrides,
+                  [slot]: defaults?.overrides?.[slot]
+                    ? clone(defaults.overrides[slot])
+                    : null,
+                },
+              })
+            }
+          >
+            <RotateCcw size={15} aria-hidden="true" />
+            คืนค่าไอคอนตำแหน่งนี้
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export function IconEditor({ value, onChange, media = [], defaults }) {
   const [scope, setScope] = useState("shared"),
     [key, setKey] = useState("arrow");
@@ -910,26 +1146,25 @@ export function IconEditor({ value, onChange, media = [], defaults }) {
               </button>
             ))}
           </div>
-          <label>
-            ไฟล์จากคลัง
-            <select
-              aria-label="ไฟล์จากคลัง"
-              value={current.asset}
-              onChange={(e) =>
-                update({
-                  asset: e.target.value,
-                  mode: e.target.value.endsWith(".svg") ? "mask" : "image",
-                })
-              }
+          <DeviceImageUpload
+            label="อัปโหลดไฟล์ไอคอนจากอุปกรณ์"
+            onUploaded={(images) =>
+              images[0] &&
+              update({
+                asset: images[0].url,
+                mode: images[0].url.endsWith(".svg") ? "mask" : "image",
+              })
+            }
+          />
+          {current.asset && (
+            <button
+              type="button"
+              className="cms-secondary"
+              onClick={() => update({ asset: "" })}
             >
-              <option value="">ใช้ไอคอนสำเร็จรูป</option>
-              {media.map((item) => (
-                <option key={item.id} value={item.url}>
-                  {item.name}
-                </option>
-              ))}
-            </select>
-          </label>
+              กลับไปใช้ไอคอนสำเร็จรูป
+            </button>
+          )}
           <div className="cms-field-grid">
             <ColorField
               label="สีไอคอน (SVG / ไอคอนสำเร็จรูป)"
@@ -939,10 +1174,7 @@ export function IconEditor({ value, onChange, media = [], defaults }) {
               onChange={(color) => update({ color })}
               disabled={raster}
             />
-            <ColorField
-              label="พื้นหลัง"
-              hexLabel="รหัสพื้นหลัง HEX"
-              path="icon.background"
+            <IconBackgroundField
               value={current.background}
               onChange={(background) => update({ background })}
             />

@@ -24,6 +24,17 @@ export const image = z
     (v) => !v.crop || v.crop.slice(2).every((n) => n > 0),
     "Invalid crop",
   );
+export const articleBlockSchema = z.object({
+  id: z
+    .string()
+    .regex(/^[a-zA-Z0-9_-]+$/)
+    .min(1)
+    .max(100),
+  text: bi,
+  image: image.nullable(),
+  align: z.enum(["left", "center", "right"]),
+  ratio: z.enum(["original", "16:9", "4:3", "1:1", "3:4"]),
+});
 export const articleSchema = z.object({
   slug: z
     .string()
@@ -35,6 +46,15 @@ export const articleSchema = z.object({
   lead: bi.optional(),
   secondaryBody: bi.optional(),
   inlineImage: image.nullable().optional(),
+  blocks: z
+    .array(articleBlockSchema)
+    .max(100)
+    .refine(
+      (blocks) =>
+        new Set(blocks.map((block) => block.id)).size === blocks.length,
+      "Paragraph identifiers must be unique",
+    )
+    .optional(),
   category: z.string().min(1).max(100),
   status: z.enum(["draft", "published"]),
   publishedAt: z.string().datetime(),
@@ -73,6 +93,7 @@ export function validateTree(v, key = "") {
     text.parse(v);
     if (/^(url|href|sourceUrl|favicon)$/.test(key)) link.parse(v);
     if (/color$/i.test(key)) color.parse(v);
+    if (key === "background" && v !== "transparent") color.parse(v);
     return;
   }
   if (Array.isArray(v)) {

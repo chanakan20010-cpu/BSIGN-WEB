@@ -1,0 +1,81 @@
+.admin.cms .cms-maintenance-controls .cms-site-status-heading > button {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+.admin.cms
+  .cms-maintenance-controls
+  .cms-maintenance-state[data-maintenance="true"] {
+  color: #805b00;
+}
+.admin.cms
+  .cms-maintenance-controls
+  .cms-site-status-icon[data-maintenance="true"] {
+  background: #fff3d6;
+  color: #805b00;
+}
+.admin.cms .cms-maintenance-description {
+  margin-top: 14px;
+  margin-bottom: 22px;
+}
+.cms-maintenance-languages {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+}
+.admin.cms .cms-maintenance-languages fieldset {
+  border: 0;
+  margin: 0;
+  min-width: 0;
+  padding: 0;
+}
+.admin.cms .cms-maintenance-languages legend {
+  margin-bottom: 14px;
+  padding: 0;
+  font-weight: 600;
+  font-size: 14px;
+}
+.admin.cms .cms-maintenance-languages label + label {
+  margin-top: 16px;
+}
+.admin.cms .cms-maintenance-languages textarea {
+  min-height: 100px;
+}
+.cms-maintenance-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 18px;
+}
+.admin.cms .cms-maintenance-actions > a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.admin.cms .cms-maintenance-notice {
+  margin-top: 16px;
+  color: #256444;
+}
+.admin.cms .cms-maintenance-notice[data-error="true"] {
+  color: #a13743;
+}
+.admin.cms .cms-maintenance-controls .cms-site-status-footer {
+  margin-top: 22px;
+}
+@media (max-width: 700px) {
+  .cms-maintenance-languages {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
+  .admin.cms .cms-maintenance-controls .cms-site-status-heading > button {
+    margin-left: 0;
+    width: 100%;
+  }
+  .cms-maintenance-actions {
+    align-items: stretch;
+  }
+  .cms-maintenance-actions > button {
+    width: 100%;
+  }
+}
