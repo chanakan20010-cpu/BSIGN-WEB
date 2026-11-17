@@ -510,9 +510,13 @@ header {
 .about-hero {
   padding-top: 75px;
 }
+.hero .hero-grid > :is(.crop, .picture),
+.why .team > :is(.crop, .picture),
+.matrix {
+  box-shadow: 0 10px 15px #0002;
+}
 .matrix {
   padding: 16px;
-  box-shadow: 0 10px 15px #0002;
 }
 .matrix-caption {
   display: flex;

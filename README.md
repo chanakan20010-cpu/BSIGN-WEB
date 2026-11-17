@@ -1,8 +1,10 @@
-# BSIGN TECH — v1.6.2
+# BSIGN TECH — v1.6.3
 
 เว็บไซต์ TH/EN ตามภาพส่งออก Figma ที่ผู้ใช้แนบ: หน้าแรก เกี่ยวกับเรา ข่าวสาร รายละเอียดข่าว และติดต่อเรา พร้อม CMS, REST API และ SQLite จริง
 
 รุ่นนี้ปรับตามรายการที่ผู้ใช้รวบรวมในแชทและอนุญาตให้แก้ไขแล้ว ดูรายการเทียบกับคำขอใน [docs/REVISION-02.md](docs/REVISION-02.md) และประวัติรายการก่อนหน้าใน [docs/REVISION-01.md](docs/REVISION-01.md)
+
+v1.6.3 เพิ่มเงาภาพหลักและภาพส่วนทำไมต้องเลือกเราในหน้าแรก โดยใช้เงาเดียวกับการ์ดภาพหน้าเกี่ยวกับเรา
 
 ## เปิดพรีวิวบน Windows — ดับเบิลคลิก START-WINDOWS
 
@@ -126,7 +128,7 @@ Production ต้องตั้ง `NODE_ENV=production`, `APP_ORIGIN=https://�
 Docker build ใน Codex cloud ต้องส่ง CA ให้ npm โดยรักษา TLS verification:
 
 ```sh
-docker build --secret id=proxy_ca,src="$CODEX_PROXY_CERT" -t bsign-web:1.6.2 .
+docker build --secret id=proxy_ca,src="$CODEX_PROXY_CERT" -t bsign-web:1.6.3 .
 docker compose up --no-build -d
 ```
 
@@ -193,3 +195,5 @@ API ส่ง error code แทนข้อมูลภายในและไ�
 [ตัวอย่างแกลเลอรีภาพย่อ](docs/screenshots/admin-gallery.png) · [บทความล่าสุดบนหน้าแรก](docs/screenshots/home-latest.png)
 
 [แถบสลับภาษาขณะเลื่อนบน Desktop](docs/screenshots/article-language-sticky.png) · [แถบสลับภาษาบน Mobile](docs/screenshots/article-language-mobile.png)
+
+[เงาภาพหลักหน้าแรก](docs/screenshots/home-hero-shadow.png) · [เงาภาพทีมหน้าแรก](docs/screenshots/home-team-shadow.png)
