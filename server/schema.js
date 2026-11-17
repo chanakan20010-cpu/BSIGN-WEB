@@ -1,7 +1,70 @@
 import { z } from "zod";
 export const text = z.string().max(30000);
-export const bi = z.object({ th: text, en: text });
+export const textFormatSchema = z
+  .object({
+    style: z
+      .enum([
+        "inherit",
+        "brand",
+        "hero",
+        "heading",
+        "subheading",
+        "body",
+        "inverse",
+        "intro",
+        "highlight",
+        "menu",
+        "button",
+        "label",
+        "footer",
+        "footerHeading",
+        "footerBrand",
+      ])
+      .optional(),
+    align: z
+      .enum(["inherit", "left", "right", "center", "distributed", "justify"])
+      .optional(),
+  })
+  .passthrough();
+export const bi = z
+  .object({ th: text, en: text, format: textFormatSchema.optional() })
+  .passthrough();
 export const color = z.string().regex(/^#[0-9a-fA-F]{6}$/);
+export const iconSchema = z
+  .object({
+    name: z.string().max(50),
+    color,
+    background: z.union([color, z.literal("transparent")]),
+    asset: z.string().regex(/^$|^\/uploads\/[a-f0-9-]+\.(svg|png|webp)$/),
+    mode: z.enum(["mask", "image"]),
+  })
+  .passthrough()
+  .refine(
+    (icon) =>
+      icon.mode !== "mask" || !icon.asset || icon.asset.endsWith(".svg"),
+    "Raster images use their original colors",
+  );
+const editorLabel = z.string().max(300);
+const safeLabelKey = z
+  .string()
+  .max(300)
+  .regex(/^[A-Za-z0-9_.-]+$/);
+export const editorLabelsSchema = z
+  .object({
+    sections: z
+      .record(
+        safeLabelKey,
+        z
+          .object({
+            title: editorLabel.optional(),
+            description: z.string().max(1000).optional(),
+          })
+          .passthrough(),
+      )
+      .optional(),
+    fields: z.record(safeLabelKey, editorLabel).optional(),
+  })
+  .passthrough();
 export const link = z
   .string()
   .max(2000)
@@ -20,48 +83,53 @@ export const image = z
     alt: bi,
     crop: z.array(z.number().finite().nonnegative()).length(6).nullable(),
   })
+  .passthrough()
   .refine(
     (v) => !v.crop || v.crop.slice(2).every((n) => n > 0),
     "Invalid crop",
   );
-export const articleBlockSchema = z.object({
-  id: z
-    .string()
-    .regex(/^[a-zA-Z0-9_-]+$/)
-    .min(1)
-    .max(100),
-  text: bi,
-  image: image.nullable(),
-  align: z.enum(["left", "center", "right"]),
-  ratio: z.enum(["original", "16:9", "4:3", "1:1", "3:4"]),
-});
-export const articleSchema = z.object({
-  slug: z
-    .string()
-    .regex(/^[a-z0-9-]+$/)
-    .max(150),
-  title: bi,
-  excerpt: bi,
-  body: bi,
-  lead: bi.optional(),
-  secondaryBody: bi.optional(),
-  inlineImage: image.nullable().optional(),
-  blocks: z
-    .array(articleBlockSchema)
-    .max(100)
-    .refine(
-      (blocks) =>
-        new Set(blocks.map((block) => block.id)).size === blocks.length,
-      "Paragraph identifiers must be unique",
-    )
-    .optional(),
-  category: z.string().min(1).max(100),
-  status: z.enum(["draft", "published"]),
-  publishedAt: z.string().datetime(),
-  image,
-  heroImage: image.nullable().optional(),
-  gallery: z.array(image).max(30),
-});
+export const articleBlockSchema = z
+  .object({
+    id: z
+      .string()
+      .regex(/^[a-zA-Z0-9_-]+$/)
+      .min(1)
+      .max(100),
+    text: bi,
+    image: image.nullable(),
+    align: z.enum(["left", "center", "right"]),
+    ratio: z.enum(["original", "16:9", "4:3", "1:1", "3:4"]),
+  })
+  .passthrough();
+export const articleSchema = z
+  .object({
+    slug: z
+      .string()
+      .regex(/^[a-z0-9-]+$/)
+      .max(150),
+    title: bi,
+    excerpt: bi,
+    body: bi,
+    lead: bi.optional(),
+    secondaryBody: bi.optional(),
+    inlineImage: image.nullable().optional(),
+    blocks: z
+      .array(articleBlockSchema)
+      .max(100)
+      .refine(
+        (blocks) =>
+          new Set(blocks.map((block) => block.id)).size === blocks.length,
+        "Paragraph identifiers must be unique",
+      )
+      .optional(),
+    category: z.string().min(1).max(100),
+    status: z.enum(["draft", "published"]),
+    publishedAt: z.string().datetime(),
+    image,
+    heroImage: image.nullable().optional(),
+    gallery: z.array(image).max(30),
+  })
+  .passthrough();
 export const styleSchema = z.object({
   font: z.enum(["Noto Sans Thai", "Noto Sans", "sans-serif", "serif"]),
   size: z.number().min(10).max(100),
@@ -84,6 +152,11 @@ export const contactSchema = z.object({
 // Validate all persisted leaves, including unrecognized future keys. Known shapes are
 // validated after merging so partial requests cannot silently delete newer fields.
 export function validateTree(v, key = "") {
+  if (key === "format") textFormatSchema.parse(v);
+  if (key === "editorLabels") editorLabelsSchema.parse(v);
+  if (key === "editorLabel") editorLabel.parse(v);
+  if (key === "footIcon" || (key === "icon" && typeof v !== "string"))
+    iconSchema.parse(v);
   if (v === null || typeof v === "boolean") return;
   if (typeof v === "number") {
     if (!Number.isFinite(v)) throw Error("Invalid number");
@@ -132,8 +205,25 @@ export function validateShape(template, value, path = "") {
   if (typeof template === "object") {
     if (!value || typeof value !== "object" || Array.isArray(value))
       throw Error("Invalid object");
-    for (const k of Object.keys(template))
+    for (const k of Object.keys(template)) {
+      // New optional presentation fields are additive. An older client may add
+      // a card without them; existing values are retained by merge beforehand.
+      if (
+        value[k] === undefined &&
+        [
+          "icon",
+          "footIcon",
+          "editorLabel",
+          "editorLabels",
+          "format",
+          "footerNav",
+          "footerHeading",
+          "footerBrand",
+        ].includes(k)
+      )
+        continue;
       validateShape(template[k], value[k], path + "." + k);
+    }
     return;
   }
   if (typeof value !== typeof template)

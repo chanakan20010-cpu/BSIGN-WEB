@@ -1,0 +1,130 @@
+.admin.cms .cms-text-format-controls {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--cms-line);
+  border-radius: 6px;
+  background: #faf9f6;
+}
+.admin.cms .cms-text-format-controls > summary {
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--cms-muted);
+}
+.admin.cms .cms-text-format-controls > summary > small {
+  display: block;
+  margin-left: 15px;
+  margin-top: 3px;
+}
+.admin.cms .cms-text-format-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 12px;
+}
+.admin.cms .cms-text-format-controls > p {
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--cms-muted);
+}
+.admin.cms .cms-text-format-preview {
+  background: #fff;
+  border: 1px solid var(--cms-line);
+  border-radius: 6px;
+  padding: 14px;
+  margin-top: 12px;
+  max-height: 220px;
+  overflow: auto;
+}
+.admin.cms .cms-text-format-preview[data-tone="dark"] {
+  background: #252623;
+}
+.admin.cms .cms-text-format-preview > small {
+  display: block;
+  margin-bottom: 10px;
+  color: #756d61;
+  font-size: 11px;
+}
+.admin.cms .cms-text-format-preview[data-tone="dark"] > small {
+  color: #d7d0c4;
+}
+.admin.cms .cms-editable-label {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 9px;
+  max-width: 100%;
+}
+.admin.cms .cms-editable-label > button {
+  min-height: 28px;
+  padding: 2px 5px;
+  border: 0;
+  color: var(--cms-accent);
+  background: transparent;
+  font-size: 11px;
+  font-weight: 400;
+}
+.admin.cms .cms-editable-label > label {
+  font-size: 12px;
+  flex: 1 1 220px;
+}
+.admin.cms .cms-editable-label input {
+  min-height: 36px;
+  padding: 7px 9px;
+}
+.admin.cms .cms-card-icon-settings {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--cms-line);
+}
+.admin.cms .cms-card-icon-settings > summary {
+  cursor: pointer;
+  color: var(--cms-accent);
+  font-size: 13px;
+}
+.admin.cms .cms-card-icon-settings .cms-inline-icon-scope small {
+  color: var(--cms-muted);
+}
+.admin.cms .cms-inline-icon-editor .cms-icon-sample {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  width: 64px;
+  height: 64px;
+  min-width: 64px;
+  min-height: 64px;
+  max-width: 64px;
+  max-height: 64px;
+  padding: 8px;
+}
+.admin.cms .cms-inline-icon-editor .cms-icon-sample > .icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  min-width: 0;
+  max-width: 100%;
+  max-height: 100%;
+  overflow: hidden;
+  margin: 0;
+}
+.admin.cms
+  .cms-inline-icon-editor
+  .cms-icon-sample
+  .icon
+  > :is(svg, img, .mask) {
+  display: block;
+  flex: 0 1 auto;
+  width: 24px;
+  height: 24px;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  margin: 0;
+}
+@media (max-width: 700px) {
+  .admin.cms .cms-text-format-fields {
+    grid-template-columns: 1fr;
+  }
+}

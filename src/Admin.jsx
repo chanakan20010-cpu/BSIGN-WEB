@@ -31,7 +31,7 @@ import {
   LanguageSwitcher,
 } from "./admin/Editors";
 import Dashboard from "./admin/Dashboard";
-import PageIcons from "./admin/PageIcons";
+import PageSection from "./admin/PageSection";
 import { ImageUploadBusyContext } from "./admin/DeviceImageUpload";
 import "./admin/fonts.css";
 import {
@@ -161,6 +161,7 @@ export default function Admin() {
       : pages[requested]
         ? requested
         : "dashboard";
+  const documentKey = ["header", "footer"].includes(tab) ? "global" : tab;
   const [authenticated, setAuthenticated] = useState(null),
     [docs, setDocs] = useState(null),
     [defaults, setDefaults] = useState(null),
@@ -188,10 +189,10 @@ export default function Admin() {
   const currentTab = useRef(tab);
   currentTab.current = tab;
   const documentDirty = Boolean(
-    docs?.[tab] &&
+    docs?.[documentKey] &&
     draftTab === tab &&
     draft &&
-    JSON.stringify(draft) !== JSON.stringify(docs[tab].value),
+    JSON.stringify(draft) !== JSON.stringify(docs[documentKey].value),
   );
   const iconsDirty = Boolean(
     sections[tab] &&
@@ -239,7 +240,7 @@ export default function Admin() {
       setDefaults(f);
       setMedia(m);
       setOverview(o);
-      setDraft(d[tab] ? clone(d[tab].value) : null);
+      setDraft(d[documentKey] ? clone(d[documentKey].value) : null);
       setDraftTab(tab);
     } catch (e) {
       report(e);
@@ -265,7 +266,7 @@ export default function Admin() {
     if (authenticated) load();
   }, [authenticated]);
   useEffect(() => {
-    setDraft(docs?.[tab] ? clone(docs[tab].value) : null);
+    setDraft(docs?.[documentKey] ? clone(docs[documentKey].value) : null);
     setDraftTab(tab);
     setIconDraft(docs?.icons ? clone(docs.icons.value) : null);
     setSection(null);
@@ -335,18 +336,18 @@ export default function Admin() {
     let savedPart = false;
     try {
       if (submitted) {
-        const saved = await api("/admin/documents/" + tab, {
+        const saved = await api("/admin/documents/" + documentKey, {
           method: "PATCH",
-          body: { revision: docs[tab].revision, patch: submitted },
+          body: { revision: docs[documentKey].revision, patch: submitted },
         });
-        setDocs((d) => ({ ...d, [tab]: saved }));
+        setDocs((d) => ({ ...d, [documentKey]: saved }));
         if (currentTab.current === tab)
           setDraft((current) =>
             JSON.stringify(current) === JSON.stringify(submitted)
               ? clone(saved.value)
               : current,
           );
-        site.setContent((c) => ({ ...c, [tab]: saved.value }));
+        site.setContent((c) => ({ ...c, [documentKey]: saved.value }));
         savedPart = true;
       }
       if (submittedIcons) {
@@ -388,9 +389,27 @@ export default function Admin() {
   }
   const knownGroups = sections[tab] || [];
   const leftovers =
-    draft && draftTab === tab
+    draft && draftTab === tab && !["header", "footer"].includes(tab)
       ? Object.keys(draft).filter(
-          (k) => !knownGroups.some((g) => g[3].includes(k)),
+          (k) =>
+            ![
+              "editorLabels",
+              "footerNav",
+              ...(tab === "global"
+                ? [
+                    "brand",
+                    "logo",
+                    "footerLogo",
+                    "favicon",
+                    "nav",
+                    "languages",
+                    "menuLabel",
+                    "skip",
+                    "contactHeading",
+                    "addressHeading",
+                  ]
+                : []),
+            ].includes(k) && !knownGroups.some((g) => g[3].includes(k)),
         )
       : [];
   const groups = [
@@ -400,7 +419,14 @@ export default function Admin() {
       : []),
   ];
   const active = groups.find((g) => g[0] === section) || groups[0];
-  const stacked = ["home", "about", "news", "contact"].includes(tab);
+  const stacked = [
+    "home",
+    "about",
+    "news",
+    "contact",
+    "header",
+    "footer",
+  ].includes(tab);
   const visibleGroups = stacked ? groups : active ? [active] : [];
   if (authenticated === null)
     return (
@@ -490,6 +516,8 @@ export default function Admin() {
               <nav className="cms-website-tabs" aria-label="หน้าเว็บไซต์">
                 {[
                   ["global", "ข้อมูลบริษัท"],
+                  ["header", "ส่วนหัวเว็บไซต์"],
+                  ["footer", "ส่วนท้ายเว็บไซต์"],
                   ["home", "หน้าแรก"],
                   ["about", "เกี่ยวกับเรา"],
                   ["news", "ข่าวสาร"],
@@ -519,7 +547,7 @@ export default function Admin() {
                 ))}
               </nav>
             )}
-            {docs[tab] && draft && draftTab === tab && (
+            {docs[documentKey] && draft && draftTab === tab && (
               <>
                 <div className="cms-savebar">
                   <div>
@@ -546,7 +574,7 @@ export default function Admin() {
                       disabled={!dirty || busy || pendingUploads > 0}
                       onClick={() => {
                         if (confirm("ยกเลิกการแก้ไขที่ยังไม่บันทึก?")) {
-                          setDraft(clone(docs[tab].value));
+                          setDraft(clone(docs[documentKey].value));
                           setIconDraft(clone(docs.icons.value));
                         }
                       }}
@@ -610,43 +638,22 @@ export default function Admin() {
                       </nav>
                     )}
                     <div className="cms-stacked-groups">
-                      {visibleGroups.map((group) => (
-                        <section
-                          className="cms-card cms-editor-card"
+                      {visibleGroups.map((group, index) => (
+                        <PageSection
                           key={tab + group[0]}
-                        >
-                          <div className="cms-card-header">
-                            <div>
-                              <h3>{group[1]}</h3>
-                              <p>{group[2]}</p>
-                            </div>
-                          </div>
-                          <div className="cms-card-body cms-document-fields">
-                            <EditorLanguageContext.Provider value={language}>
-                              {group[3]
-                                .filter((k) => Object.hasOwn(draft, k))
-                                .map((k) => (
-                                  <Field
-                                    key={tab + "." + k}
-                                    path={tab + "." + k}
-                                    value={draft[k]}
-                                    media={media}
-                                    onChange={(v) =>
-                                      setDraft((d) => ({ ...d, [k]: v }))
-                                    }
-                                  />
-                                ))}
-                            </EditorLanguageContext.Provider>
-                            <PageIcons
-                              page={tab}
-                              group={group[0]}
-                              value={draft}
-                              icons={iconDraft}
-                              defaults={defaults.icons}
-                              onChange={setIconDraft}
-                            />
-                          </div>
-                        </section>
+                          page={tab}
+                          documentKey={documentKey}
+                          group={group}
+                          index={index}
+                          value={draft}
+                          onChange={setDraft}
+                          language={language}
+                          media={media}
+                          icons={iconDraft}
+                          defaultIcons={defaults.icons}
+                          onIconsChange={setIconDraft}
+                          pendingUploads={pendingUploads}
+                        />
                       ))}
                     </div>
                   </div>
@@ -660,8 +667,18 @@ export default function Admin() {
                         confirm(
                           "นำค่าเริ่มต้นของหมวดนี้มาแทนในแบบร่าง? ยังไม่บันทึกจนกว่าคุณจะกดบันทึก",
                         )
-                      )
-                        setDraft(clone(defaults[tab]));
+                      ) {
+                        if (["header", "footer"].includes(tab)) {
+                          setDraft((current) => {
+                            const next = clone(current);
+                            for (const group of knownGroups)
+                              for (const key of group[3])
+                                if (Object.hasOwn(defaults.global, key))
+                                  next[key] = clone(defaults.global[key]);
+                            return next;
+                          });
+                        } else setDraft(clone(defaults[documentKey]));
+                      }
                     }}
                   >
                     คืนค่าเริ่มต้น

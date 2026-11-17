@@ -8,50 +8,21 @@ export function pageIconSlots(page, group, value) {
     ["news.section.marker", "marker", "เครื่องหมายหัวข้อข่าว"],
   ];
   const fixed = {
-    "global.navigation": [["header.menu", "menu", "ปุ่มเมนูมือถือ"]],
-    "global.company": [
+    "header.navigation": [["header.menu", "menu", "ปุ่มเมนูมือถือ"]],
+    "footer.contact": [
       ["footer.mail", "mail", "อีเมลส่วนท้ายเว็บ"],
       ["footer.phone", "phone", "โทรศัพท์ส่วนท้ายเว็บ"],
-      ["footer.pin", "pin", "ที่อยู่ส่วนท้ายเว็บ"],
     ],
+    "footer.address": [["footer.pin", "pin", "ที่อยู่ส่วนท้ายเว็บ"]],
     "home.intro": [["home.hero.arrow", "arrow", "ลูกศรปุ่มส่วนเปิดหน้า"]],
-    "home.services": [
-      ["home.services.marker", "marker", "เครื่องหมายหัวข้อบริการ"],
-      ...(value.cards || []).map((_, i) => [
-        `home.service.${i}`,
-        "terminal",
-        `ไอคอนบริการ ${i + 1}`,
-      ]),
-    ],
+    "home.services": [["home.services.marker", "marker", "เครื่องหมายหัวข้อบริการ"]],
     "home.advantages": [
       ["home.why.marker", "marker", "เครื่องหมายหัวข้อจุดแข็ง"],
       ["home.badge", "bolt", "ไอคอนป้ายภาพทีมงาน"],
-      ...(value.advantages || []).map((_, i) => [
-        `home.advantage.${i}`,
-        "rocket",
-        `ไอคอนจุดแข็ง ${i + 1}`,
-      ]),
     ],
     "home.news": sharedNews,
-    "about.vision": [
-      ["about.vision.marker", "marker", "เครื่องหมายหัวข้อวิสัยทัศน์"],
-      ...(value.missions || []).map((_, i) => [
-        `about.mission.${i}`,
-        i ? "rocket" : "eye",
-        `ไอคอนพันธกิจ ${i + 1}`,
-      ]),
-    ],
-    "about.values": [
-      ["about.values.marker", "marker", "เครื่องหมายหัวข้อคุณค่า"],
-      ...(value.cards || []).flatMap((_, i) => [
-        [
-          `about.value.${i}`,
-          ["speed", "engineering", "heart", "brain"][i % 4],
-          `ไอคอนคุณค่า ${i + 1}`,
-        ],
-        [`about.foot.${i}`, "marker", `เครื่องหมายท้ายคุณค่า ${i + 1}`],
-      ]),
-    ],
+    "about.vision": [["about.vision.marker", "marker", "เครื่องหมายหัวข้อวิสัยทัศน์"]],
+    "about.values": [["about.values.marker", "marker", "เครื่องหมายหัวข้อคุณค่า"]],
     "news.intro": [
       ...sharedNews,
       [
@@ -93,25 +64,28 @@ export default function PageIcons({
   const slots = pageIconSlots(page, group, value);
   if (!slots.length || !icons) return null;
   return (
-    <section className="cms-page-icons" aria-label="ไอคอนในส่วนนี้">
-      <h4>ไอคอนในส่วนนี้</h4>
-      <p className="cms-hint">
-        เลือกไอคอนและสีได้ที่นี่ ตำแหน่งที่ใช้ร่วมกันจะระบุไว้ในชื่อ
-        บันทึกด้วยปุ่มบันทึกการเปลี่ยนแปลงด้านบน
-      </p>
-      <div className="cms-page-icons-grid">
-        {slots.map(([slot, iconKey, label]) => (
-          <InlineIconEditor
-            key={slot}
-            slot={slot}
-            iconKey={iconKey}
-            label={label}
-            icons={icons}
-            defaults={defaults}
-            onChange={onChange}
-          />
-        ))}
-      </div>
-    </section>
+    <details className="cms-page-icon-details">
+      <summary>ไอคอนประกอบส่วนนี้</summary>
+      <section className="cms-page-icons" aria-label="ไอคอนในส่วนนี้">
+        <h4>ไอคอนในส่วนนี้</h4>
+        <p className="cms-hint">
+          เลือกไอคอนและสีได้ที่นี่ ตำแหน่งที่ใช้ร่วมกันจะระบุไว้ในชื่อ
+          บันทึกด้วยปุ่มบันทึกการเปลี่ยนแปลงด้านบน
+        </p>
+        <div className="cms-page-icons-grid">
+          {slots.map(([slot, iconKey, label]) => (
+            <InlineIconEditor
+              key={slot}
+              slot={slot}
+              iconKey={iconKey}
+              label={label}
+              icons={icons}
+              defaults={defaults}
+              onChange={onChange}
+            />
+          ))}
+        </div>
+      </section>
+    </details>
   );
 }

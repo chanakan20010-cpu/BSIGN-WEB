@@ -7,13 +7,144 @@ import {
   RotateCcw,
   Trash2,
   Palette,
+  Pencil,
+  Check,
 } from "lucide-react";
 import { useSite, Site, Typography, Picture, Icon, iconNames } from "../shared";
 import { DeviceImageUpload } from "./DeviceImageUpload";
+import TextFormatControls from "./TextFormatControls";
+export { default as TextFormatControls } from "./TextFormatControls";
 
 // A language switch changes the visible controls, never the stored object.
 // Leaving the context empty retains paired controls for existing integrations.
 export const EditorLanguageContext = createContext(null);
+export const EditorPageContext = createContext(null);
+
+function EditableLabel({ value, fallback, onChange, name }) {
+  const [editing, setEditing] = useState(false);
+  const shown = value?.trim() || fallback;
+  if (!onChange) return <span>{shown}</span>;
+  return (
+    <span className="cms-editable-label">
+      {editing ? (
+        <label>
+          ชื่อที่แสดงในหน้าจัดการ
+          <input
+            aria-label={`ชื่อที่แสดง ${name || fallback}`}
+            value={value ?? ""}
+            placeholder={fallback}
+            maxLength={300}
+            onChange={(event) => onChange(event.target.value)}
+          />
+        </label>
+      ) : (
+        <span>{shown}</span>
+      )}
+      <button
+        type="button"
+        aria-label={`${editing ? "เสร็จสิ้นการแก้ชื่อ" : "แก้ไขชื่อ"} ${name || fallback}`}
+        onClick={() => setEditing(!editing)}
+      >
+        {editing ? (
+          <Check size={13} aria-hidden="true" />
+        ) : (
+          <Pencil size={12} aria-hidden="true" />
+        )}
+        {editing ? "เสร็จสิ้น" : "แก้ไขชื่อ"}
+      </button>
+    </span>
+  );
+}
+
+function FieldLegend({ path, fallback }) {
+  const page = useContext(EditorPageContext);
+  return (
+    <legend>
+      <EditableLabel
+        value={page?.labels?.fields?.[path]}
+        fallback={fallback}
+        name={fallback}
+        onChange={
+          page?.onLabelsChange
+            ? (name) =>
+                page.onLabelsChange({
+                  ...page.labels,
+                  fields: { ...page.labels?.fields, [path]: name },
+                })
+            : undefined
+        }
+      />
+    </legend>
+  );
+}
+
+const cardPaths =
+  /^(home\.cards|home\.advantages|about\.missions|about\.cards)\.\d+$/;
+function cardIconInfo(path) {
+  const index = Number(path.split(".").at(-1));
+  if (path.startsWith("home.cards."))
+    return { key: "terminal", slot: `home.service.${index}` };
+  if (path.startsWith("home.advantages."))
+    return { key: "rocket", slot: `home.advantage.${index}` };
+  if (path.startsWith("about.missions."))
+    return { key: index ? "rocket" : "eye", slot: `about.mission.${index}` };
+  return {
+    key: ["speed", "engineering", "heart", "brain"][index % 4],
+    slot: `about.value.${index}`,
+  };
+}
+function CardIconControls({ value, path, onChange }) {
+  const page = useContext(EditorPageContext);
+  const info = cardIconInfo(path);
+  const resolve = (icons, key, slot) =>
+    icons?.overrides?.[slot] ||
+    icons?.shared?.[key] || {
+      name: "ArrowRight",
+      color: "#805b00",
+      background: "#fff3dc",
+      asset: "",
+      mode: "mask",
+    };
+  const make = (property, key, slot, label) => {
+    const current = value[property] || resolve(page?.icons, key, slot);
+    const initial = resolve(page?.defaultIcons || page?.icons, key, slot);
+    const localSlot = `${path}.${property}`;
+    return (
+      <InlineIconEditor
+        key={property}
+        slot={localSlot}
+        iconKey="__card"
+        label={label}
+        scopeLabel="ใช้เฉพาะการ์ดนี้ และย้ายตามการ์ดเมื่อเปลี่ยนลำดับ"
+        colorLabel={label}
+        icons={{
+          shared: { __card: current },
+          overrides: { [localSlot]: current },
+        }}
+        defaults={{ overrides: { [localSlot]: initial } }}
+        onChange={(next) =>
+          onChange({
+            ...value,
+            [property]: next.overrides[localSlot] || initial,
+          })
+        }
+      />
+    );
+  };
+  return (
+    <details className="cms-card-icon-settings">
+      <summary>ไอคอนของการ์ด</summary>
+      {make("icon", info.key, info.slot, "ไอคอนหลักของการ์ด")}
+      {path.startsWith("about.cards.") &&
+        make(
+          "footIcon",
+          "marker",
+          `about.foot.${Number(path.split(".").at(-1))}`,
+          "ไอคอนท้ายการ์ด",
+        )}
+    </details>
+  );
+}
 export function LanguageSwitcher({ value, onChange }) {
   return (
     <div
@@ -75,6 +206,7 @@ const labels = {
   footerLogo: "โลโก้ส่วนท้าย",
   favicon: "ไอคอนแท็บเว็บไซต์ (URL)",
   nav: "เมนูนำทาง",
+  footerNav: "เมนูส่วนท้ายเว็บไซต์",
   email: "อีเมล",
   phone: "โทรศัพท์",
   address: "ที่อยู่",
@@ -175,6 +307,8 @@ const labels = {
   menu: "เมนูนำทาง",
   button: "ปุ่ม",
   footer: "เนื้อหาส่วนท้าย",
+  footerHeading: "หัวข้อส่วนท้าย",
+  footerBrand: "ชื่อแบรนด์ส่วนท้าย",
   styles: "สไตล์ตัวอักษร",
   icons: "ไอคอน",
   shared: "รูปแบบไอคอนร่วมกัน",
@@ -292,7 +426,7 @@ function emptyArrayItem(path) {
     bi = () => ({ th: "", en: "" }),
     image = () => ({ url: "", alt: bi(), crop: null });
   if (key === "title") return { text: bi(), color: "#000000" };
-  if (key === "nav") return { label: bi(), href: "/" };
+  if (["nav", "footerNav"].includes(key)) return { label: bi(), href: "/" };
   if (key === "categories") return { id: "new-category", label: bi() };
   if (key === "socials")
     return { name: bi(), handle: "", href: "", icon: "line" };
@@ -307,9 +441,10 @@ function emptyArrayItem(path) {
 }
 
 function ImageFieldEditor({ value, onChange, path, media }) {
+  const page = useContext(EditorPageContext);
   const latest = useRef(value),
     key = path.split(".").at(-1),
-    label = fieldLabel(path);
+    label = page?.labels?.fields?.[path]?.trim() || fieldLabel(path);
   latest.current = value;
   return (
     <fieldset
@@ -318,7 +453,7 @@ function ImageFieldEditor({ value, onChange, path, media }) {
         (["logo", "footerLogo"].includes(key) ? " cms-logo-editor" : "")
       }
     >
-      <legend>{label}</legend>
+      <FieldLegend path={path} fallback={fieldLabel(path)} />
       <DeviceImageUpload
         key={path}
         label={`อัปโหลด${label}จากอุปกรณ์`}
@@ -426,14 +561,19 @@ function FaviconField({ value, onChange, path }) {
 
 export function Field({ value, onChange, path = "", media = [] }) {
   const language = useContext(EditorLanguageContext);
+  const page = useContext(EditorPageContext);
+  const site = useSite();
   const key = path.split(".").at(-1),
-    label = fieldLabel(path);
+    label = page?.labels?.fields?.[path]?.trim() || fieldLabel(path);
   if (key === "favicon" && typeof value === "string")
     return <FaviconField value={value} onChange={onChange} path={path} />;
   if (isBilingual(value))
     return (
-      <fieldset className="cms-field-group cms-bilingual-field">
-        <legend>{label}</legend>
+      <fieldset
+        className="cms-field-group cms-bilingual-field"
+        data-field-path={path}
+      >
+        <FieldLegend path={path} fallback={fieldLabel(path)} />
         <div className="cms-languages" data-language={language || "both"}>
           {[
             ["th", "ไทย"],
@@ -450,8 +590,18 @@ export function Field({ value, onChange, path = "", media = [] }) {
               />
             ))}
         </div>
+        {!/(?:^|\.)(?:alt|editorLabel|editorLabels)(?:\.|$)/.test(path) && (
+          <TextFormatControls
+            label={label}
+            styles={site?.content?.styles}
+            value={value.format}
+            text={value}
+            language={language || "th"}
+            onChange={(format) => onChange({ ...value, format })}
+          />
+        )}
         {Object.entries(value)
-          .filter(([k]) => !["th", "en"].includes(k))
+          .filter(([k]) => !["th", "en", "format"].includes(k))
           .map(([k, v]) => (
             <Field
               key={k}
@@ -502,21 +652,44 @@ export function Field({ value, onChange, path = "", media = [] }) {
           media={media}
         />
       );
+    const card = cardPaths.test(path);
+    const Wrapper = card ? "div" : "fieldset";
+    const groupPath = path.split(".").slice(0, -1).join(".");
+    const groupLabel =
+      page?.labels?.fields?.[groupPath]?.trim() || fieldLabel(groupPath);
     return (
-      <fieldset className="cms-field-group">
-        <legend>{label}</legend>
+      <Wrapper
+        className={"cms-field-group" + (card ? " cms-card-fields" : "")}
+        data-field-path={path}
+        role={card ? "group" : undefined}
+        aria-label={
+          card
+            ? value.editorLabel?.trim() || `${groupLabel} ${Number(key) + 1}`
+            : undefined
+        }
+      >
+        {!card && <FieldLegend path={path} fallback={fieldLabel(path)} />}
         <div className="cms-field-grid">
-          {Object.entries(value).map(([k, v]) => (
-            <Field
-              key={k}
-              path={`${path}.${k}`}
-              value={v}
-              media={media}
-              onChange={(x) => onChange({ ...value, [k]: x })}
-            />
-          ))}
+          {Object.entries(value)
+            .filter(
+              ([k]) =>
+                !["editorLabels", "editorLabel", "format"].includes(k) &&
+                !(cardPaths.test(path) && ["icon", "footIcon"].includes(k)),
+            )
+            .map(([k, v]) => (
+              <Field
+                key={k}
+                path={`${path}.${k}`}
+                value={v}
+                media={media}
+                onChange={(x) => onChange({ ...value, [k]: x })}
+              />
+            ))}
         </div>
-      </fieldset>
+        {cardPaths.test(path) && (
+          <CardIconControls value={value} path={path} onChange={onChange} />
+        )}
+      </Wrapper>
     );
   }
   if (Array.isArray(value)) {
@@ -526,8 +699,8 @@ export function Field({ value, onChange, path = "", media = [] }) {
       onChange(next);
     };
     return (
-      <fieldset className="cms-field-group">
-        <legend>{label}</legend>
+      <fieldset className="cms-field-group" data-field-path={path}>
+        <FieldLegend path={path} fallback={fieldLabel(path)} />
         {value.length === 0 && (
           <p className="cms-muted">ยังไม่มีรายการ เพิ่มรายการแรกได้ด้านล่าง</p>
         )}
@@ -535,7 +708,25 @@ export function Field({ value, onChange, path = "", media = [] }) {
           <div className="cms-array-item" key={index}>
             <div className="cms-array-header">
               <strong>
-                {label} · {index + 1}
+                <EditableLabel
+                  value={
+                    cardPaths.test(`${path}.${index}`)
+                      ? item.editorLabel
+                      : undefined
+                  }
+                  fallback={`${label} · ${index + 1}`}
+                  name={`การ์ด ${index + 1}`}
+                  onChange={
+                    cardPaths.test(`${path}.${index}`)
+                      ? (editorLabel) =>
+                          onChange(
+                            value.map((old, i) =>
+                              i === index ? { ...old, editorLabel } : old,
+                            ),
+                          )
+                      : undefined
+                  }
+                />
               </strong>
               <div className="cms-row-actions">
                 <button
@@ -543,7 +734,7 @@ export function Field({ value, onChange, path = "", media = [] }) {
                   className="cms-secondary"
                   aria-label={`ย้ายรายการ ${index + 1} ขึ้น`}
                   title="ย้ายขึ้น"
-                  disabled={index === 0}
+                  disabled={index === 0 || page?.uploading}
                   onClick={() => move(index, -1)}
                 >
                   <ArrowUp size={16} aria-hidden="true" />
@@ -553,7 +744,7 @@ export function Field({ value, onChange, path = "", media = [] }) {
                   className="cms-secondary"
                   aria-label={`ย้ายรายการ ${index + 1} ลง`}
                   title="ย้ายลง"
-                  disabled={index === value.length - 1}
+                  disabled={index === value.length - 1 || page?.uploading}
                   onClick={() => move(index, 1)}
                 >
                   <ArrowDown size={16} aria-hidden="true" />
@@ -562,6 +753,7 @@ export function Field({ value, onChange, path = "", media = [] }) {
                   type="button"
                   className="cms-danger"
                   aria-label={`ลบรายการ ${index + 1}`}
+                  disabled={page?.uploading}
                   onClick={() => onChange(value.filter((_, i) => i !== index))}
                 >
                   <Trash2 size={16} aria-hidden="true" />
@@ -582,6 +774,7 @@ export function Field({ value, onChange, path = "", media = [] }) {
         <button
           type="button"
           className="cms-secondary"
+          disabled={page?.uploading}
           onClick={() => {
             const next = clone(value[0] ?? emptyArrayItem(path));
             if (key === "categories") {
@@ -849,6 +1042,8 @@ export function InlineIconEditor({
   icons,
   onChange,
   defaults,
+  scopeLabel,
+  colorLabel,
 }) {
   const site = useSite(),
     latest = useRef(icons),
@@ -917,7 +1112,7 @@ export function InlineIconEditor({
         <div className="cms-field-grid">
           <ColorField
             label="สีไอคอน"
-            hexLabel={`รหัสสีไอคอน ${slot}`}
+            hexLabel={`รหัสสีไอคอน ${colorLabel || slot}`}
             path={`${slot}.color`}
             value={current.color}
             onChange={(color) => update({ color })}
@@ -965,7 +1160,9 @@ export function InlineIconEditor({
         </details>
         {raster && <p className="cms-muted">ภาพใช้สีต้นฉบับ ปรับได้เฉพาะสีพื้นหลัง</p>}
         <div className="cms-inline-icon-scope">
-          <small className="cms-muted">มีผลเฉพาะตำแหน่งนี้ ({slot})</small>
+          <small className="cms-muted">
+            {scopeLabel || `มีผลเฉพาะตำแหน่งนี้ (${slot})`}
+          </small>
           <button
             type="button"
             className="cms-text-button"
@@ -1259,6 +1456,8 @@ const styleKinds = {
   button: ["ปุ่ม", "ข้อความในปุ่มและลิงก์ดำเนินการ"],
   label: ["ป้ายกำกับ", "ป้ายชื่อ หมวดหมู่ และช่องแบบฟอร์ม"],
   footer: ["ส่วนท้าย", "ข้อความบริเวณส่วนท้ายเว็บไซต์"],
+  footerHeading: ["หัวข้อส่วนท้าย", "หัวข้อช่องทางติดต่อและที่อยู่ในส่วนท้ายเว็บไซต์"],
+  footerBrand: ["ชื่อแบรนด์ส่วนท้าย", "ชื่อแบรนด์ที่แสดงข้างโลโก้ในส่วนท้ายเว็บไซต์"],
 };
 export function StyleEditor({ value, onChange }) {
   const [selected, setSelected] = useState("hero"),
@@ -1418,7 +1617,14 @@ export function StyleEditor({ value, onChange }) {
                     <div
                       className="cms-selected-type-sample"
                       data-tone={
-                        ["inverse", "footer"].includes(kind) ? "dark" : "light"
+                        [
+                          "inverse",
+                          "footer",
+                          "footerHeading",
+                          "footerBrand",
+                        ].includes(kind)
+                          ? "dark"
+                          : "light"
                       }
                     >
                       <small>{title}</small>

@@ -96,3 +96,97 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* Keep the three content groups visible in reading order. */
+.cms-article-outline {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 22px 0;
+}
+.admin.cms .cms-article-outline > a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 12px 16px;
+  border: 1px solid var(--cms-line);
+  border-radius: 8px;
+  background: var(--cms-paper);
+}
+.cms-article-outline > a > span {
+  color: var(--cms-accent);
+  font-size: 12px;
+  font-weight: 600;
+}
+.admin.cms .cms-article-outline > a:hover {
+  background: var(--cms-accent-soft);
+}
+.cms-article-section {
+  scroll-margin-top: 28px;
+}
+.cms-article-step {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--cms-accent);
+  font-size: 12px;
+  font-weight: 500;
+}
+.cms-article-cover {
+  margin-top: 26px;
+  padding-top: 24px;
+  border-top: 1px solid var(--cms-line);
+}
+.admin.cms .cms-article-cover .cms-preview {
+  max-width: 460px;
+}
+.admin.cms .cms-article-cover .cms-preview > :is(.crop, .picture, img) {
+  max-height: 260px;
+}
+.cms-article-advanced {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--cms-line);
+}
+.admin.cms .cms-article-advanced > summary,
+.admin.cms .cms-article-text-preview > summary {
+  cursor: pointer;
+  color: var(--cms-accent);
+  font-size: 13px;
+}
+.cms-article-advanced[open] > p {
+  margin: 14px 0;
+}
+.admin.cms .cms-article-extra-fields {
+  padding: 18px 24px;
+}
+.cms-article-extra-fields > .cms-card-body {
+  padding: 20px 0 0;
+}
+.cms-article-text-preview {
+  margin: 18px 0;
+}
+.cms-article-preview-paper {
+  margin-top: 12px;
+  padding: 20px;
+  border: 1px solid var(--cms-line);
+  border-radius: 6px;
+  background: white;
+  overflow-wrap: anywhere;
+}
+.cms-article-preview-paper[data-tone="dark"] {
+  background: #252623;
+}
+.cms-article-preview-paper > p {
+  white-space: pre-line;
+}
+@media (max-width: 650px) {
+  .cms-article-outline {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .admin.cms .cms-article-outline > a {
+    min-height: 44px;
+    padding: 10px 14px;
+  }
+}

@@ -25,6 +25,9 @@ import {
   faLine,
   faLinkedin,
 } from "@fortawesome/free-brands-svg-icons";
+import { textFormatting } from "./text-format";
+export { textFormatProps } from "./text-format";
+import "./text-format.css";
 const brands = { facebook: faFacebook, line: faLine, linkedin: faLinkedin };
 export const Site = createContext(null);
 export const useSite = () => useContext(Site);
@@ -96,10 +99,33 @@ export function Picture({ value, className = "" }) {
     </svg>
   );
 }
-export function Icon({ name, slot = name }) {
+export function FormattedText({
+  value,
+  as: Tag = "span",
+  className = "",
+  style,
+  children,
+  ...props
+}) {
+  const { t } = useSite();
+  const format = textFormatting(value);
+  return (
+    <Tag
+      {...props}
+      className={[className, "bs-formatted-text"].filter(Boolean).join(" ")}
+      data-text-style={format.role || undefined}
+      data-text-align={format.align || undefined}
+      style={{ ...format.style, ...style }}
+    >
+      {children === undefined ? t(value) : children}
+    </Tag>
+  );
+}
+export function Icon({ name, slot = name, value }) {
   const { content } = useSite();
-  const s = content.icons.overrides[slot] ||
-    content.icons.shared[name] || {
+  const s = value ||
+    content.icons?.overrides?.[slot] ||
+    content.icons?.shared?.[name] || {
       name: "ArrowRight",
       color: "#805b00",
       background: "#fff3dc",
@@ -138,10 +164,10 @@ export function Titles({ lines, as: Tag = "h1" }) {
   return (
     <Tag className="type-hero">
       {lines.map((l, i) => (
-        <span key={i} style={{ color: l.color }}>
+        <FormattedText key={i} value={l.text} style={{ color: l.color }}>
           {t(l.text)}
           {i < lines.length - 1 && <br />}
-        </span>
+        </FormattedText>
       ))}
     </Tag>
   );
@@ -150,12 +176,16 @@ export function SectionHeading({ value, slot = "section.marker" }) {
   const { t } = useSite();
   return (
     <div className="section-heading">
-      <div className="type-highlight eyebrow">
+      <FormattedText
+        as="div"
+        value={value.eyebrow}
+        className="type-highlight eyebrow"
+      >
         <Icon name="marker" slot={slot} />
         {t(value.eyebrow)}
-      </div>
-      <h2 className="type-heading">{t(value.heading)}</h2>
-      <p className="type-body">{t(value.description)}</p>
+      </FormattedText>
+      <FormattedText as="h2" value={value.heading} className="type-heading" />
+      <FormattedText as="p" value={value.description} className="type-body" />
     </div>
   );
 }

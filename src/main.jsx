@@ -25,6 +25,8 @@ import {
   Icon,
   Titles,
   SectionHeading,
+  FormattedText,
+  textFormatProps,
 } from "./shared";
 import Admin from "./Admin";
 import Setup from "./Setup";
@@ -132,12 +134,16 @@ function App() {
                   path="/privacy"
                   element={
                     <div className="container section">
-                      <h1 className="type-hero">
-                        {t(content.global.privacyLabel)}
-                      </h1>
-                      <p className="type-body prose">
-                        {t(content.global.privacy)}
-                      </p>
+                      <FormattedText
+                        as="h1"
+                        className="type-hero"
+                        value={content.global.privacyLabel}
+                      />
+                      <FormattedText
+                        as="p"
+                        className="type-body prose"
+                        value={content.global.privacy}
+                      />
                     </div>
                   }
                 />
@@ -145,9 +151,11 @@ function App() {
                   path="*"
                   element={
                     <div className="container section">
-                      <h1 className="type-hero">
-                        {t(content.global.notFound)}
-                      </h1>
+                      <FormattedText
+                        as="h1"
+                        className="type-hero"
+                        value={content.global.notFound}
+                      />
                     </div>
                   }
                 />
@@ -173,16 +181,16 @@ function Header() {
   return (
     <>
       <a className="skip" href="#main">
-        {t(g.skip)}
+        <FormattedText value={g.skip} />
       </a>
-      <header>
+      <header className="site-header">
         <div className="container header-inner">
           <Link to="/" className="brand" aria-label={t(g.brand)}>
             <Picture value={g.logo} />
-            <strong className="type-brand">
+            <FormattedText as="strong" className="type-brand" value={g.brand}>
               <em>{t(g.brand).split(" ")[0]}</em>{" "}
               {t(g.brand).split(" ").slice(1).join(" ")}
-            </strong>
+            </FormattedText>
             <span className="sr-only">{t(g.brand)}</span>
           </Link>
           <button
@@ -206,7 +214,7 @@ function Header() {
                 to={n.href}
                 end={n.href === "/"}
               >
-                {t(n.label)}
+                <FormattedText value={n.label} />
               </NavLink>
             ))}
           </nav>
@@ -233,50 +241,68 @@ function Footer() {
     content: { global: g },
     t,
   } = useSite();
+  const brand = t(g.brand).split(" ");
   return (
-    <footer>
+    <footer className="site-footer">
       <div className="container footer-grid">
         <div className="footer-brand">
-          <Picture value={g.footerLogo || g.logo} />
-          <div>
-            <strong className="type-footer">{t(g.brand)}</strong>
-            <p className="type-footer">{t(g.company)}</p>
+          <div className="footer-logo-box">
+            <Picture value={g.footerLogo || g.logo} />
+          </div>
+          <div className="footer-brand-copy">
+            <FormattedText
+              as="strong"
+              className="type-footerBrand footer-wordmark"
+              value={g.brand}
+            >
+              <em>{brand[0]}</em>
+              {brand.length > 1 ? " " + brand.slice(1).join(" ") : ""}
+            </FormattedText>
+            <FormattedText
+              as="p"
+              className="type-footerHeading footer-company"
+              value={g.company}
+            />
           </div>
         </div>
-        <nav>
-          {g.nav.map((n, i) => (
+        <nav className="footer-navigation" aria-label={t(g.menuLabel)}>
+          {(g.footerNav || g.nav).map((n, i) => (
             <NavLink
               className="type-footer"
               key={i}
               to={n.href}
               end={n.href === "/"}
             >
-              {t(n.label)}
+              <FormattedText value={n.label} />
             </NavLink>
           ))}
         </nav>
-        <div>
-          <h3 className="footer-label type-subheading">
-            {t(g.contactHeading)}
-          </h3>
+        <section className="footer-contact">
+          <FormattedText
+            as="h2"
+            className="footer-label type-footerHeading"
+            value={g.contactHeading}
+          />
           <a className="type-footer contact-line" href={"mailto:" + g.email}>
             <Icon name="mail" slot="footer.mail" />
-            {g.email}
+            <span>{g.email}</span>
           </a>
           <a className="type-footer contact-line" href={"tel:" + g.phone}>
             <Icon name="phone" slot="footer.phone" />
-            {g.phone}
+            <span>{g.phone}</span>
           </a>
-        </div>
-        <div>
-          <h3 className="footer-label type-subheading">
-            {t(g.addressHeading)}
-          </h3>
+        </section>
+        <section className="footer-address">
+          <FormattedText
+            as="h2"
+            className="footer-label type-footerHeading"
+            value={g.addressHeading}
+          />
           <div className="contact-line">
             <Icon name="pin" slot="footer.pin" />
-            <p className="type-footer">{t(g.address)}</p>
+            <FormattedText as="p" className="type-footer" value={g.address} />
           </div>
-        </div>
+        </section>
       </div>
     </footer>
   );
@@ -289,17 +315,17 @@ function CTA() {
   return (
     <section className="cta">
       <div>
-        <div className="type-highlight">{t(c.eyebrow)}</div>
+        <FormattedText as="div" className="type-highlight" value={c.eyebrow} />
         <Titles as="h2" lines={c.title} />
-        <p className="type-inverse">{t(c.body)}</p>
+        <FormattedText as="p" className="type-inverse" value={c.body} />
       </div>
       <div className="cta-actions">
         <Link className="button type-button" to={c.primaryHref}>
-          {t(c.primary)}
+          <FormattedText value={c.primary} />
           <Icon name="arrow" slot="cta.arrow" />
         </Link>
         <Link className="button secondary type-button" to={c.secondaryHref}>
-          {t(c.secondary)}
+          <FormattedText value={c.secondary} />
         </Link>
       </div>
     </section>
@@ -316,9 +342,9 @@ function Home() {
         <div className="container hero-grid">
           <div>
             <Titles lines={h.title} />
-            <p className="type-intro">{t(h.intro)}</p>
+            <FormattedText as="p" className="type-intro" value={h.intro} />
             <Link className="button type-button" to={h.ctaHref}>
-              {t(h.cta)}
+              <FormattedText value={h.cta} />
               <Icon name="arrow" slot="home.hero.arrow" />
             </Link>
           </div>
@@ -331,10 +357,22 @@ function Home() {
           <div className="cards three">
             {h.cards.map((c, i) => (
               <article className="service card" key={i}>
-                <Icon name="terminal" slot={`home.service.${i}`} />
-                <p className="type-highlight">{t(c.eyebrow)}</p>
-                <h3 className="type-subheading">{t(c.title)}</h3>
-                <p className="type-body">{t(c.body)}</p>
+                <Icon
+                  name="terminal"
+                  slot={`home.service.${i}`}
+                  value={c.icon}
+                />
+                <FormattedText
+                  as="p"
+                  className="type-highlight"
+                  value={c.eyebrow}
+                />
+                <FormattedText
+                  as="h3"
+                  className="type-subheading"
+                  value={c.title}
+                />
+                <FormattedText as="p" className="type-body" value={c.body} />
               </article>
             ))}
           </div>
@@ -345,8 +383,16 @@ function Home() {
           <Picture value={h.team} />
           <div className="team-badge">
             <div>
-              <div className="type-highlight">{t(h.badge)}</div>
-              <strong className="type-subheading">{t(h.badgeTitle)}</strong>
+              <FormattedText
+                as="div"
+                className="type-highlight"
+                value={h.badge}
+              />
+              <FormattedText
+                as="strong"
+                className="type-subheading"
+                value={h.badgeTitle}
+              />
             </div>
             <Icon name="bolt" slot="home.badge" />
           </div>
@@ -356,10 +402,18 @@ function Home() {
           <div className="advantages">
             {h.advantages.map((a, i) => (
               <article key={i}>
-                <Icon name="rocket" slot={`home.advantage.${i}`} />
+                <Icon
+                  name="rocket"
+                  slot={`home.advantage.${i}`}
+                  value={a.icon}
+                />
                 <div>
-                  <h3 className="type-subheading">{t(a.title)}</h3>
-                  <p className="type-body">{t(a.body)}</p>
+                  <FormattedText
+                    as="h3"
+                    className="type-subheading"
+                    value={a.title}
+                  />
+                  <FormattedText as="p" className="type-body" value={a.body} />
                 </div>
               </article>
             ))}
@@ -383,23 +437,31 @@ function About() {
       <section className="hero-grid about-hero section">
         <div>
           <Titles lines={a.title} />
-          <p className="type-intro">{t(a.intro)}</p>
+          <FormattedText as="p" className="type-intro" value={a.intro} />
         </div>
         <div className="matrix card">
           <div className="matrix-caption type-highlight">
-            <span>{t(a.matrix)}</span>
-            <span>{t(a.version)}</span>
+            <FormattedText value={a.matrix} />
+            <FormattedText value={a.version} />
           </div>
           <Picture value={a.hero} />
           <div className="method">
-            <p className="type-highlight">{t(a.method)}</p>
-            <strong className="type-subheading">{t(a.methodTitle)}</strong>
+            <FormattedText as="p" className="type-highlight" value={a.method} />
+            <FormattedText
+              as="strong"
+              className="type-subheading"
+              value={a.methodTitle}
+            />
           </div>
           <div className="stats">
             {a.stats.map((s, i) => (
               <div key={i}>
-                <strong className="type-heading">{t(s.value)}</strong>
-                <p className="type-body">{t(s.label)}</p>
+                <FormattedText
+                  as="strong"
+                  className="type-heading"
+                  value={s.value}
+                />
+                <FormattedText as="p" className="type-body" value={s.label} />
               </div>
             ))}
           </div>
@@ -411,13 +473,21 @@ function About() {
           {a.missions.map((m, i) => (
             <article className="card mission" key={i}>
               <h3 className="type-subheading">
-                <Icon name={i ? "rocket" : "eye"} slot={`about.mission.${i}`} />
-                {t(m.title)}
+                <Icon
+                  name={i ? "rocket" : "eye"}
+                  slot={`about.mission.${i}`}
+                  value={m.icon}
+                />
+                <FormattedText value={m.title} />
               </h3>
-              <blockquote className="type-highlight">
+              <FormattedText
+                as="blockquote"
+                className="type-highlight"
+                value={m.quote}
+              >
                 “ {t(m.quote)} ”
-              </blockquote>
-              <p className="type-body">{t(m.body)}</p>
+              </FormattedText>
+              <FormattedText as="p" className="type-body" value={m.body} />
             </article>
           ))}
         </div>
@@ -431,17 +501,30 @@ function About() {
                 <Icon
                   name={["speed", "engineering", "heart", "brain"][i % 4]}
                   slot={`about.value.${i}`}
+                  value={c.icon}
                 />
                 <span className="type-highlight">
                   {String(i + 1).padStart(2, "0")}
                 </span>
               </div>
-              <h3 className="type-subheading">{t(c.title)}</h3>
-              <p className="type-highlight">{t(c.highlight)}</p>
-              <p className="type-body">{t(c.body)}</p>
+              <FormattedText
+                as="h3"
+                className="type-subheading"
+                value={c.title}
+              />
+              <FormattedText
+                as="p"
+                className="type-highlight"
+                value={c.highlight}
+              />
+              <FormattedText as="p" className="type-body" value={c.body} />
               <p className="type-body value-foot">
-                <Icon name="marker" slot={`about.foot.${i}`} />
-                {t(c.foot)}
+                <Icon
+                  name="marker"
+                  slot={`about.foot.${i}`}
+                  value={c.footIcon}
+                />
+                <FormattedText value={c.foot} />
               </p>
             </article>
           ))}
@@ -470,12 +553,16 @@ function NewsCard({ a }) {
       <div className="news-card-body">
         <span className="category type-highlight">
           <Icon name="marker" slot="news.category" />
-          {t(n.categories.find((c) => c.id === a.category)?.label)}
+          <FormattedText
+            value={n.categories.find((c) => c.id === a.category)?.label}
+          />
         </span>
         <h3 className="type-subheading">
-          <Link to={"/news/" + a.slug}>{t(a.title)}</Link>
+          <Link to={"/news/" + a.slug}>
+            <FormattedText value={a.title} />
+          </Link>
         </h3>
-        <p className="type-body excerpt">{t(a.excerpt)}</p>
+        <FormattedText as="p" className="type-body excerpt" value={a.excerpt} />
         <div className="card-bottom">
           <time className="type-body" dateTime={a.publishedAt}>
             {new Date(a.publishedAt).toLocaleDateString(
@@ -484,7 +571,7 @@ function NewsCard({ a }) {
             )}
           </time>
           <Link className="type-menu" to={"/news/" + a.slug}>
-            {t(g.readMore)}
+            <FormattedText value={g.readMore} />
             <Icon name="arrow" slot="news.card.arrow" />
           </Link>
         </div>
@@ -513,7 +600,7 @@ function NewsCards({ limit = 6, exclude, category = "" }) {
         items.map((a) => <NewsCard a={a} key={a.id} />)
       ) : (
         <p role="status" className="type-body">
-          {t(failed ? g.error : g.loading)}
+          <FormattedText value={failed ? g.error : g.loading} />
         </p>
       )}
     </div>
@@ -559,7 +646,7 @@ function News() {
                 aria-pressed={category === c.id}
                 onClick={() => filter({ category: c.id })}
               >
-                {t(c.label)}
+                <FormattedText value={c.label} />
               </button>
             ))}
           </div>
@@ -571,7 +658,7 @@ function News() {
             }}
           >
             <label className="sr-only" htmlFor="news-search">
-              {t(g.search)}
+              <FormattedText value={g.search} />
             </label>
             <Icon name="search" slot="news.search" />
             <input
@@ -579,13 +666,19 @@ function News() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />
-            <button className="button type-button">{t(g.search)}</button>
+            <button className="button type-button">
+              <FormattedText value={g.search} />
+            </button>
           </form>
         </div>
         {error ? (
-          <p role="alert">{t(g.error)}</p>
+          <p role="alert">
+            <FormattedText value={g.error} />
+          </p>
         ) : !data ? (
-          <p role="status">{t(g.loading)}</p>
+          <p role="status">
+            <FormattedText value={g.loading} />
+          </p>
         ) : (
           <>
             {page === 1 && !category && !params.get("q") && data.items[0] && (
@@ -601,15 +694,23 @@ function News() {
                 <div>
                   <span className="category type-highlight">
                     <Icon name="marker" slot="news.latest" />
-                    {t(n.latest)}
+                    <FormattedText value={n.latest} />
                   </span>
-                  <h2 className="type-heading">{t(data.items[0].title)}</h2>
-                  <p className="type-body">{t(data.items[0].excerpt)}</p>
+                  <FormattedText
+                    as="h2"
+                    className="type-heading"
+                    value={data.items[0].title}
+                  />
+                  <FormattedText
+                    as="p"
+                    className="type-body"
+                    value={data.items[0].excerpt}
+                  />
                   <Link
                     className="button type-button"
                     to={"/news/" + data.items[0].slug}
                   >
-                    {t(g.readMore)}
+                    <FormattedText value={g.readMore} />
                     <Icon name="arrow" slot="news.featured.arrow" />
                   </Link>
                 </div>
@@ -626,14 +727,18 @@ function News() {
                   <NewsCard key={a.id} a={a} />
                 ))}
             </div>
-            {!data.total && <p role="status">{t(g.empty)}</p>}
+            {!data.total && (
+              <p role="status">
+                <FormattedText value={g.empty} />
+              </p>
+            )}
             <nav className="pagination" aria-label={t(n.section.heading)}>
               <button
                 disabled={page <= 1}
                 onClick={() => filter({ page: String(page - 1) })}
               >
                 <Icon name="previous" slot="news.previous" />
-                {t(g.previous)}
+                <FormattedText value={g.previous} />
               </button>
               <span>
                 {page} / {Math.max(1, data.pages)}
@@ -642,7 +747,7 @@ function News() {
                 disabled={page >= data.pages}
                 onClick={() => filter({ page: String(page + 1) })}
               >
-                {t(g.next)}
+                <FormattedText value={g.next} />
                 <Icon name="next" slot="news.next" />
               </button>
             </nav>
@@ -678,7 +783,9 @@ function ArticleParagraph({ block }) {
           <Picture value={block.image} />
         </figure>
       )}
-      {text.trim() && <p className="prose type-body">{text}</p>}
+      {text.trim() && (
+        <FormattedText as="p" className="prose type-body" value={block.text} />
+      )}
     </div>
   );
 }
@@ -704,13 +811,24 @@ function ArticleContent({ article }) {
         (body || secondary) &&
         normalise(lead) !== normalise(body) &&
         !normalise(body).includes(normalise(lead)) && (
-          <p className="type-subheading article-lead">{lead}</p>
+          <FormattedText
+            as="p"
+            className="type-subheading article-lead"
+            value={article.lead || article.excerpt}
+          >
+            {lead}
+          </FormattedText>
         )}
       {(body || (!secondary && lead)).split(/\n\s*\n/).map((paragraph, i) =>
         paragraph.trim() ? (
-          <p className="prose type-body" key={i}>
+          <FormattedText
+            as="p"
+            className="prose type-body"
+            key={i}
+            value={body ? article.body : article.lead || article.excerpt}
+          >
             {paragraph}
-          </p>
+          </FormattedText>
         ) : null,
       )}
       {(secondary || article.inlineImage?.url) && (
@@ -747,19 +865,27 @@ function Article() {
         <>
           <article className="article card">
             <div className="article-hero">
-              <Picture value={a.heroImage || a.image} />
-              <h1
+              <Picture value={a.heroImage?.url ? a.heroImage : a.image} />
+              <FormattedText
+                as="h1"
                 className="type-heading"
-                style={{ color: n.articleTitleColor }}
-              >
-                {t(a.title)}
-              </h1>
+                value={a.title}
+                style={
+                  !a.title.format?.style || a.title.format.style === "inherit"
+                    ? { color: n.articleTitleColor }
+                    : undefined
+                }
+              />
             </div>
             <div className="article-body">
               <ArticleContent article={a} />
               {a.gallery?.length > 0 && (
                 <>
-                  <h2 className="type-heading">{t(n.gallery)}</h2>
+                  <FormattedText
+                    as="h2"
+                    className="type-heading"
+                    value={n.gallery}
+                  />
                   <div className="cards three article-gallery">
                     {a.gallery.map((v, i) => (
                       <div className="article-gallery-image" key={i}>
@@ -778,13 +904,15 @@ function Article() {
         </>
       ) : (
         <p role="status">
-          {t(
-            error ? (error === "NOT_FOUND" ? g.notFound : g.error) : g.loading,
-          )}
+          <FormattedText
+            value={
+              error ? (error === "NOT_FOUND" ? g.notFound : g.error) : g.loading
+            }
+          />
         </p>
       )}
       <Link className="type-menu" to="/news">
-        {t(g.back)}
+        <FormattedText value={g.back} />
       </Link>
     </div>
   );
@@ -814,12 +942,16 @@ function Contact() {
     <div className="container section">
       <div className="contact-banner">
         <Titles lines={c.title} />
-        <h2 className="type-heading">{t(c.subtitle)}</h2>
+        <FormattedText as="h2" className="type-heading" value={c.subtitle} />
       </div>
       <div className="contact-grid">
         <div>
           <section className="card contact-info">
-            <h2 className="outlined type-heading">{t(c.heading)}</h2>
+            <FormattedText
+              as="h2"
+              className="outlined type-heading"
+              value={c.heading}
+            />
             {[
               [
                 "mail",
@@ -831,28 +963,44 @@ function Contact() {
                 "clock",
                 c.hoursLabel,
                 <>
-                  {t(c.hours)}
-                  <small className="type-body">{t(c.closed)}</small>
+                  <FormattedText value={c.hours} />
+                  <FormattedText
+                    as="small"
+                    className="type-body"
+                    value={c.closed}
+                  />
                 </>,
               ],
             ].map(([icon, label, value]) => (
               <div className="contact-line" key={icon}>
                 <Icon name={icon} slot={"contact." + icon} />
                 <div>
-                  <div className="type-highlight">{t(label)}</div>
+                  <FormattedText
+                    as="div"
+                    className="type-highlight"
+                    value={label}
+                  />
                   <div className="type-intro">{value}</div>
                 </div>
               </div>
             ))}
           </section>
           <section className="card social">
-            <h2 className="type-subheading">{t(c.socialHeading)}</h2>
+            <FormattedText
+              as="h2"
+              className="type-subheading"
+              value={c.socialHeading}
+            />
             <div>
               {c.socials.map((s, i) => {
                 const inner = (
                   <>
                     <Icon name={s.icon} slot={"social." + i} />
-                    <strong className="type-label">{t(s.name)}</strong>
+                    <FormattedText
+                      as="strong"
+                      className="type-label"
+                      value={s.name}
+                    />
                     <span className="type-body">{s.handle}</span>
                   </>
                 );
@@ -873,16 +1021,23 @@ function Contact() {
           </section>
         </div>
         <section className="card form-card">
-          <h2 className="outlined type-heading">{t(c.formHeading)}</h2>
+          <FormattedText
+            as="h2"
+            className="outlined type-heading"
+            value={c.formHeading}
+          />
           <form onSubmit={submit}>
             <div className="form-grid">
               {Object.entries(c.fields).map(([key, f]) => (
                 <label key={key} className={"type-label field-" + key}>
-                  {t(f.label)}
+                  <FormattedText value={f.label} />
                   {["name", "email", "message"].includes(key) && " *"}
                   {key === "message" ? (
                     <textarea
-                      className="type-body"
+                      {...textFormatProps(f.placeholder)}
+                      className={
+                        "type-body " + textFormatProps(f.placeholder).className
+                      }
                       name={key}
                       required
                       minLength={5}
@@ -891,7 +1046,10 @@ function Contact() {
                     />
                   ) : (
                     <input
-                      className="type-body"
+                      {...textFormatProps(f.placeholder)}
+                      className={
+                        "type-body " + textFormatProps(f.placeholder).className
+                      }
                       name={key}
                       type={
                         key === "email"
@@ -926,21 +1084,30 @@ function Contact() {
             />
             <label className="consent type-body">
               <input type="checkbox" name="consent" required />
-              {t(c.consent)} <Link to="/privacy">{t(g.privacyLabel)}</Link>
+              <FormattedText value={c.consent} />{" "}
+              <Link to="/privacy">
+                <FormattedText value={g.privacyLabel} />
+              </Link>
             </label>
             <button
               disabled={state === "pending"}
               className="button type-button"
             >
-              {t(state === "pending" ? c.pending : c.submit)}
+              <FormattedText
+                value={state === "pending" ? c.pending : c.submit}
+              />
               <Icon name="arrow" slot="contact.submit" />
             </button>
             <p role="status" className="type-body">
-              {state === "success"
-                ? t(c.success)
-                : state === "error"
-                  ? t(g.error)
-                  : ""}
+              <FormattedText
+                value={
+                  state === "success"
+                    ? c.success
+                    : state === "error"
+                      ? g.error
+                      : ""
+                }
+              />
             </p>
           </form>
         </section>
@@ -949,9 +1116,17 @@ function Contact() {
         <div className="contact-line">
           <Icon name="building" slot="contact.office" />
           <div>
-            <p className="type-highlight">{t(g.addressHeading)}</p>
-            <h2 className="type-subheading">{t(g.company)}</h2>
-            <p className="type-body">{t(g.address)}</p>
+            <FormattedText
+              as="p"
+              className="type-highlight"
+              value={g.addressHeading}
+            />
+            <FormattedText
+              as="h2"
+              className="type-subheading"
+              value={g.company}
+            />
+            <FormattedText as="p" className="type-body" value={g.address} />
           </div>
         </div>
         {c.map.confirmed ? (
@@ -968,12 +1143,12 @@ function Contact() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              {t(c.directions)}
+              <FormattedText value={c.directions} />
             </a>
           </>
         ) : (
           <div className="map-pending">
-            <p className="type-body">{t(c.mapPending)}</p>
+            <FormattedText as="p" className="type-body" value={c.mapPending} />
             {c.map.sourceUrl && (
               <a
                 className="button type-button"
@@ -981,7 +1156,7 @@ function Contact() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                {t(c.directions)}
+                <FormattedText value={c.directions} />
               </a>
             )}
           </div>

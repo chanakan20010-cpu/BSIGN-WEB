@@ -1,0 +1,119 @@
+.admin.cms .cms-page-section-header {
+  align-items: flex-start;
+  gap: 16px;
+}
+.cms-section-number {
+  width: 36px;
+  height: 36px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  background: #fff3d6;
+  border-radius: 8px;
+  color: #775000;
+  font-size: 13px;
+  font-weight: 600;
+}
+.cms-section-heading-copy {
+  flex: 1;
+  min-width: 0;
+}
+.cms-section-name-editor {
+  flex: none;
+  max-width: 440px;
+}
+.cms-section-name-editor > summary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  color: #775000;
+  font-size: 12px;
+  list-style: none;
+  min-height: 36px;
+}
+.cms-section-name-editor[open] {
+  width: min(440px, 100%);
+}
+.cms-section-name-editor > div {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid var(--cms-line);
+  background: #faf9f6;
+  border-radius: 8px;
+}
+.cms-page-intro-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+  gap: 28px;
+  align-items: start;
+}
+.cms-page-intro-grid > div {
+  min-width: 0;
+  display: grid;
+  gap: 22px;
+}
+.admin.cms .cms-page-intro-grid .cms-image-editor > .cms-preview {
+  max-width: 100%;
+}
+.admin.cms
+  .cms-page-section
+  .cms-document-fields
+  > .cms-field-group
+  + .cms-field-group {
+  margin-top: 24px;
+}
+.cms-page-icon-details {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--cms-line);
+}
+.cms-page-icon-details > summary {
+  cursor: pointer;
+  color: #775000;
+  font-weight: 500;
+  min-height: 36px;
+}
+.cms-page-icon-details .cms-page-icons {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+.cms-page-editor-note {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  margin: 0 0 22px;
+  border-radius: 8px;
+  background: #f0eee8;
+  color: #625c54;
+  font-size: 13px;
+}
+@media (max-width: 1150px) {
+  .cms-page-intro-grid {
+    grid-template-columns: 1fr;
+  }
+  .cms-page-section-header {
+    flex-wrap: wrap;
+  }
+  .cms-section-name-editor[open] {
+    flex-basis: 100%;
+    max-width: none;
+  }
+}
+@media (max-width: 600px) {
+  .cms-section-name-editor {
+    flex-basis: 100%;
+  }
+  .cms-page-section-header {
+    gap: 10px;
+  }
+  .cms-page-intro-grid {
+    gap: 22px;
+  }
+  .cms-page-editor-note {
+    align-items: flex-start;
+  }
+}

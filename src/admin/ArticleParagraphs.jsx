@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useContext } from "react";
 import { ArrowDown, ArrowUp, ImagePlus, Plus, Trash2 } from "lucide-react";
-import { Field } from "./Editors";
+import { EditorLanguageContext, Field } from "./Editors";
 import { DeviceImageUpload } from "./DeviceImageUpload";
-import { Picture } from "../shared";
+import { FormattedText, Picture, useSite } from "../shared";
 import "./article-paragraphs.css";
 
 export const emptyParagraph = () => ({
@@ -34,6 +34,11 @@ export function articleParagraphs(article) {
     const en = splitParagraphs(article[key]?.en);
     for (let i = 0; i < Math.max(th.length, en.length); i++) {
       const block = emptyParagraph();
+      block.text = {
+        ...structuredClone(article[key] || {}),
+        th: "",
+        en: "",
+      };
       for (const language of ["th", "en"]) {
         const value = (language === "th" ? th : en)[i] || "";
         const comparable = normalized(value);
@@ -61,6 +66,7 @@ export function articleParagraphs(article) {
   if (!blocks.length) {
     const block = emptyParagraph();
     block.text = {
+      ...structuredClone(article.excerpt || {}),
       th: article.excerpt?.th || "",
       en: article.excerpt?.en || "",
     };
@@ -71,6 +77,17 @@ export function articleParagraphs(article) {
 
 const ratioValue = (ratio) =>
   ratio === "original" ? undefined : ratio.replace(":", " / ");
+const previewTone = (color) => {
+  if (!/^#[0-9a-f]{6}$/i.test(color || "")) return "light";
+  const channels = color
+    .slice(1)
+    .match(/../g)
+    .map((part) => parseInt(part, 16));
+  return channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722 >
+    160
+    ? "dark"
+    : "light";
+};
 
 export default function ArticleParagraphs({
   value,
@@ -78,6 +95,8 @@ export default function ArticleParagraphs({
   onUploadBusy,
   disabled = false,
 }) {
+  const language = useContext(EditorLanguageContext) || "th";
+  const { content } = useSite();
   function change(index, patch) {
     onChange(
       value.map((block, i) => (i === index ? { ...block, ...patch } : block)),
@@ -89,11 +108,16 @@ export default function ArticleParagraphs({
     onChange(next);
   }
   return (
-    <section className="cms-card cms-paragraph-editor">
+    <section
+      className="cms-card cms-paragraph-editor cms-article-section"
+      id="article-content"
+      aria-labelledby="article-content-heading"
+    >
       <div className="cms-card-header">
         <div>
-          <h3>เนื้อหาบทความ</h3>
-          <p>เพิ่มย่อหน้า แทรกรูป และจัดตำแหน่งรูปในแต่ละย่อหน้า</p>
+          <span className="cms-article-step">ส่วนที่ 2</span>
+          <h3 id="article-content-heading">เนื้อหาบทความ</h3>
+          <p>เรียงลำดับย่อหน้า เลือกรูปแบบข้อความ และจัดวางภาพประกอบ</p>
         </div>
         <span className="cms-badge">{value.length} ย่อหน้า</span>
       </div>
@@ -149,6 +173,28 @@ export default function ArticleParagraphs({
               value={block.text}
               onChange={(text) => change(index, { text })}
             />
+            <details className="cms-article-text-preview">
+              <summary>ตัวอย่างรูปแบบข้อความ</summary>
+              <div
+                className="cms-article-preview-paper"
+                data-tone={previewTone(
+                  content.styles[block.text.format?.style]?.color ||
+                    content.styles.body?.color,
+                )}
+              >
+                <FormattedText
+                  as="p"
+                  className="type-body"
+                  value={block.text}
+                  lang={language}
+                >
+                  {block.text[language] ||
+                    (language === "th"
+                      ? "ตัวอย่างข้อความในย่อหน้านี้"
+                      : "Paragraph text preview")}
+                </FormattedText>
+              </div>
+            </details>
             <div className="cms-paragraph-image-tools">
               <DeviceImageUpload
                 label={`อัปโหลดรูปย่อหน้า ${index + 1} จากเครื่อง`}

@@ -356,7 +356,7 @@ test("additive migration updates untouched icon appearances once and preserves c
     assert.equal(docs.icons.value.shared.search.color, "#654321");
     assert.equal(
       f.db.prepare("SELECT max(version) version FROM migrations").get().version,
-      2,
+      3,
     );
     const revision = docs.icons.revision;
     const customized = await f.send("patch", "/api/admin/documents/icons", {

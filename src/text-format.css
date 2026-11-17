@@ -1,0 +1,19 @@
+.bs-formatted-text[data-text-style] {
+  --bs-format-active-size: var(--bs-format-size);
+}
+.bs-formatted-text[data-text-align] {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  width: 100%;
+}
+@media (max-width: 1050px) {
+  .bs-formatted-text[data-text-style] {
+    --bs-format-active-size: var(--bs-format-tablet);
+  }
+}
+@media (max-width: 700px) {
+  .bs-formatted-text[data-text-style] {
+    --bs-format-active-size: var(--bs-format-mobile);
+  }
+}

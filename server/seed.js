@@ -379,6 +379,8 @@ export const defaults = {
     button: sty(14, 700),
     label: sty(14, 600),
     footer: sty(14, 400, "#ffffff"),
+    footerHeading: sty(18, 700, "#ffffff", 18, 18),
+    footerBrand: sty(24, 700, "#ffffff", 20, 22),
   },
   icons: {
     shared: {
@@ -426,6 +428,159 @@ for (const [position, { key, ...appearance }] of Object.entries(
     ...slot(defaults.icons.shared[key].name),
     ...appearance,
   };
+
+const footerIconAppearanceUpdates = {
+  "footer.mail": "mail",
+  "footer.phone": "phone",
+  "footer.pin": "pin",
+};
+for (const [position, key] of Object.entries(footerIconAppearanceUpdates))
+  defaults.icons.overrides[position] = {
+    ...slot(defaults.icons.shared[key].name),
+    background: "#ffffff",
+  };
+
+const embeddedIconLists = [
+  {
+    page: "home",
+    list: "cards",
+    slotPrefix: "home.service",
+    shared: () => "terminal",
+  },
+  {
+    page: "home",
+    list: "advantages",
+    slotPrefix: "home.advantage",
+    shared: () => "rocket",
+  },
+  {
+    page: "about",
+    list: "missions",
+    slotPrefix: "about.mission",
+    shared: (i) => (i ? "rocket" : "eye"),
+  },
+  {
+    page: "about",
+    list: "cards",
+    slotPrefix: "about.value",
+    shared: (i) => ["speed", "engineering", "heart", "brain"][i % 4],
+    foot: true,
+  },
+];
+function resolvedCardIcon(icons, position, shared) {
+  return structuredClone(
+    icons.overrides?.[position] ||
+      icons.shared?.[shared] ||
+      defaults.icons.shared[shared],
+  );
+}
+defaults.global.footerNav = structuredClone(defaults.global.nav);
+for (const { page, list, slotPrefix, shared, foot } of embeddedIconLists) {
+  defaults[page][list] = defaults[page][list].map((item, i) => ({
+    ...structuredClone(item),
+    icon: resolvedCardIcon(defaults.icons, `${slotPrefix}.${i}`, shared(i)),
+    ...(foot
+      ? {
+          footIcon: resolvedCardIcon(
+            defaults.icons,
+            `about.foot.${i}`,
+            "marker",
+          ),
+        }
+      : {}),
+  }));
+}
+
+// Move each card's current appearance with its content. Existing per-card
+// choices win, and old position overrides remain available for older clients.
+function migrateCardPresentation(db) {
+  if (db.prepare("SELECT 1 FROM migrations WHERE version=3").get()) return;
+  db.exec("BEGIN IMMEDIATE");
+  try {
+    if (!db.prepare("SELECT 1 FROM migrations WHERE version=3").get()) {
+      const read = (key) =>
+        JSON.parse(
+          db.prepare("SELECT value FROM documents WHERE key=?").get(key).value,
+        );
+      const save = (key, value) =>
+        db
+          .prepare(
+            "UPDATE documents SET value=?,revision=revision+1 WHERE key=?",
+          )
+          .run(JSON.stringify(value), key);
+      const icons = read("icons");
+      let changedIcons = false;
+      for (const [position, key] of Object.entries(
+        footerIconAppearanceUpdates,
+      )) {
+        const current = icons.overrides?.[position] || icons.shared?.[key];
+        const historical = slot(defaults.icons.shared[key].name);
+        if (
+          current &&
+          Object.entries(historical).every(
+            ([name, value]) => current[name] === value,
+          )
+        ) {
+          icons.overrides ??= {};
+          icons.overrides[position] = { ...current, background: "#ffffff" };
+          changedIcons = true;
+        }
+      }
+      if (changedIcons) save("icons", icons);
+      for (const page of ["home", "about"]) {
+        const value = read(page);
+        let changed = false;
+        for (const {
+          list,
+          slotPrefix,
+          shared,
+          foot,
+        } of embeddedIconLists.filter((entry) => entry.page === page)) {
+          for (const [i, item] of (value[list] || []).entries()) {
+            if (!Object.hasOwn(item, "icon")) {
+              item.icon = resolvedCardIcon(
+                icons,
+                `${slotPrefix}.${i}`,
+                shared(i),
+              );
+              changed = true;
+            }
+            if (foot && !Object.hasOwn(item, "footIcon")) {
+              item.footIcon = resolvedCardIcon(
+                icons,
+                `about.foot.${i}`,
+                "marker",
+              );
+              changed = true;
+            }
+          }
+        }
+        if (changed) save(page, value);
+      }
+      const global = read("global");
+      if (!Object.hasOwn(global, "footerNav")) {
+        global.footerNav = structuredClone(global.nav);
+        save("global", global);
+      }
+      const styles = read("styles");
+      let changedStyles = false;
+      for (const key of ["footerHeading", "footerBrand"]) {
+        if (!Object.hasOwn(styles, key)) {
+          styles[key] = structuredClone(defaults.styles[key]);
+          changedStyles = true;
+        }
+      }
+      if (changedStyles) save("styles", styles);
+      db.prepare(
+        "INSERT INTO migrations(version,applied_at) VALUES(3,datetime('now'))",
+      ).run();
+    }
+    db.exec("COMMIT");
+  } catch (error) {
+    db.exec("ROLLBACK");
+    throw error;
+  }
+}
 
 // Change only the old, untouched shipped appearance. A shared or per-position
 // customization keeps its behavior, and unknown future fields remain stored.
@@ -575,4 +730,5 @@ export function seed(db) {
     );
   }
   migrateIconAppearance(db);
+  migrateCardPresentation(db);
 }

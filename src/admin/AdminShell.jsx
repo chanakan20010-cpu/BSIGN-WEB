@@ -30,6 +30,8 @@ const items = [
     Settings2,
     "หน้าแรก เกี่ยวกับเรา ข่าวสาร หมวดหมู่ ติดต่อเรา ฟอร์ม แผนที่ แบนเนอร์ เมนู บริษัท ไอคอน home about news contact cta icons",
   ],
+  ["header", "ส่วนหัวเว็บไซต์", LayoutDashboard, "header โลโก้ เมนูส่วนหัว"],
+  ["footer", "ส่วนท้ายเว็บไซต์", LayoutDashboard, "footer โลโก้ เมนูส่วนท้าย"],
   ["media", "คลังรูปภาพและไฟล์", Image, "รูปภาพและไฟล์ สื่อ media"],
   ["styles", "สไตล์เว็บไซต์", Palette, "สไตล์ตัวอักษร styles"],
   ["contacts", "กล่องข้อความ", Inbox, "ข้อความติดต่อ contacts"],
