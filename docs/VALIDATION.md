@@ -11,8 +11,16 @@
 | สร้างบทความผ่าน UI | เว้นลิงก์ว่างแล้วบันทึกได้ เปิด URL ที่ระบบสร้างเพื่ออ่านเนื้อหาจริงได้ทั้ง TH/EN |
 | แกลเลอรี | อัปโหลด 4 ภาพ แสดง 3 ภาพแถวแรกและภาพที่ 4 แถวถัดไปบน Desktop; Tablet/Mobile เป็น 2/1 คอลัมน์ ภาพกรอบ 4:3 ไม่ล้นจอ แก้คำอธิบาย TH/EN จัดลำดับ ลบ และเก็บรูปหลัง restart ผ่าน |
 | ตรวจภาพ | ตรวจภาพข่าวล่าสุดและแกลเลอรีจริงจากข้อมูลชั่วคราว ภาพใน docs/screenshots ไม่แสดงรหัสผ่าน |
+| บัญชีพรีวิว | browser setup/recovery และ initial-admin → /admin → logout → restart → login ผ่าน |
+| Docker / Compose | build v1.6.1 ผ่าน, HTTP/API/non-root และข้อมูลอยู่หลังเปลี่ยน container ผ่าน; Compose config ผ่าน |
 
-ผลตัวเปิดพรีวิว Docker และ Windows CI ชุดส่งมอบจะบันทึกก่อนสร้าง tag ไม่มี migration ใหม่ และไม่เปลี่ยน URL หรือข้อมูลของบทความเดิมทั้งหมดอัตโนมัติ
+Windows Server 2022 x64 / PowerShell 5.1 ผ่าน [Windows preview run #17](https://github.com/chanakan20010-cpu/BSIGN-WEB/actions/runs/44011861428) — implementation commit `b184396ed35f87d6c09847087653781ca72f6bfe`, workflow Success (3 นาที 59 วินาที), job succeeded (3 นาที 56 วินาที):
+
+- source ZIP แตกลงโฟลเดอร์ที่มีช่องว่างและภาษาไทย ตรวจ START-WINDOWS/Internet Zone/tamper rejection, portable Node, initial-admin login/restart และ WinForms/GUI/VBS โดยไม่เปลี่ยน Execution Policy ถาวร
+- API 36 ชุด และ Edge browser สำหรับ setup/recovery, initial-admin, Admin 61, revision 01 จำนวน 40, revision 02 จำนวน 36 และ revision 03 จำนวน 42 ผ่านตามขั้นตอนที่กำหนดใน workflow
+- ยืนยันสถานะจากหน้า workflow/job สาธารณะ ไม่ได้อ่าน log ที่ต้องเข้าสู่ระบบ CI ใช้ Edge headless และจำลอง Mark-of-the-Web บนไฟล์ที่แตกแล้ว ไม่เท่ากับการทดสอบ Explorer หรือเครื่องผู้ใช้จริง
+
+ไม่มี migration ใหม่ และไม่เปลี่ยน URL หรือข้อมูลของบทความเดิมทั้งหมดอัตโนมัติ
 
 ข้อจำกัดเดิมเรื่อง Windows ARM64, screen reader จริง, SMTP, iframe Maps และ LinkedIn ยังเป็นไปตามผลตรวจรุ่นก่อนด้านล่าง ไม่มีการ deploy โดเมนสาธารณะหรือ push Docker image ไป registry
 

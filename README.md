@@ -180,7 +180,7 @@ API ส่ง error code แทนข้อมูลภายในและไ�
 
 หลังแก้ไฟล์ `.ps1` ใน `scripts/windows` ให้รัน `node scripts/windows/update-launcher.js` เพื่ออัปเดต hash ที่ฝังใน START-WINDOWS และตรวจด้วย `node scripts/windows/update-launcher.js --check` ก่อนส่งเวอร์ชัน ระบบยอมรับ LF/CRLF และ UTF-8 BOM เหมือนกัน ไฟล์ที่เปลี่ยนแต่ยังไม่อัปเดต hash จะถูกปฏิเสธก่อนปลดบล็อก
 
-## ภาพระบบหลังบ้าน v1.6.0
+## ภาพระบบหลังบ้านและรายการแก้ไขล่าสุด
 
 ภาพจากการรันด้วยฐานข้อมูลชั่วคราวที่ใช้ข้อมูลเริ่มต้น ไม่แสดงรหัสผ่านผู้ดูแล
 
@@ -188,4 +188,4 @@ API ส่ง error code แทนข้อมูลภายในและไ�
 
 [การ์ดและไอคอน](docs/screenshots/admin-card.png) · [ส่วนหัวเว็บไซต์](docs/screenshots/admin-header.png) · [ส่วนท้ายเว็บไซต์](docs/screenshots/admin-footer.png) · [ตัวจัดการบทความ](docs/screenshots/admin-paragraphs.png) · [ส่วนท้ายหน้าสาธารณะ](docs/screenshots/public-footer.png)
 
-[ตัวอย่างแกลเลอรีภาพย่อ](docs/screenshots/admin-gallery.png)
+[ตัวอย่างแกลเลอรีภาพย่อ](docs/screenshots/admin-gallery.png) · [บทความล่าสุดบนหน้าแรก](docs/screenshots/home-latest.png)
