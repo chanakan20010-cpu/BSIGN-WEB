@@ -53,21 +53,35 @@ function ArticleSettings({ language, onChange, children }) {
   useEffect(() => {
     const panel = element.current;
     const form = panel.closest("form");
-    const measure = () =>
+    const footer = panel.closest(".cms").querySelector(".cms-workspace-footer");
+    const measure = () => {
+      // Sticky is constrained by the form's bottom. Reserve the workspace
+      // footer so the language controls remain visible at the end of the page.
+      const footerSpace = footer
+        ? footer.getBoundingClientRect().height +
+          parseFloat(getComputedStyle(footer).marginTop || "0")
+        : 0;
+      form.style.setProperty(
+        "--cms-article-footer-space",
+        `${Math.ceil(footerSpace)}px`,
+      );
       form.style.setProperty(
         "--cms-article-settings-height",
         `${Math.ceil(panel.getBoundingClientRect().height)}px`,
       );
+    };
     const desktop = window.matchMedia("(min-width: 1101px)");
     const adapt = (event) => setExpanded(event.matches);
     desktop.addEventListener("change", adapt);
     const observer = new ResizeObserver(measure);
     measure();
     observer.observe(panel);
+    if (footer) observer.observe(footer);
     return () => {
       desktop.removeEventListener("change", adapt);
       observer.disconnect();
       form.style.removeProperty("--cms-article-settings-height");
+      form.style.removeProperty("--cms-article-footer-space");
     };
   }, []);
   return (

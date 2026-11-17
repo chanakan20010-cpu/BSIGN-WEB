@@ -343,40 +343,67 @@ try {
       checks++;
     }
     await publishing.evaluate((el) => (el.scrollTop = 0));
-    for (const target of ["#article-content", "#article-gallery"]) {
-      await page
-        .locator(target)
-        .evaluate((el) => el.scrollIntoView({ block: "start" }));
+    for (const target of ["#article-content", "#article-gallery", "bottom"]) {
+      const scenario = `${width}px / ${target}`;
+      if (target === "bottom")
+        await page.evaluate(() =>
+          window.scrollTo({
+            top: document.documentElement.scrollHeight,
+            behavior: "instant",
+          }),
+        );
+      else
+        await page
+          .locator(target)
+          .evaluate((el) =>
+            el.scrollIntoView({ block: "start", behavior: "instant" }),
+          );
       const bar = languageBar;
       await expect
-        .poll(async () => Math.round((await settingsPanel.boundingBox()).y))
+        .poll(async () => Math.round((await settingsPanel.boundingBox()).y), {
+          message: `${scenario}: combined panel must remain at viewport top`,
+        })
         .toBe(12);
       for (const language of ["th", "en"]) {
         const button = bar.getByRole("button", {
           name: language === "th" ? "แก้ไขภาษาไทย" : "แก้ไขภาษาอังกฤษ",
           exact: true,
         });
-        await expect(button).toBeInViewport({ ratio: 1 });
-        assert.ok(
-          await button.evaluate((el) => {
-            const box = el.getBoundingClientRect();
-            return el.contains(
-              document.elementFromPoint(
-                box.x + box.width / 2,
-                box.y + box.height / 2,
-              ),
-            );
-          }),
-          "Language switch must not be covered by another panel",
-        );
+        await expect(
+          button,
+          `${scenario}: ${language} switch is fully visible`,
+        ).toBeInViewport({ ratio: 1 });
+        await expect
+          .poll(
+            () =>
+              button.evaluate((el) => {
+                const box = el.getBoundingClientRect();
+                return el.contains(
+                  document.elementFromPoint(
+                    box.x + box.width / 2,
+                    box.y + box.height / 2,
+                  ),
+                );
+              }),
+            {
+              message: `${scenario}: ${language} switch must not be covered by another panel`,
+            },
+          )
+          .toBe(true);
         await button.click();
-        await expect(button).toHaveAttribute("aria-pressed", "true");
+        await expect(
+          button,
+          `${scenario}: ${language} switch is selected`,
+        ).toHaveAttribute("aria-pressed", "true");
         const body = page
           .locator(".cms-paragraph-block")
           .first()
           .getByLabel(language === "th" ? "ไทย" : "English", { exact: true })
           .first();
-        await expect(body).toHaveValue(
+        await expect(
+          body,
+          `${scenario}: ${language} draft is preserved`,
+        ).toHaveValue(
           language === "th"
             ? "เนื้อหาบทความที่บันทึกจริงจากตัวแก้ไขใหม่"
             : "Article body saved through the redesigned editor.",
@@ -385,7 +412,7 @@ try {
       assert.equal(
         await settingsPanel.evaluate((el) => getComputedStyle(el).position),
         "sticky",
-        "Combined language/publication panel must stay visible while scrolling",
+        `${scenario}: combined language/publication panel must stay sticky`,
       );
       checks++;
     }
