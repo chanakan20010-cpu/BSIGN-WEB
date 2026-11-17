@@ -391,7 +391,7 @@ export function createApp({
   });
   const rows = () =>
     db
-      .prepare("SELECT * FROM articles")
+      .prepare("SELECT * FROM articles ORDER BY rowid DESC")
       .all()
       .map((a) => ({ id: a.id, revision: a.revision, ...JSON.parse(a.value) }));
   const published = () =>
@@ -417,7 +417,10 @@ export function createApp({
           ...(a.blocks || []).map((block) => block.text[lang]),
         ].some((t) => t.toLowerCase().includes(search)),
     );
-    const size = readDoc(db, "news").value.pageSize;
+    const size =
+      q.query.limit === undefined
+        ? readDoc(db, "news").value.pageSize
+        : z.coerce.number().int().min(1).max(30).parse(q.query.limit);
     const page = Math.max(1, Math.min(100000, parseInt(q.query.page) || 1));
     r.json({
       items: all.slice((page - 1) * size, page * size),
@@ -522,8 +525,41 @@ export function createApp({
       throw fail(409, "DUPLICATE_SLUG");
     return a;
   };
+  const withArticleSlug = (value, previous) => {
+    if (!value || typeof value !== "object" || Array.isArray(value))
+      return value;
+    // Keep validation strict for a supplied link. Only an omitted or empty
+    // value asks the server to choose a link; existing published links stay put.
+    if (value.slug !== undefined && typeof value.slug !== "string")
+      return value;
+    const supplied = value.slug?.trim() || "";
+    if (supplied && !/^-+$/.test(supplied)) return { ...value, slug: supplied };
+    if (previous?.slug) return { ...value, slug: previous.slug };
+    const clean = (title) =>
+      typeof title === "string"
+        ? title
+            .normalize("NFKD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/^-+|-+$/g, "")
+            .slice(0, 150)
+            .replace(/-+$/g, "")
+        : "";
+    const base =
+      clean(value.title?.en) ||
+      clean(value.title?.th) ||
+      "article-" + randomUUID().replaceAll("-", "").slice(0, 12);
+    const used = new Set(rows().map((article) => article.slug));
+    let slug = base;
+    for (let number = 2; used.has(slug); number++) {
+      const suffix = "-" + number;
+      slug = base.slice(0, 150 - suffix.length).replace(/-+$/g, "") + suffix;
+    }
+    return { ...value, slug };
+  };
   app.post("/api/admin/articles", auth, (q, r) => {
-    const value = validArticle(q.body);
+    const value = validArticle(withArticleSlug(q.body));
     const id = randomUUID();
     db.prepare("INSERT INTO articles(id,value) VALUES(?,?)").run(
       id,
@@ -542,7 +578,7 @@ export function createApp({
       Array.isArray(q.body.patch)
     )
       throw fail(400, "INVALID_PATCH");
-    const combined = merge(old, q.body.patch);
+    const combined = withArticleSlug(merge(old, q.body.patch), old);
     validArticle(combined, old.id);
     delete combined.id;
     delete combined.revision;

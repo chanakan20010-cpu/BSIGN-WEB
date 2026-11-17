@@ -275,7 +275,8 @@ export function ArticlesPanel({
       onNotice?.("กรุณารอให้อัปโหลดรูปเสร็จก่อนบันทึกบทความ", "error");
       return;
     }
-    if (!/^[a-z0-9-]{1,150}$/.test(article.slug)) {
+    const slug = article.slug.trim();
+    if (slug && !/^-+$/.test(slug) && !/^[a-z0-9-]{1,150}$/.test(slug)) {
       onNotice?.("ลิงก์บทความใช้ตัวอักษร a–z ตัวเลข และขีดกลางเท่านั้น", "error");
       return;
     }
@@ -291,6 +292,7 @@ export function ArticlesPanel({
           ([k]) => !["id", "revision"].includes(k),
         ),
       );
+      fields.slug = slug;
       await api("/admin/articles" + (article.id ? "/" + article.id : ""), {
         method: article.id ? "PATCH" : "POST",
         body: article.id
@@ -540,78 +542,128 @@ export function ArticlesPanel({
                               ยังไม่มีภาพเพิ่มเติม
                             </p>
                           )}
-                          {article.gallery.map((image, index) => (
-                            <div
-                              key={index}
-                              className="cms-article-gallery-item"
-                            >
-                              <div className="cms-paragraph-toolbar">
-                                <strong>ภาพเพิ่มเติม {index + 1}</strong>
-                                <div className="cms-row-actions">
-                                  <button
-                                    type="button"
-                                    aria-label={`ย้ายภาพเพิ่มเติม ${index + 1} ขึ้น`}
-                                    disabled={index === 0}
-                                    onClick={() => {
-                                      const gallery = [...article.gallery];
-                                      [gallery[index], gallery[index - 1]] = [
-                                        gallery[index - 1],
-                                        gallery[index],
-                                      ];
-                                      update("gallery", gallery);
-                                    }}
-                                  >
-                                    <ArrowUp size={16} aria-hidden="true" />
-                                  </button>
-                                  <button
-                                    type="button"
-                                    aria-label={`ย้ายภาพเพิ่มเติม ${index + 1} ลง`}
-                                    disabled={
-                                      index === article.gallery.length - 1
-                                    }
-                                    onClick={() => {
-                                      const gallery = [...article.gallery];
-                                      [gallery[index], gallery[index + 1]] = [
-                                        gallery[index + 1],
-                                        gallery[index],
-                                      ];
-                                      update("gallery", gallery);
-                                    }}
-                                  >
-                                    <ArrowDown size={16} aria-hidden="true" />
-                                  </button>
-                                  <button
-                                    type="button"
-                                    className="cms-danger"
-                                    aria-label={`ลบภาพเพิ่มเติม ${index + 1}`}
-                                    onClick={() =>
-                                      update(
-                                        "gallery",
-                                        article.gallery.filter(
-                                          (_, i) => i !== index,
-                                        ),
-                                      )
-                                    }
-                                  >
-                                    <Trash2 size={16} aria-hidden="true" /> ลบ
-                                  </button>
+                          <div className="cms-article-gallery-grid">
+                            {article.gallery.map((image, index) => (
+                              <article
+                                key={index}
+                                className="cms-article-gallery-item"
+                                data-gallery-index={index}
+                              >
+                                <div className="cms-gallery-thumbnail">
+                                  {image.url ? (
+                                    <Picture value={image} />
+                                  ) : (
+                                    <span>ยังไม่มีภาพ</span>
+                                  )}
                                 </div>
-                              </div>
-                              <Field
-                                path={`articles.gallery.${index}`}
-                                value={image}
-                                media={media}
-                                onChange={(value) =>
-                                  update(
-                                    "gallery",
-                                    article.gallery.map((item, i) =>
-                                      i === index ? value : item,
-                                    ),
-                                  )
-                                }
-                              />
-                            </div>
-                          ))}
+                                <div className="cms-gallery-item-content">
+                                  <strong>ภาพเพิ่มเติม {index + 1}</strong>
+                                  <div className="cms-row-actions">
+                                    <button
+                                      type="button"
+                                      aria-label={`ย้ายภาพเพิ่มเติม ${index + 1} ขึ้น`}
+                                      title="ย้ายภาพไปก่อนหน้า"
+                                      disabled={
+                                        busy || uploads > 0 || index === 0
+                                      }
+                                      onClick={() => {
+                                        const gallery = [...article.gallery];
+                                        [gallery[index], gallery[index - 1]] = [
+                                          gallery[index - 1],
+                                          gallery[index],
+                                        ];
+                                        update("gallery", gallery);
+                                      }}
+                                    >
+                                      <ArrowUp size={16} aria-hidden="true" />
+                                    </button>
+                                    <button
+                                      type="button"
+                                      aria-label={`ย้ายภาพเพิ่มเติม ${index + 1} ลง`}
+                                      title="ย้ายภาพไปถัดไป"
+                                      disabled={
+                                        busy ||
+                                        uploads > 0 ||
+                                        index === article.gallery.length - 1
+                                      }
+                                      onClick={() => {
+                                        const gallery = [...article.gallery];
+                                        [gallery[index], gallery[index + 1]] = [
+                                          gallery[index + 1],
+                                          gallery[index],
+                                        ];
+                                        update("gallery", gallery);
+                                      }}
+                                    >
+                                      <ArrowDown size={16} aria-hidden="true" />
+                                    </button>
+                                    <button
+                                      type="button"
+                                      className="cms-danger"
+                                      aria-label={`ลบภาพเพิ่มเติม ${index + 1}`}
+                                      title="ลบภาพนี้จากบทความ"
+                                      disabled={busy || uploads > 0}
+                                      onClick={() =>
+                                        update(
+                                          "gallery",
+                                          article.gallery.filter(
+                                            (_, i) => i !== index,
+                                          ),
+                                        )
+                                      }
+                                    >
+                                      <Trash2 size={16} aria-hidden="true" /> ลบ
+                                    </button>
+                                  </div>
+                                  <details className="cms-gallery-item-details">
+                                    <summary>แก้ไขภาพและคำอธิบาย</summary>
+                                    <Field
+                                      path={`articles.gallery.${index}.alt`}
+                                      value={image.alt}
+                                      media={media}
+                                      onChange={(alt) =>
+                                        setArticle((current) => ({
+                                          ...current,
+                                          gallery: current.gallery.map(
+                                            (item, i) =>
+                                              i === index
+                                                ? { ...item, alt }
+                                                : item,
+                                          ),
+                                        }))
+                                      }
+                                    />
+                                    <DeviceImageUpload
+                                      key={`gallery-upload-${index}`}
+                                      label={`เปลี่ยนภาพเพิ่มเติม ${index + 1} จากอุปกรณ์`}
+                                      disabled={busy || uploads > 0}
+                                      onBusyChange={uploadBusy}
+                                      onUploaded={(images) => {
+                                        if (!images[0]) return;
+                                        setArticle((current) => ({
+                                          ...current,
+                                          gallery: current.gallery.map(
+                                            (item, i) =>
+                                              i === index
+                                                ? {
+                                                    ...item,
+                                                    ...images[0],
+                                                    alt:
+                                                      item.alt?.th ||
+                                                      item.alt?.en
+                                                        ? item.alt
+                                                        : images[0].alt,
+                                                  }
+                                                : item,
+                                          ),
+                                        }));
+                                      }}
+                                    />
+                                  </details>
+                                </div>
+                              </article>
+                            ))}
+                          </div>
                         </section>
                       </div>
                     </section>
@@ -657,15 +709,19 @@ export function ArticlesPanel({
                         ลิงก์บทความ
                         <input
                           name="slug"
+                          aria-label="ลิงก์บทความ"
                           value={article.slug}
                           onChange={(e) => update("slug", e.target.value)}
-                          pattern="[a-z0-9-]+"
                           maxLength={150}
-                          required
-                          placeholder="company-news"
+                          placeholder="เว้นว่างเพื่อสร้างลิงก์อัตโนมัติ"
                         />
                         <small className="cms-muted">
-                          /news/{article.slug || "ชื่อบทความ"} · ใช้ a–z, 0–9 และ -
+                          {article.slug.trim() &&
+                          !/^-+$/.test(article.slug.trim())
+                            ? `/news/${article.slug.trim()} · ใช้ a–z, 0–9 และ -`
+                            : article.id
+                              ? "ไม่จำเป็นต้องกรอก หากเว้นว่างระบบจะคงลิงก์เดิมของบทความไว้"
+                              : "ไม่จำเป็นต้องกรอก ระบบจะสร้างลิงก์ที่ไม่ซ้ำให้เมื่อบันทึกบทความ"}
                         </small>
                       </label>
                       <label>

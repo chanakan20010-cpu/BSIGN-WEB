@@ -73,7 +73,7 @@ jobs:
           $env:PATH = (Split-Path $node) + ';' + $env:PATH
           & $node scripts/windows/update-launcher.js --check
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          & $node --test --test-concurrency=1 tests/api.test.js tests/preview.test.js tests/initial-admin.test.js tests/overview.test.js tests/revision01.test.js tests/revision02.test.js
+          & $node --test --test-concurrency=1 tests/api.test.js tests/preview.test.js tests/initial-admin.test.js tests/overview.test.js tests/revision01.test.js tests/revision02.test.js tests/revision03.test.js
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: First-admin setup in Windows Edge
         shell: powershell
@@ -114,4 +114,12 @@ jobs:
           $node = Join-Path $PWD '.runtime/node-v24.22.1-win-x64/node.exe'
           $env:CHROMIUM_PATH = Join-Path ${env:ProgramFiles(x86)} 'Microsoft/Edge/Application/msedge.exe'
           & $node tests/revision02-browser.js
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Latest articles, optional URLs and gallery grid in Windows Edge
+        shell: powershell
+        working-directory: 'BSIGN Preview ทดสอบ'
+        run: |
+          $node = Join-Path $PWD '.runtime/node-v24.22.1-win-x64/node.exe'
+          $env:CHROMIUM_PATH = Join-Path ${env:ProgramFiles(x86)} 'Microsoft/Edge/Application/msedge.exe'
+          & $node tests/revision03-browser.js
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

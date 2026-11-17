@@ -422,7 +422,7 @@ function Home() {
       </section>
       <section className="container section">
         <SectionHeading value={n.section} slot="news.section.marker" />
-        <NewsCards limit={3} category={h.newsCategory} />
+        <NewsCards limit={3} />
       </section>
     </>
   );
@@ -588,7 +588,14 @@ function NewsCards({ limit = 6, exclude, category = "" }) {
   const [items, setItems] = useState(null);
   const [failed, setFailed] = useState(false);
   useEffect(() => {
-    api("/articles?" + new URLSearchParams({ lang, category }))
+    api(
+      "/articles?" +
+        new URLSearchParams({
+          lang,
+          category,
+          limit: String(Math.min(30, limit + (exclude ? 1 : 0))),
+        }),
+    )
       .then((x) =>
         setItems(x.items.filter((i) => i.id !== exclude).slice(0, limit)),
       )

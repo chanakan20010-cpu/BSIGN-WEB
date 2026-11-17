@@ -394,6 +394,7 @@ export default function Admin() {
           (k) =>
             ![
               "editorLabels",
+              "newsCategory",
               "footerNav",
               ...(tab === "global"
                 ? [

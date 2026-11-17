@@ -1,4 +1,4 @@
-# BSIGN TECH — v1.6.0
+# BSIGN TECH — v1.6.1
 
 เว็บไซต์ TH/EN ตามภาพส่งออก Figma ที่ผู้ใช้แนบ: หน้าแรก เกี่ยวกับเรา ข่าวสาร รายละเอียดข่าว และติดต่อเรา พร้อม CMS, REST API และ SQLite จริง
 
@@ -62,6 +62,11 @@ npm start
 
 ## การใช้งาน CMS
 
+v1.6.1 แก้หน้าแรกให้แสดง **3 บทความที่เผยแพร่ล่าสุดจากทุกหมวดหมู่** แยกจากจำนวนข่าวต่อหน้าที่ตั้งไว้ในหน้าข่าว บทความฉบับร่างหรือที่ตั้งวันเผยแพร่ในอนาคตยังไม่แสดงต่อผู้เข้าชม หากมีบทความที่เผยแพร่ถึงเวลาน้อยกว่า 3 รายการ จะแสดงเท่าที่มี
+
+ช่องลิงก์บทความเว้นว่างได้ ระบบสร้าง URL ที่ไม่ซ้ำให้ตอนบันทึกบทความใหม่ บทความเดิมที่เว้นช่องนี้ว่างจะใช้ลิงก์เดิม แกลเลอรีใช้ภาพย่อแบบ 3 คอลัมน์บน Desktop, 2 บน Tablet และ 1 บน Mobile พร้อมเมนูแก้คำอธิบาย/เปลี่ยนภาพในแต่ละภาพ รายการแก้ไขอยู่ใน [REVISION-03.md](docs/REVISION-03.md)
+
+
 ระบบหลังบ้านใช้เมนูพื้นขาว พื้นที่ทำงานสีขาวนวล และฟอนต์ Prompt / Inter ที่จัดเก็บมากับแอป พร้อมสีแบรนด์ BSIGN TECH หลังเข้าสู่ `/admin` จะเปิดหน้า **ภาพรวม** พร้อมข้อมูลจริงจากฐานข้อมูล ค้นหาเมนูได้ บนมือถือใช้ปุ่ม **เปิดเมนูจัดการ** และปิดด้วย Escape
 
 - **ข้อมูลเว็บไซต์** มีหน้าจัดการส่วนหัวเว็บไซต์ ส่วนท้ายเว็บไซต์ ข้อมูลบริษัท หน้าแรก เกี่ยวกับเรา ข่าวสาร ติดต่อเรา และแบนเนอร์ติดต่อ หน้าแรก/เกี่ยวกับเรา/ข่าวสารจัดเป็นกลุ่มที่มีหมายเลขเรียงต่อกัน ชื่อกลุ่ม รายการ และตัวควบคุมอยู่ใกล้เนื้อหาที่เกี่ยวข้อง
@@ -119,7 +124,7 @@ Production ต้องตั้ง `NODE_ENV=production`, `APP_ORIGIN=https://�
 Docker build ใน Codex cloud ต้องส่ง CA ให้ npm โดยรักษา TLS verification:
 
 ```sh
-docker build --secret id=proxy_ca,src="$CODEX_PROXY_CERT" -t bsign-web:1.6.0 .
+docker build --secret id=proxy_ca,src="$CODEX_PROXY_CERT" -t bsign-web:1.6.1 .
 docker compose up --no-build -d
 ```
 
@@ -152,6 +157,7 @@ npm run test:preview
 npm run test:admin
 npm run test:revisions
 npm run test:revision02
+npm run test:revision03
 ```
 
 Browser tests ใช้ Chromium (`CHROMIUM_PATH` เปลี่ยนตำแหน่ง binary ได้) ใช้ฐานข้อมูลและบัญชีสุ่มชั่วคราว ไม่เขียนข้อมูลทดสอบลง `.data` สร้าง screenshots ใน test-results ซึ่งไม่ commit
@@ -181,3 +187,5 @@ API ส่ง error code แทนข้อมูลภายในและไ�
 ![หน้าจัดการหน้าแรก BSIGN TECH](docs/screenshots/admin-home.png)
 
 [การ์ดและไอคอน](docs/screenshots/admin-card.png) · [ส่วนหัวเว็บไซต์](docs/screenshots/admin-header.png) · [ส่วนท้ายเว็บไซต์](docs/screenshots/admin-footer.png) · [ตัวจัดการบทความ](docs/screenshots/admin-paragraphs.png) · [ส่วนท้ายหน้าสาธารณะ](docs/screenshots/public-footer.png)
+
+[ตัวอย่างแกลเลอรีภาพย่อ](docs/screenshots/admin-gallery.png)
