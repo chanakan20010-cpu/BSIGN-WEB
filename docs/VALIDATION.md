@@ -9,6 +9,13 @@
 | ตรวจเงา 12 สถานการณ์ | ภาพเดิมแบบ SVG crop และ JPEG ที่อัปโหลด/บันทึกผ่าน API จริงด้วยบัญชีชั่วคราว × TH/EN × 1440/768/390px ผ่าน; เงาของภาพทั้งสองตรงกับ computed shadow ของหน้าเกี่ยวกับเรา และไม่มีหน้าล้น |
 | รูปแบบเดิม | border-radius ของภาพยังเป็น 8px ป้ายข้อความบนภาพและสัดส่วนภาพใช้กติกาเดิม |
 | ภาพตัวอย่าง | docs/screenshots/home-hero-shadow.png และ home-team-shadow.png จากเว็บที่รันจริงด้วยข้อมูลชั่วคราว |
+| Docker / Compose | build v1.6.3 ผ่าน; HTTP/API/non-root และข้อมูลอยู่หลังเปลี่ยน container ผ่าน; Compose config ผ่าน |
+
+Windows Server 2022 x64 / PowerShell 5.1 ผ่าน [Windows preview](https://github.com/chanakan20010-cpu/BSIGN-WEB/actions/runs/44046260294) — implementation commit `c139bbfa45e74ef7d35d774211fcbb9f8d415ad7`, workflow Success (3 นาที 46 วินาที), job succeeded (3 นาที 42 วินาที)
+
+- ZIP/START-WINDOWS, Mark-of-the-Web/tamper rejection, portable Node, GUI/VBS, initial-admin และ setup/recovery ผ่านตาม workflow
+- API 36 ชุด, Edge Admin 82 และ revision 01/02/03 จำนวน 40/36/42 ผ่าน ยืนยันจากสถานะ workflow/job สาธารณะ ไม่ได้อ่าน log ที่ต้องเข้าสู่ระบบ
+- CI ใช้ Edge headless และจำลอง Internet Zone บนไฟล์ที่แตกแล้ว ไม่เท่ากับการทดสอบ Explorer หรือเครื่องผู้ใช้จริง
 
 ทดสอบด้วยฐานข้อมูลและไฟล์ชั่วคราว ไม่แก้ `.data` หรือ `.env` ที่มีอยู่ ข้อจำกัดบริการภายนอกและอุปกรณ์ที่ยังไม่ได้ทดสอบเป็นไปตามรุ่นก่อนด้านล่าง
 
