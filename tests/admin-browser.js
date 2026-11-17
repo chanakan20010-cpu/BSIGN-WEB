@@ -308,8 +308,154 @@ try {
   await page
     .getByLabel("ลิงก์บทความ", { exact: false })
     .fill("admin-experience-test");
+  // Language and publication controls share one panel. They must remain usable
+  // beside long article content on desktop and as a compact panel on mobile.
+  const settingsPanel = page.locator("aside.cms-article-settings");
+  const languageBar = settingsPanel.locator(".cms-article-language-bar");
+  const publishing = settingsPanel.locator("details.cms-article-publishing");
+  await expect(page.locator(".cms-article-language-bar")).toHaveCount(1);
+  await expect(languageBar).toHaveCount(1);
+  for (const width of [1440, 768, 390, 320]) {
+    await page.setViewportSize({ width, height: width > 1100 ? 720 : 1000 });
+    await expect(publishing).toHaveJSProperty("open", width > 1100);
+    if (width <= 1100) {
+      const publicationToggle = publishing.locator(":scope > summary");
+      await publicationToggle.click();
+      await expect(publishing).toHaveJSProperty("open", true);
+      await expect(
+        publishing.getByLabel("ลิงก์บทความ", { exact: false }),
+      ).toBeVisible();
+      const save = publishing.getByRole("button", {
+        name: "บันทึกบทความ",
+        exact: true,
+      });
+      await save.scrollIntoViewIfNeeded();
+      await expect(save).toBeInViewport({ ratio: 1 });
+      const thaiSwitch = languageBar.getByRole("button", {
+        name: "แก้ไขภาษาไทย",
+        exact: true,
+      });
+      await expect(thaiSwitch).toBeInViewport({ ratio: 1 });
+      await thaiSwitch.click();
+      await expect(thaiSwitch).toHaveAttribute("aria-pressed", "true");
+      await publicationToggle.click();
+      await expect(publishing).toHaveJSProperty("open", false);
+      checks++;
+    }
+    await publishing.evaluate((el) => (el.scrollTop = 0));
+    for (const target of ["#article-content", "#article-gallery"]) {
+      await page
+        .locator(target)
+        .evaluate((el) => el.scrollIntoView({ block: "start" }));
+      const bar = languageBar;
+      await expect
+        .poll(async () => Math.round((await settingsPanel.boundingBox()).y))
+        .toBe(12);
+      for (const language of ["th", "en"]) {
+        const button = bar.getByRole("button", {
+          name: language === "th" ? "แก้ไขภาษาไทย" : "แก้ไขภาษาอังกฤษ",
+          exact: true,
+        });
+        await expect(button).toBeInViewport({ ratio: 1 });
+        assert.ok(
+          await button.evaluate((el) => {
+            const box = el.getBoundingClientRect();
+            return el.contains(
+              document.elementFromPoint(
+                box.x + box.width / 2,
+                box.y + box.height / 2,
+              ),
+            );
+          }),
+          "Language switch must not be covered by another panel",
+        );
+        await button.click();
+        await expect(button).toHaveAttribute("aria-pressed", "true");
+        const body = page
+          .locator(".cms-paragraph-block")
+          .first()
+          .getByLabel(language === "th" ? "ไทย" : "English", { exact: true })
+          .first();
+        await expect(body).toHaveValue(
+          language === "th"
+            ? "เนื้อหาบทความที่บันทึกจริงจากตัวแก้ไขใหม่"
+            : "Article body saved through the redesigned editor.",
+        );
+      }
+      assert.equal(
+        await settingsPanel.evaluate((el) => getComputedStyle(el).position),
+        "sticky",
+        "Combined language/publication panel must stay visible while scrolling",
+      );
+      checks++;
+    }
+    if (width > 1100) {
+      const save = publishing.getByRole("button", {
+        name: "บันทึกบทความ",
+        exact: true,
+      });
+      await save.scrollIntoViewIfNeeded();
+      await expect(save).toBeInViewport({ ratio: 1 });
+      await expect(languageBar).toBeInViewport({ ratio: 1 });
+      const thaiSwitch = languageBar.getByRole("button", {
+        name: "แก้ไขภาษาไทย",
+        exact: true,
+      });
+      await thaiSwitch.click();
+      await expect(thaiSwitch).toHaveAttribute("aria-pressed", "true");
+      checks++;
+    }
+    if (width <= 900) {
+      await page
+        .getByRole("button", { name: "เปิดเมนูจัดการ", exact: true })
+        .click();
+      const sidebar = page.locator(".cms-sidebar");
+      await expect(sidebar).toHaveAttribute("aria-modal", "true");
+      const close = page.getByRole("button", {
+        name: "ปิดเมนูจัดการ",
+        exact: true,
+      });
+      await expect
+        .poll(
+          () =>
+            close.evaluate((el) => {
+              const r = el.getBoundingClientRect();
+              return el.contains(
+                document.elementFromPoint(
+                  r.x + r.width / 2,
+                  r.y + r.height / 2,
+                ),
+              );
+            }),
+          {
+            message:
+              "Mobile navigation must remain above the sticky language toolbar",
+          },
+        )
+        .toBe(true);
+      await page.keyboard.press("Escape");
+      checks++;
+    }
+  }
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await expect(publishing).toHaveJSProperty("open", true);
+  await audit("article editor desktop with language and publishing controls");
   await page.getByRole("button", { name: "บันทึกบทความ", exact: true }).click();
   await page.getByText("บันทึกบทความแล้ว", { exact: true }).waitFor();
+  const bilingualArticle = (await request("GET", "/admin/articles")).find(
+    (a) => a.slug === "admin-experience-test",
+  );
+  assert.equal(bilingualArticle.title.th, title);
+  assert.equal(bilingualArticle.title.en, "Admin experience test article");
+  assert.equal(
+    bilingualArticle.blocks[0].text.th,
+    "เนื้อหาบทความที่บันทึกจริงจากตัวแก้ไขใหม่",
+  );
+  assert.equal(
+    bilingualArticle.blocks[0].text.en,
+    "Article body saved through the redesigned editor.",
+  );
+  checks++;
   const docs = await request("GET", "/admin/documents");
   for (let i = 0; i < 6; i++)
     await request("POST", "/admin/articles", {

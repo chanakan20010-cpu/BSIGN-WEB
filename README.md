@@ -1,4 +1,4 @@
-# BSIGN TECH — v1.6.1
+# BSIGN TECH — v1.6.2
 
 เว็บไซต์ TH/EN ตามภาพส่งออก Figma ที่ผู้ใช้แนบ: หน้าแรก เกี่ยวกับเรา ข่าวสาร รายละเอียดข่าว และติดต่อเรา พร้อม CMS, REST API และ SQLite จริง
 
@@ -62,6 +62,8 @@ npm start
 
 ## การใช้งาน CMS
 
+v1.6.2 รวมตัวสลับภาษา **TH/EN** กับ **ตั้งค่าการเผยแพร่** ไว้ในการ์ดเดียวกันฝั่งขวาของหน้าแก้ไขบทความ การ์ดค้างอยู่ขณะเลื่อนถึงเนื้อหาหรือแกลเลอรี บน Tablet/Mobile การ์ดจะอยู่เหนือเนื้อหาและพับส่วนตั้งค่าได้ โดยปุ่มภาษายังแสดงอยู่ หากตั้งค่ายาวกว่าจอ สามารถเลื่อนภายในการ์ดถึงปุ่มบันทึกได้ ข้อความที่ยังไม่ได้บันทึกของทั้งสองภาษายังคงอยู่เมื่อสลับภาษา
+
 v1.6.1 แก้หน้าแรกให้แสดง **3 บทความที่เผยแพร่ล่าสุดจากทุกหมวดหมู่** แยกจากจำนวนข่าวต่อหน้าที่ตั้งไว้ในหน้าข่าว บทความฉบับร่างหรือที่ตั้งวันเผยแพร่ในอนาคตยังไม่แสดงต่อผู้เข้าชม หากมีบทความที่เผยแพร่ถึงเวลาน้อยกว่า 3 รายการ จะแสดงเท่าที่มี
 
 ช่องลิงก์บทความเว้นว่างได้ ระบบสร้าง URL ที่ไม่ซ้ำให้ตอนบันทึกบทความใหม่ บทความเดิมที่เว้นช่องนี้ว่างจะใช้ลิงก์เดิม แกลเลอรีใช้ภาพย่อแบบ 3 คอลัมน์บน Desktop, 2 บน Tablet และ 1 บน Mobile พร้อมเมนูแก้คำอธิบาย/เปลี่ยนภาพในแต่ละภาพ รายการแก้ไขอยู่ใน [REVISION-03.md](docs/REVISION-03.md)
@@ -124,7 +126,7 @@ Production ต้องตั้ง `NODE_ENV=production`, `APP_ORIGIN=https://�
 Docker build ใน Codex cloud ต้องส่ง CA ให้ npm โดยรักษา TLS verification:
 
 ```sh
-docker build --secret id=proxy_ca,src="$CODEX_PROXY_CERT" -t bsign-web:1.6.1 .
+docker build --secret id=proxy_ca,src="$CODEX_PROXY_CERT" -t bsign-web:1.6.2 .
 docker compose up --no-build -d
 ```
 
@@ -189,3 +191,5 @@ API ส่ง error code แทนข้อมูลภายในและไ�
 [การ์ดและไอคอน](docs/screenshots/admin-card.png) · [ส่วนหัวเว็บไซต์](docs/screenshots/admin-header.png) · [ส่วนท้ายเว็บไซต์](docs/screenshots/admin-footer.png) · [ตัวจัดการบทความ](docs/screenshots/admin-paragraphs.png) · [ส่วนท้ายหน้าสาธารณะ](docs/screenshots/public-footer.png)
 
 [ตัวอย่างแกลเลอรีภาพย่อ](docs/screenshots/admin-gallery.png) · [บทความล่าสุดบนหน้าแรก](docs/screenshots/home-latest.png)
+
+[แถบสลับภาษาขณะเลื่อนบน Desktop](docs/screenshots/article-language-sticky.png) · [แถบสลับภาษาบน Mobile](docs/screenshots/article-language-mobile.png)

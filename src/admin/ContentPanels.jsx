@@ -45,6 +45,65 @@ import ArticleParagraphs, {
 } from "./ArticleParagraphs";
 import { DeviceImageUpload, ImageUploadBusyContext } from "./DeviceImageUpload";
 
+function ArticleSettings({ language, onChange, children }) {
+  const element = useRef(null);
+  const [expanded, setExpanded] = useState(
+    () => window.matchMedia("(min-width: 1101px)").matches,
+  );
+  useEffect(() => {
+    const panel = element.current;
+    const form = panel.closest("form");
+    const measure = () =>
+      form.style.setProperty(
+        "--cms-article-settings-height",
+        `${Math.ceil(panel.getBoundingClientRect().height)}px`,
+      );
+    const desktop = window.matchMedia("(min-width: 1101px)");
+    const adapt = (event) => setExpanded(event.matches);
+    desktop.addEventListener("change", adapt);
+    const observer = new ResizeObserver(measure);
+    measure();
+    observer.observe(panel);
+    return () => {
+      desktop.removeEventListener("change", adapt);
+      observer.disconnect();
+      form.style.removeProperty("--cms-article-settings-height");
+    };
+  }, []);
+  return (
+    <aside
+      ref={element}
+      className="cms-article-settings cms-card"
+      aria-label="ภาษาและการเผยแพร่บทความ"
+    >
+      <section
+        className="cms-language-bar cms-article-language-bar"
+        aria-label="ภาษาของบทความที่กำลังแก้ไข"
+      >
+        <div>
+          <strong>ภาษาที่กำลังแก้ไข</strong>
+          <p>เลือกภาษาเพื่อแก้เนื้อหา บันทึกทั้งสองภาษาพร้อมกัน</p>
+        </div>
+        <LanguageSwitcher value={language} onChange={onChange} />
+      </section>
+      <details
+        className="cms-article-publishing"
+        open={expanded}
+        onToggle={(event) => setExpanded(event.currentTarget.open)}
+      >
+        <summary className="cms-card-header">
+          <div>
+            <h3>ตั้งค่าการเผยแพร่</h3>
+            <p>ลิงก์ หมวดหมู่ สถานะ และบันทึกบทความ</p>
+          </div>
+          <ChevronRight size={18} aria-hidden="true" />
+        </summary>
+        {children}
+      </details>
+    </aside>
+  );
+}
+
 const copy = (v) => structuredClone(v);
 const date = (v) => {
   const d = new Date(v);
@@ -408,20 +467,6 @@ export function ArticlesPanel({
                         : "บทความใหม่"}
                   </span>
                 </div>
-                <section className="cms-language-bar">
-                  <div>
-                    <strong>
-                      {articleLanguage === "th"
-                        ? "กำลังแก้ไขบทความภาษาไทย"
-                        : "กำลังแก้ไขบทความภาษาอังกฤษ"}
-                    </strong>
-                    <p>สลับภาษาเพื่อแก้เนื้อหา ข้อมูลทั้งสองภาษาจะบันทึกพร้อมกัน</p>
-                  </div>
-                  <LanguageSwitcher
-                    value={articleLanguage}
-                    onChange={setArticleLanguage}
-                  />
-                </section>
                 <nav className="cms-article-outline" aria-label="ส่วนของบทความ">
                   <a href="#article-info">
                     <span>01</span> ข้อมูลบทความ
@@ -434,6 +479,111 @@ export function ArticlesPanel({
                   </a>
                 </nav>
                 <div className="cms-editor-layout cms-article-layout">
+                  <ArticleSettings
+                    language={articleLanguage}
+                    onChange={setArticleLanguage}
+                  >
+                    <div className="cms-card-body">
+                      <label>
+                        ลิงก์บทความ
+                        <input
+                          name="slug"
+                          aria-label="ลิงก์บทความ"
+                          value={article.slug}
+                          onChange={(e) => update("slug", e.target.value)}
+                          maxLength={150}
+                          placeholder="เว้นว่างเพื่อสร้างลิงก์อัตโนมัติ"
+                        />
+                        <small className="cms-muted">
+                          {article.slug.trim() &&
+                          !/^-+$/.test(article.slug.trim())
+                            ? `/news/${article.slug.trim()} · ใช้ a–z, 0–9 และ -`
+                            : article.id
+                              ? "ไม่จำเป็นต้องกรอก หากเว้นว่างระบบจะคงลิงก์เดิมของบทความไว้"
+                              : "ไม่จำเป็นต้องกรอก ระบบจะสร้างลิงก์ที่ไม่ซ้ำให้เมื่อบันทึกบทความ"}
+                        </small>
+                      </label>
+                      <label>
+                        หมวดหมู่บทความ
+                        <select
+                          name="category"
+                          value={article.category}
+                          onChange={(e) => update("category", e.target.value)}
+                          required
+                        >
+                          {categories.map((c) => (
+                            <option key={c.id} value={c.id}>
+                              {c.label.th || c.id}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                      <label>
+                        สถานะบทความ
+                        <select
+                          name="status"
+                          value={article.status}
+                          onChange={(e) => update("status", e.target.value)}
+                        >
+                          <option value="draft">ฉบับร่าง</option>
+                          <option value="published">เผยแพร่</option>
+                        </select>
+                      </label>
+                      <label>
+                        วันและเวลาเผยแพร่
+                        <input
+                          type="datetime-local"
+                          name="publishedAt"
+                          value={localDate(article.publishedAt)}
+                          required
+                          onChange={(e) =>
+                            update(
+                              "publishedAt",
+                              e.target.value
+                                ? new Date(e.target.value).toISOString()
+                                : "",
+                            )
+                          }
+                        />
+                        <small className="cms-muted">
+                          ใช้เวลาท้องถิ่นของเครื่อง หากเลือกเวลาในอนาคต
+                          บทความจะปรากฏเมื่อถึงกำหนด
+                        </small>
+                      </label>
+                      <span
+                        className="cms-badge"
+                        data-tone={statusTone[effectiveStatus(article)]}
+                      >
+                        {statusNames[effectiveStatus(article)]}
+                      </span>
+                      <button
+                        className="cms-primary"
+                        type="submit"
+                        disabled={busy || uploads > 0}
+                      >
+                        <Save size={16} />
+                        {busy
+                          ? "กำลังบันทึก…"
+                          : uploads
+                            ? "กำลังอัปโหลดรูป…"
+                            : "บันทึกบทความ"}
+                      </button>
+                      {article.id && (
+                        <a
+                          className="cms-secondary"
+                          href={"/news/" + article.slug}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <Eye size={16} />
+                          ดูหน้าบทความ
+                        </a>
+                      )}
+                      <p className="cms-muted">
+                        ฉบับร่างและบทความที่ยังไม่ถึงเวลาเผยแพร่จะไม่แสดงบนเว็บไซต์
+                      </p>
+                    </div>
+                  </ArticleSettings>
                   <div className="cms-article-content">
                     <section
                       className="cms-card cms-article-section"
@@ -700,111 +850,6 @@ export function ArticlesPanel({
                       </details>
                     )}
                   </div>
-                  <aside className="cms-article-settings cms-card">
-                    <div className="cms-card-header">
-                      <h3>ตั้งค่าการเผยแพร่</h3>
-                    </div>
-                    <div className="cms-card-body">
-                      <label>
-                        ลิงก์บทความ
-                        <input
-                          name="slug"
-                          aria-label="ลิงก์บทความ"
-                          value={article.slug}
-                          onChange={(e) => update("slug", e.target.value)}
-                          maxLength={150}
-                          placeholder="เว้นว่างเพื่อสร้างลิงก์อัตโนมัติ"
-                        />
-                        <small className="cms-muted">
-                          {article.slug.trim() &&
-                          !/^-+$/.test(article.slug.trim())
-                            ? `/news/${article.slug.trim()} · ใช้ a–z, 0–9 และ -`
-                            : article.id
-                              ? "ไม่จำเป็นต้องกรอก หากเว้นว่างระบบจะคงลิงก์เดิมของบทความไว้"
-                              : "ไม่จำเป็นต้องกรอก ระบบจะสร้างลิงก์ที่ไม่ซ้ำให้เมื่อบันทึกบทความ"}
-                        </small>
-                      </label>
-                      <label>
-                        หมวดหมู่บทความ
-                        <select
-                          name="category"
-                          value={article.category}
-                          onChange={(e) => update("category", e.target.value)}
-                          required
-                        >
-                          {categories.map((c) => (
-                            <option key={c.id} value={c.id}>
-                              {c.label.th || c.id}
-                            </option>
-                          ))}
-                        </select>
-                      </label>
-                      <label>
-                        สถานะบทความ
-                        <select
-                          name="status"
-                          value={article.status}
-                          onChange={(e) => update("status", e.target.value)}
-                        >
-                          <option value="draft">ฉบับร่าง</option>
-                          <option value="published">เผยแพร่</option>
-                        </select>
-                      </label>
-                      <label>
-                        วันและเวลาเผยแพร่
-                        <input
-                          type="datetime-local"
-                          name="publishedAt"
-                          value={localDate(article.publishedAt)}
-                          required
-                          onChange={(e) =>
-                            update(
-                              "publishedAt",
-                              e.target.value
-                                ? new Date(e.target.value).toISOString()
-                                : "",
-                            )
-                          }
-                        />
-                        <small className="cms-muted">
-                          ใช้เวลาท้องถิ่นของเครื่อง หากเลือกเวลาในอนาคต
-                          บทความจะปรากฏเมื่อถึงกำหนด
-                        </small>
-                      </label>
-                      <span
-                        className="cms-badge"
-                        data-tone={statusTone[effectiveStatus(article)]}
-                      >
-                        {statusNames[effectiveStatus(article)]}
-                      </span>
-                      <button
-                        className="cms-primary"
-                        type="submit"
-                        disabled={busy || uploads > 0}
-                      >
-                        <Save size={16} />
-                        {busy
-                          ? "กำลังบันทึก…"
-                          : uploads
-                            ? "กำลังอัปโหลดรูป…"
-                            : "บันทึกบทความ"}
-                      </button>
-                      {article.id && (
-                        <a
-                          className="cms-secondary"
-                          href={"/news/" + article.slug}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          <Eye size={16} />
-                          ดูหน้าบทความ
-                        </a>
-                      )}
-                      <p className="cms-muted">
-                        ฉบับร่างและบทความที่ยังไม่ถึงเวลาเผยแพร่จะไม่แสดงบนเว็บไซต์
-                      </p>
-                    </div>
-                  </aside>
                 </div>
               </fieldset>
             </form>
