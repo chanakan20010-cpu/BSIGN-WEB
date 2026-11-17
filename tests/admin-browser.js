@@ -10,13 +10,13 @@ import { readInitialCredentials } from "./initial-admin-login-smoke.js";
 // All data and generated credentials belong to this temporary test fixture.
 const directory = mkdtempSync(path.join(tmpdir(), "bsign-admin-ux-"));
 mkdirSync("test-results", { recursive: true });
-let runtime, browser, page;
+let runtime, browser, page, account;
 let checks = 0;
 const pageErrors = [],
   accessibility = [];
 try {
   runtime = await startPreview({ directory, provisionInitialAdmin: true });
-  const account = readInitialCredentials(runtime.initialAdmin.file);
+  account = readInitialCredentials(runtime.initialAdmin.file);
   browser = await chromium.launch({
     executablePath: process.env.CHROMIUM_PATH || "/usr/bin/chromium",
     headless: true,
@@ -657,6 +657,21 @@ try {
       " admin UX checks; real account, dashboard, edits, CRUD, upload, preview, responsive navigation, keyboard and WCAG A/AA",
   );
 } catch (error) {
+  if (process.env.GITHUB_ACTIONS) {
+    let message = error.message.split("Call log:")[0].slice(0, 1800);
+    for (const secret of Object.values(account || {}))
+      if (secret) message = message.replaceAll(secret, "[REDACTED]");
+    const location = error.stack?.match(
+      /tests[\\/]admin-browser\.js:\d+:\d+/,
+    )?.[0];
+    message = `${message}\n${location || ""}`
+      .replaceAll("%", "%25")
+      .replaceAll("\r", "%0D")
+      .replaceAll("\n", "%0A");
+    console.error(
+      `::error title=Admin UX (${checks} checks completed)::${message}`,
+    );
+  }
   if (page && !page.isClosed()) {
     console.error(
       "Admin QA stopped at",
