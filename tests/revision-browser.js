@@ -38,6 +38,15 @@ const maintenanceMessage = {
   th: "ทีมงานกำลังปรับปรุงเว็บไซต์ กรุณากลับมาใหม่ภายหลัง",
   en: "We are updating the website. Please return later.",
 };
+async function revealControl(control) {
+  await control.waitFor({ state: "attached" });
+  const parents = await control.locator("xpath=ancestor::details").all();
+  for (const detail of parents) {
+    if ((await detail.getAttribute("open")) === null)
+      await detail.locator(":scope > summary").click();
+  }
+}
+
 async function request(method, url, body) {
   return admin.evaluate(
     async ({ method, url, body }) => {
@@ -221,6 +230,7 @@ try {
   const icon = admin.locator(".cms-inline-icon-editor").filter({
     has: admin.getByLabel("รหัสสีไอคอน home.hero.arrow", { exact: true }),
   });
+  await revealControl(icon.locator("select").first());
   await icon.getByRole("combobox").first().selectOption("Rocket");
   await icon
     .getByLabel("รหัสสีไอคอน home.hero.arrow", { exact: true })

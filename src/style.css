@@ -440,6 +440,8 @@ header {
 }
 .footer-wordmark {
   display: block;
+  min-width: 0;
+  overflow-wrap: anywhere;
   margin-bottom: 7px;
 }
 .footer-wordmark em {

@@ -161,6 +161,14 @@ try {
         .click();
   }
 
+  async function revealControl(control) {
+    await control.waitFor({ state: "attached" });
+    const parents = await control.locator("xpath=ancestor::details").all();
+    for (const detail of parents) {
+      if ((await detail.getAttribute("open")) === null)
+        await detail.locator(":scope > summary").click();
+    }
+  }
   await adminNavigate("ข้อมูลเว็บไซต์", ".cms-website-tabs", "หน้าแรก");
   await page.getByRole("button", { name: "แก้ไขภาษาไทย", exact: true }).click();
   await page
@@ -209,6 +217,7 @@ try {
   const scopedArrow = page.locator(".cms-inline-icon-editor").filter({
     has: page.getByLabel("รหัสสีไอคอน home.hero.arrow", { exact: true }),
   });
+  await revealControl(scopedArrow.locator("select").first());
   await scopedArrow.getByRole("combobox").first().selectOption("Rocket");
   await scopedArrow
     .getByLabel("รหัสสีไอคอน home.hero.arrow", { exact: true })

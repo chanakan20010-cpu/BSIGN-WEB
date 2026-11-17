@@ -95,6 +95,14 @@ try {
         .getByRole("button", { name: child, exact: true })
         .click();
   }
+  async function revealControl(control) {
+    await control.waitFor({ state: "attached" });
+    const parents = await control.locator("xpath=ancestor::details").all();
+    for (const detail of parents) {
+      if ((await detail.getAttribute("open")) === null)
+        await detail.locator(":scope > summary").click();
+    }
+  }
   async function editLanguage(language) {
     await page
       .getByRole("button", {
@@ -276,8 +284,10 @@ try {
     .nth(1)
     .fill("คำโปรยสำหรับทดสอบบันทึกผ่านหน้าเว็บ");
   await page
+    .locator(".cms-paragraph-block")
+    .first()
     .getByLabel("ไทย", { exact: true })
-    .nth(2)
+    .first()
     .fill("เนื้อหาบทความที่บันทึกจริงจากตัวแก้ไขใหม่");
   await editLanguage("en");
   await expect(page.getByLabel("ไทย", { exact: true })).toHaveCount(0);
@@ -290,8 +300,10 @@ try {
     .nth(1)
     .fill("A saved article excerpt.");
   await page
+    .locator(".cms-paragraph-block")
+    .first()
     .getByLabel("English", { exact: true })
-    .nth(2)
+    .first()
     .fill("Article body saved through the redesigned editor.");
   await page
     .getByLabel("ลิงก์บทความ", { exact: false })
@@ -423,6 +435,7 @@ try {
   const inlineIcon = page.locator(".cms-inline-icon-editor").filter({
     has: page.getByLabel("รหัสสีไอคอน home.hero.arrow", { exact: true }),
   });
+  await revealControl(inlineIcon.locator("select").first());
   await inlineIcon.getByRole("combobox").first().selectOption("Rocket");
   await inlineIcon
     .getByLabel("รหัสสีไอคอน home.hero.arrow", { exact: true })
