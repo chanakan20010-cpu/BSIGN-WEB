@@ -8,6 +8,7 @@ export const textFormatSchema = z
         "brand",
         "hero",
         "heading",
+        "panelHeading",
         "subheading",
         "body",
         "inverse",
@@ -219,6 +220,7 @@ export function validateShape(template, value, path = "") {
           "footerNav",
           "footerHeading",
           "footerBrand",
+          "panelHeading",
         ].includes(k)
       )
         continue;

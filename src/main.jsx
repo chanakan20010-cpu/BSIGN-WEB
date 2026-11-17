@@ -956,7 +956,7 @@ function Contact() {
           <section className="card contact-info">
             <FormattedText
               as="h2"
-              className="outlined type-heading"
+              className="outlined type-panelHeading"
               value={c.heading}
             />
             {[
@@ -1030,7 +1030,7 @@ function Contact() {
         <section className="card form-card">
           <FormattedText
             as="h2"
-            className="outlined type-heading"
+            className="outlined type-panelHeading"
             value={c.formHeading}
           />
           <form onSubmit={submit}>

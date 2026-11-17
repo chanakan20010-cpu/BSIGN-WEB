@@ -766,6 +766,10 @@ header {
 .contact-info .contact-line {
   margin: 22px 0;
 }
+.contact-info > :is(.outlined, .contact-line) {
+  max-width: 320px;
+  margin-inline: auto;
+}
 .contact-info .icon {
   width: 40px;
   height: 40px;
@@ -1111,6 +1115,24 @@ header {
 @media (max-width: 700px) {
   .type-heading {
     font-size: var(--heading-mobile);
+  }
+}
+.type-panelHeading {
+  font-family: var(--panelHeading-font), sans-serif;
+  font-size: var(--panelHeading-size);
+  font-weight: var(--panelHeading-weight);
+  color: var(--panelHeading-color);
+  letter-spacing: var(--panelHeading-spacing);
+  line-height: var(--panelHeading-line);
+}
+@media (max-width: 1050px) {
+  .type-panelHeading {
+    font-size: var(--panelHeading-tablet);
+  }
+}
+@media (max-width: 700px) {
+  .type-panelHeading {
+    font-size: var(--panelHeading-mobile);
   }
 }
 .type-subheading {

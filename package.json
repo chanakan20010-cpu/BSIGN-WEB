@@ -1,6 +1,6 @@
 {
   "name": "bsign-web",
-  "version": "1.6.3",
+  "version": "1.6.4",
   "private": true,
   "type": "module",
   "engines": {
@@ -21,7 +21,8 @@
     "test:admin": "node tests/admin-browser.js",
     "test:revisions": "node tests/revision-browser.js",
     "test:revision02": "node tests/revision02-browser.js",
-    "test:revision03": "node tests/revision03-browser.js"
+    "test:revision03": "node tests/revision03-browser.js",
+    "test:contact": "node tests/contact-browser.js"
   },
   "dependencies": {
     "@fontsource/inter": "5.3.0",

@@ -32,7 +32,7 @@ const start = () =>
     "APP_ORIGIN=" + origin,
     "-v",
     volume + ":/app/.data",
-    "bsign-web:1.6.3",
+    "bsign-web:1.6.4",
   );
 try {
   docker("volume", "create", volume);

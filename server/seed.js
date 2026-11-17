@@ -370,6 +370,7 @@ export const defaults = {
     brand: sty(23, 700, "#000000", 18, 19),
     hero: sty(48, 700, "#000000", 30, 36),
     heading: sty(36, 700, "#000000", 27, 32),
+    panelHeading: { ...sty(24, 700, "#000000", 20, 22), line: 1.6 },
     subheading: sty(19, 700, "#000000", 18),
     body: sty(15, 400, "#666871"),
     inverse: sty(15, 400, "#a7a8ad"),
@@ -582,6 +583,34 @@ function migrateCardPresentation(db) {
   }
 }
 
+// Add the smaller framed heading role without changing existing text choices
+// or any typography the site owner has already customized.
+function migratePanelHeading(db) {
+  if (db.prepare("SELECT 1 FROM migrations WHERE version=4").get()) return;
+  db.exec("BEGIN IMMEDIATE");
+  try {
+    if (!db.prepare("SELECT 1 FROM migrations WHERE version=4").get()) {
+      const row = db
+        .prepare("SELECT value FROM documents WHERE key='styles'")
+        .get();
+      const styles = JSON.parse(row.value);
+      if (!Object.hasOwn(styles, "panelHeading")) {
+        styles.panelHeading = structuredClone(defaults.styles.panelHeading);
+        db.prepare(
+          "UPDATE documents SET value=?,revision=revision+1 WHERE key='styles'",
+        ).run(JSON.stringify(styles));
+      }
+      db.prepare(
+        "INSERT INTO migrations(version,applied_at) VALUES(4,datetime('now'))",
+      ).run();
+    }
+    db.exec("COMMIT");
+  } catch (error) {
+    db.exec("ROLLBACK");
+    throw error;
+  }
+}
+
 // Change only the old, untouched shipped appearance. A shared or per-position
 // customization keeps its behavior, and unknown future fields remain stored.
 function migrateIconAppearance(db) {
@@ -731,4 +760,5 @@ export function seed(db) {
   }
   migrateIconAppearance(db);
   migrateCardPresentation(db);
+  migratePanelHeading(db);
 }

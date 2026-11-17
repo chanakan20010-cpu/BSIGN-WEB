@@ -49,7 +49,7 @@ test("overview requires authentication and reflects current articles, messages a
     assert.equal(initial.body.system.version, version);
     assert.equal(initial.body.system.database, "SQLite");
     assert.equal(initial.body.system.healthy, true);
-    assert.equal(initial.body.system.schemaVersion, 3);
+    assert.equal(initial.body.system.schemaVersion, 4);
 
     const base = JSON.parse(
       f.db.prepare("SELECT value FROM articles LIMIT 1").get().value,

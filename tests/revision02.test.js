@@ -339,7 +339,7 @@ test("migration 3 copies saved icon appearances, footer menus and footer type wi
     const migrated = await f.documents();
     assert.equal(
       f.db.prepare("SELECT max(version) version FROM migrations").get().version,
-      3,
+      4,
     );
     assert.equal(migrated.home.value.cards[0].icon.color, "#102030");
     assert.equal(migrated.home.value.cards[1].icon.color, "#405060");
@@ -458,5 +458,145 @@ test("formatting, editable names, card icons and footer menus survive restart an
     assert.deepEqual((await f.documents()).home.value, saved.body.value);
   } finally {
     f.close();
+  }
+});
+
+test("migration 4 adds panel heading typography without replacing saved styles, formats or older client data", async () => {
+  for (const alreadyConfigured of [false, true]) {
+    const f = await fixture();
+    try {
+      const initial = await f.documents();
+      assert.deepEqual(initial.styles.value.panelHeading, {
+        font: "Noto Sans Thai",
+        size: 24,
+        tablet: 22,
+        mobile: 20,
+        color: "#000000",
+        weight: 700,
+        spacing: 0,
+        line: 1.6,
+      });
+      const legacyStyles = copy(initial.styles.value);
+      legacyStyles.heading = {
+        ...legacyStyles.heading,
+        font: "serif",
+        size: 43,
+        color: "#234567",
+        spacing: 1.25,
+      };
+      legacyStyles.futureRole = { ...legacyStyles.body, size: 17 };
+      const customizedPanel = {
+        ...legacyStyles.panelHeading,
+        size: 29,
+        tablet: 25,
+        mobile: 21,
+        color: "#345678",
+      };
+      if (alreadyConfigured) legacyStyles.panelHeading = customizedPanel;
+      else delete legacyStyles.panelHeading;
+      const contact = copy(initial.contact.value);
+      contact.heading = {
+        th: "หัวข้อที่เจ้าของเว็บบันทึกไว้",
+        en: "Owner's saved heading",
+        format: { style: "highlight", align: "right", futureFlag: true },
+      };
+      f.db
+        .prepare("UPDATE documents SET value=? WHERE key='styles'")
+        .run(JSON.stringify(legacyStyles));
+      f.db
+        .prepare("UPDATE documents SET value=? WHERE key='contact'")
+        .run(JSON.stringify(contact));
+      f.db.prepare("DELETE FROM migrations WHERE version=4").run();
+      const before = await f.documents();
+
+      await f.restart();
+      const migrated = await f.documents();
+      const expectedPanel = alreadyConfigured
+        ? customizedPanel
+        : initial.styles.value.panelHeading;
+      assert.deepEqual(migrated.styles.value.panelHeading, expectedPanel);
+      assert.equal(
+        migrated.styles.revision,
+        before.styles.revision + (alreadyConfigured ? 0 : 1),
+      );
+      assert.deepEqual(migrated.styles.value.heading, legacyStyles.heading);
+      assert.deepEqual(
+        migrated.styles.value.futureRole,
+        legacyStyles.futureRole,
+      );
+      for (const key of Object.keys(before).filter((key) => key !== "styles"))
+        assert.deepEqual(migrated[key], before[key]);
+      assert.equal(
+        f.db.prepare("SELECT count(*) n FROM migrations WHERE version=4").get()
+          .n,
+        1,
+      );
+
+      // An older client sends its whole known style document, omitting the
+      // newly shipped role. Merge must retain it while accepting the edit.
+      const oldClientStyles = copy(legacyStyles);
+      delete oldClientStyles.panelHeading;
+      oldClientStyles.body.size = 16;
+      const oldClientSave = await f.send(
+        "patch",
+        "/api/admin/documents/styles",
+        { revision: migrated.styles.revision, patch: oldClientStyles },
+      );
+      assert.equal(oldClientSave.status, 200);
+      assert.deepEqual(oldClientSave.body.value.panelHeading, expectedPanel);
+      assert.equal(oldClientSave.body.value.body.size, 16);
+      assert.deepEqual(oldClientSave.body.value.heading, legacyStyles.heading);
+
+      const panelPatch = {
+        font: "Noto Sans",
+        size: 26,
+        tablet: 23,
+        mobile: 21,
+        line: 1.55,
+        spacing: 0.75,
+        color: "#123456",
+      };
+      const savedStyles = await f.send("patch", "/api/admin/documents/styles", {
+        revision: oldClientSave.body.revision,
+        patch: { panelHeading: panelPatch },
+      });
+      assert.equal(savedStyles.status, 200);
+      assert.deepEqual(savedStyles.body.value.panelHeading, {
+        ...expectedPanel,
+        ...panelPatch,
+      });
+      const savedContact = await f.send(
+        "patch",
+        "/api/admin/documents/contact",
+        {
+          revision: migrated.contact.revision,
+          patch: {
+            heading: { format: { style: "panelHeading", align: "center" } },
+            formHeading: { format: { style: "panelHeading", align: "center" } },
+          },
+        },
+      );
+      assert.equal(savedContact.status, 200);
+      assert.equal(savedContact.body.value.heading.th, contact.heading.th);
+      assert.equal(savedContact.body.value.heading.en, contact.heading.en);
+      assert.equal(savedContact.body.value.heading.format.futureFlag, true);
+
+      await f.restart();
+      const restarted = await f.documents();
+      assert.deepEqual(restarted.styles, savedStyles.body);
+      assert.deepEqual(restarted.contact, savedContact.body);
+      const publicContact = (await request(f.app).get("/api/content")).body;
+      assert.deepEqual(publicContact.styles.panelHeading, {
+        ...expectedPanel,
+        ...panelPatch,
+      });
+      assert.equal(publicContact.contact.heading.format.style, "panelHeading");
+      assert.equal(
+        publicContact.contact.formHeading.format.style,
+        "panelHeading",
+      );
+    } finally {
+      f.close();
+    }
   }
 });

@@ -1,10 +1,12 @@
-# BSIGN TECH — v1.6.3
+# BSIGN TECH — v1.6.4
 
 เว็บไซต์ TH/EN ตามภาพส่งออก Figma ที่ผู้ใช้แนบ: หน้าแรก เกี่ยวกับเรา ข่าวสาร รายละเอียดข่าว และติดต่อเรา พร้อม CMS, REST API และ SQLite จริง
 
 รุ่นนี้ปรับตามรายการที่ผู้ใช้รวบรวมในแชทและอนุญาตให้แก้ไขแล้ว ดูรายการเทียบกับคำขอใน [docs/REVISION-02.md](docs/REVISION-02.md) และประวัติรายการก่อนหน้าใน [docs/REVISION-01.md](docs/REVISION-01.md)
 
 v1.6.3 เพิ่มเงาภาพหลักและภาพส่วนทำไมต้องเลือกเราในหน้าแรก โดยใช้เงาเดียวกับการ์ดภาพหน้าเกี่ยวกับเรา
+
+v1.6.4 ปรับหัวข้อและกรอบหน้า “ติดต่อเรา” ให้ใกล้เคียงดีไซน์ เพิ่มสไตล์กลาง **หัวข้อกรอบเนื้อหา** ขนาด Desktop/Tablet/Mobile 24/22/20px ปรับต่อได้ในหลังบ้านที่ **สไตล์เว็บไซต์ → ตัวอักษร** การอัปเดตเติมเฉพาะสไตล์ที่ขาด โดยรักษาข้อมูลและค่าที่แก้ไว้เดิม
 
 ## เปิดพรีวิวบน Windows — ดับเบิลคลิก START-WINDOWS
 
@@ -96,6 +98,8 @@ v1.6.1 แก้หน้าแรกให้แสดง **3 บทควา�
 
 v1.6.0 เพิ่ม migration รุ่น 3 ทำครั้งเดียวเพื่อเก็บไอคอนเดิมไว้กับการ์ด เพิ่มเมนูส่วนท้ายจากเมนูที่บันทึกอยู่ และเติมสไตล์ส่วนท้ายที่ยังไม่มี จะไม่เขียนทับไอคอน เมนู หรือสไตล์ที่มีอยู่แล้ว ชื่อในหลังบ้านและรูปแบบข้อความที่บันทึกไว้ยังอยู่ บทความและข้อมูลจากเวอร์ชันก่อนอ่านต่อได้โดยไม่ล้างฐานข้อมูล
 
+v1.6.4 เพิ่ม migration รุ่น 4 เพื่อเติมสไตล์ `panelHeading` เฉพาะเมื่อยังไม่มี ไม่เปลี่ยนเนื้อหา รูป บัญชี หรือสไตล์/รูปแบบข้อความที่ผู้ดูแลตั้งไว้ การบันทึกจาก client เก่าที่ไม่มีชนิดใหม่นี้ยังรักษาค่าที่เพิ่มแล้วไว้
+
 ก่อนอัปเดตให้หยุดเซิร์ฟเวอร์และ backup จากนั้น `git pull --ff-only`, `npm ci`, `npm run build`, `npm start` โดยคง `.data`, `.env` และ backups ไว้เสมอ ห้ามใช้ `git clean -fdx` หรือ `docker compose down -v` กับข้อมูลใช้งานจริง
 
 ### Backup / restore
@@ -128,7 +132,7 @@ Production ต้องตั้ง `NODE_ENV=production`, `APP_ORIGIN=https://�
 Docker build ใน Codex cloud ต้องส่ง CA ให้ npm โดยรักษา TLS verification:
 
 ```sh
-docker build --secret id=proxy_ca,src="$CODEX_PROXY_CERT" -t bsign-web:1.6.3 .
+docker build --secret id=proxy_ca,src="$CODEX_PROXY_CERT" -t bsign-web:1.6.4 .
 docker compose up --no-build -d
 ```
 
@@ -162,6 +166,7 @@ npm run test:admin
 npm run test:revisions
 npm run test:revision02
 npm run test:revision03
+npm run test:contact
 ```
 
 Browser tests ใช้ Chromium (`CHROMIUM_PATH` เปลี่ยนตำแหน่ง binary ได้) ใช้ฐานข้อมูลและบัญชีสุ่มชั่วคราว ไม่เขียนข้อมูลทดสอบลง `.data` สร้าง screenshots ใน test-results ซึ่งไม่ commit
@@ -197,3 +202,5 @@ API ส่ง error code แทนข้อมูลภายในและไ�
 [แถบสลับภาษาขณะเลื่อนบน Desktop](docs/screenshots/article-language-sticky.png) · [แถบสลับภาษาบน Mobile](docs/screenshots/article-language-mobile.png)
 
 [เงาภาพหลักหน้าแรก](docs/screenshots/home-hero-shadow.png) · [เงาภาพทีมหน้าแรก](docs/screenshots/home-team-shadow.png)
+
+[สัดส่วนหัวข้อหน้าติดต่อ Desktop](docs/screenshots/contact-proportions.png) · [หน้าติดต่อ Mobile](docs/screenshots/contact-proportions-mobile.png)
