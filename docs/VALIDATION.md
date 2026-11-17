@@ -14,8 +14,16 @@
 | Header/Footer | ตรวจเมนูส่วนท้ายแยกจากส่วนหัว โลโก้ที่อัปโหลด หัวข้อ Footer สีขาวพื้นใส และแบรนด์ยาวที่เลือกสไตล์ใหญ่ใน TH/EN ที่ 320px ไม่ล้น เมนูมือถือเปิดใต้ Header จริง |
 | Accessibility | ชุดใหม่ไม่พบ axe WCAG A/AA violation หรือ JS errors หลังแก้ contrast สีแบรนด์บนพื้นขาวและข้อความยาวใน Footer |
 | ตัวอย่างภาพ | ตรวจภาพหน้าจอจริงของหน้าแรก การ์ด บทความ Header/Footer และ Footer สาธารณะ อยู่ใน docs/screenshots ไม่มีข้อมูลรหัสผ่าน |
+| บัญชีพรีวิว | setup/recovery และใช้บัญชีจาก initial-admin → /admin → logout → restart → login ผ่านใน Chromium |
+| Docker / Compose | build v1.6.0 ผ่าน, HTTP/API/non-root และข้อมูลอยู่หลังเปลี่ยน container ผ่าน; Compose config ผ่าน |
 
-ผลตัวเปิดพรีวิว Docker และ Windows CI ของชุดส่งมอบจะบันทึกก่อนสร้าง tag
+Windows Server 2022 x64 / PowerShell 5.1 ผ่าน [Windows preview run #16](https://github.com/chanakan20010-cpu/BSIGN-WEB/actions/runs/44001744972) — implementation commit `58a9e04baf62592d4b3bc27f6a8d67e78d1eb2b3`, workflow Success (3 นาที 51 วินาที), job succeeded (3 นาที 48 วินาที):
+
+- แตก source ZIP ในโฟลเดอร์ที่มีช่องว่างและภาษาไทย ตรวจ START-WINDOWS กับ Internet Zone รวมการปฏิเสธสคริปต์ที่ถูกแก้ การตรวจ hash และปลดบล็อกเฉพาะไฟล์ที่กำหนด
+- ตรวจ portable Node, initial-admin login/restart, WinForms/GUI/VBS โดยไม่เปลี่ยน Execution Policy ถาวร
+- API 32 ชุด และ Edge browser สำหรับ setup/recovery, initial-admin, Admin UX 61 กรณี รายการแก้ไข 01 จำนวน 40 กรณี และรายการแก้ไข 02 จำนวน 36 กรณีผ่านตามขั้นตอนที่กำหนดใน workflow
+
+CI ใช้ Edge headless และจำลอง Mark-of-the-Web บนไฟล์ที่แตกแล้ว ยืนยันสถานะสำเร็จจากหน้า workflow/job สาธารณะ ไม่ได้อ่าน log ที่ต้องเข้าสู่ระบบ ไม่เท่ากับการดาวน์โหลด/แตก ZIP ด้วย Explorer หรือทดสอบ screen reader บนเครื่องผู้ใช้จริง
 
 ข้อจำกัด: automated accessibility ไม่เท่ากับการทดสอบ NVDA/VoiceOver จริง ยังไม่ได้ตรวจ Safari/Firefox, Windows ARM64 หรือเครื่องผู้ใช้ทุก build ภาพต้นแบบเป็นภาพส่งออกจึงมีข้อจำกัดความคมชัดของโลโก้เดิม SMTP จริง พิกัด iframe Maps และ URL LinkedIn ยังรอข้อมูล/ทดสอบภายนอกตามเดิม ไม่มีการ deploy สู่โดเมนสาธารณะหรือ push Docker image ไป registry
 
