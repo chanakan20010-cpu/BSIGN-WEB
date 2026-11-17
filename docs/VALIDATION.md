@@ -13,6 +13,12 @@
 | Docker / Compose | build v1.6.2 ผ่าน, HTTP/API/non-root และข้อมูลอยู่หลังเปลี่ยน container ผ่าน; Compose config ผ่าน |
 | ตรวจภาพ | ภาพ Desktop/Mobile ใน docs/screenshots/article-language-*.png มาจากการรันจริงด้วยข้อมูลชั่วคราว ไม่แสดงรหัสผ่าน |
 
+Windows Server 2022 x64 / PowerShell 5.1 ผ่าน [Windows preview run #20](https://github.com/chanakan20010-cpu/BSIGN-WEB/actions/runs/44041373919) — implementation commit `80a8d518adf6dcda772ee112c2778ab264f626d8`, workflow Success (2 นาที 56 วินาที), job succeeded (2 นาที 54 วินาที):
+
+- source ZIP แตกลง path ที่มีช่องว่างและภาษาไทย ผ่าน START-WINDOWS, Mark-of-the-Web/tamper rejection, portable Node, initial-admin login/restart และ WinForms/GUI/VBS ตามขั้นตอนใน workflow
+- API 36 ชุด, setup/recovery, initial-admin และ Edge browser Admin 82, revision 01 จำนวน 40, revision 02 จำนวน 36 และ revision 03 จำนวน 42 ผ่าน
+- ยืนยันสถานะจากหน้า workflow/job สาธารณะ ไม่ได้อ่าน log ที่ต้องเข้าสู่ระบบ ใช้ Edge headless และจำลอง Mark-of-the-Web บนไฟล์ที่แตกแล้ว ยังไม่เท่ากับการทดสอบ Explorer หรือเครื่องผู้ใช้จริง
+
 การตรวจ Windows รอบแรกพบว่าขอบเขตของ sticky ที่ท้ายฟอร์มดันการ์ดขึ้นจนปุ่มภาษาอาจหลุดจอ แก้โดยคำนวณพื้นที่ส่วนท้ายหลังบ้านจริง และเพิ่ม regression ที่เลื่อนทันทีถึงท้ายเอกสารทั้ง 4 ขนาดจอ เพื่อไม่ให้การเลื่อนแบบ smooth ทำให้ตรวจผ่านก่อนถึงตำแหน่งสุดท้าย
 
 ข้อจำกัดเดิมเรื่อง Windows ARM64, screen reader จริง, SMTP, iframe Maps และ LinkedIn ยังเป็นไปตามผลตรวจรุ่นก่อนด้านล่าง ไม่มีการ deploy โดเมนสาธารณะหรือ push Docker image ไป registry
