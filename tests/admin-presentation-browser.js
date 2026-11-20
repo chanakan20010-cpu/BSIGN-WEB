@@ -14,6 +14,7 @@ const directory = mkdtempSync(path.join(tmpdir(), "bsign-admin-presentation-"));
 mkdirSync("test-results", { recursive: true });
 let runtime, browser, context, page, account;
 let checks = 0;
+let accessibilityIds = [];
 const pageErrors = [];
 const labels = {
   title: "เข้าสู่ระบบทีม {brand}",
@@ -49,6 +50,9 @@ async function audit() {
   const result = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
     .analyze();
+  accessibilityIds = result.violations
+    .filter((violation) => ["serious", "critical"].includes(violation.impact))
+    .map((violation) => violation.id);
   assert.deepEqual(
     result.violations
       .filter((v) => ["serious", "critical"].includes(v.impact))
@@ -147,9 +151,15 @@ try {
   await page.getByRole("button", { name: "ปกติ", exact: true }).click();
   checks++;
 
+  const presentationSaved = page.waitForResponse(
+    (response) =>
+      response.url().endsWith("/api/admin/documents/adminPresentation") &&
+      response.request().method() === "PATCH",
+  );
   await page
     .getByRole("button", { name: "บันทึกการเปลี่ยนแปลง", exact: true })
     .click();
+  assert.equal((await presentationSaved).status(), 200);
   await expect(
     page.getByRole("button", { name: "บันทึกการเปลี่ยนแปลง", exact: true }),
   ).toBeDisabled();
@@ -385,6 +395,19 @@ try {
   console.log(
     `PASS: ${checks} admin identity/login checks; editable copy, saved preview, imported private fields preserved without public exposure, real logo, token expansion, configured errors, Thai labels, desktop/mobile, setup isolation and persistence`,
   );
+} catch (error) {
+  // Public CI diagnostics contain only checkpoint counts, this test's source
+  // location and fixed axe rule IDs. Do not expose form values or assertions.
+  const location =
+    error.stack?.match(/admin-presentation-browser\.js:\d+:\d+/)?.[0] ||
+    "unknown";
+  const rules =
+    accessibilityIds.filter((id) => /^[a-z0-9-]+$/.test(id)).join(",") ||
+    "none";
+  console.error(
+    `::error title=Admin identity browser::${checks} checks completed; ${location}; accessibility rules ${rules}`,
+  );
+  throw error;
 } finally {
   if (browser) await browser.close();
   if (runtime) await runtime.close();
