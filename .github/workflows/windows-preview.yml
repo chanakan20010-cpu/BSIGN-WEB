@@ -73,8 +73,19 @@ jobs:
           $env:PATH = (Split-Path $node) + ';' + $env:PATH
           & $node scripts/windows/update-launcher.js --check
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          & $node --test --test-concurrency=1 tests/api.test.js tests/preview.test.js tests/initial-admin.test.js tests/overview.test.js tests/revision01.test.js tests/revision02.test.js tests/revision03.test.js tests/fonts.test.js tests/revision04.test.js
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $report = & $node --test --test-reporter=tap --test-concurrency=1 tests/api.test.js tests/preview.test.js tests/initial-admin.test.js tests/overview.test.js tests/revision01.test.js tests/revision02.test.js tests/revision03.test.js tests/fonts.test.js tests/revision04.test.js 2>&1
+          $testExit = $LASTEXITCODE
+          $report | Write-Output
+          if ($testExit -ne 0) {
+            # Publish only fixed test names, never assertion values or credentials.
+            foreach ($line in $report) {
+              if ("$line" -match '^\s*not ok \d+ - (.+)$') {
+                $testName = $Matches[1] -replace '%','%25' -replace '\r','%0D' -replace '\n','%0A'
+                Write-Host "::error title=API test::$testName"
+              }
+            }
+            exit $testExit
+          }
       - name: First-admin setup in Windows Edge
         shell: powershell
         working-directory: 'BSIGN Preview ทดสอบ'
