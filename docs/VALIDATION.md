@@ -24,6 +24,13 @@
 
 ข้อจำกัดเดิม: ไม่ได้ทดสอบ screen reader จริงหรือ Windows ARM64; SMTP จริงยังไม่ได้เชื่อม/ส่งทดสอบ หมุด iframe Maps ยังไม่เปิดจนยืนยันพิกัดได้ แต่ปุ่มนำทางใช้ลิงก์ที่ผู้ใช้ให้ LinkedIn ยังต้องระบุบัญชีจริง ไม่มีการเพิ่มบริการเสียเงินหรือ deploy โดเมนสาธารณะ
 
+Windows Server 2022 x64 / PowerShell 5.1 ผ่าน [Windows preview](https://github.com/chanakan20010-cpu/BSIGN-WEB/actions/runs/44698221964) — implementation commit `dc7e5db1bc515fd4a13c83baf76b23ca113152a0`, workflow Success (4 นาที 16 วินาที), job succeeded (4 นาที 13 วินาที)
+
+- แตก source ZIP ลงโฟลเดอร์ที่มีช่องว่าง/ภาษาไทย ตรวจ START-WINDOWS, Internet Zone/tamper rejection, portable Node และ GUI/VBS ผ่าน
+- API 49 ชุด, Edge browser 272 กรณี (Admin 82, revision 01/02/03 จำนวน 40/36/42, Contact 33, Fonts 10, Identity 11 และ revision 04 จำนวน 18) รวมทั้ง setup/recovery และ initial-admin อีก 2 กรณี ผ่านตามขั้นตอน workflow
+- แก้จังหวะชุดทดสอบให้รอ React แสดงฟอร์ม รอ PATCH ยืนยันการบันทึก และรอการย้ายรายการเสร็จ โดยยังตรวจข้อมูลครบก่อน/หลัง restart
+- ยืนยันสถานะจากหน้า workflow/job สาธารณะ ไม่ได้อ่าน log ที่ต้องเข้าสู่ระบบ CI ใช้ Edge headless และจำลอง Mark-of-the-Web บนไฟล์ที่แตกแล้ว ไม่เท่ากับการทดสอบ Explorer หรือเครื่องผู้ใช้จริง
+
 ---
 
 # ผลการตรวจ v1.6.3 — 17 พฤศจิกายน 2026
