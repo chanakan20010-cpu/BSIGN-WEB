@@ -13,6 +13,7 @@ const directory = mkdtempSync(path.join(tmpdir(), "bsign-revision04-ui-"));
 mkdirSync("test-results", { recursive: true });
 let runtime, browser, adminContext, visitorContext, admin, visitor, credentials;
 let checks = 0;
+let activeCheck = "startup";
 const pageErrors = [];
 const platformNames = [
   "Facebook",
@@ -63,6 +64,7 @@ const message = {
 const colors = { background: "#123456", border: "#654321" };
 
 async function check(name, test) {
+  activeCheck = name;
   await test();
   checks++;
   console.log(`ok ${checks}: ${name}`);
@@ -212,6 +214,7 @@ try {
   await check(
     "contact sections, field cards and status messages have distinct groups",
     async () => {
+      await expect(admin.locator("[data-contact-section]")).toHaveCount(5);
       assert.deepEqual(
         await admin
           .locator("[data-contact-section]")
@@ -230,6 +233,7 @@ try {
           card.locator(`[data-field-path="contact.fields.${key}.placeholder"]`),
         ).toHaveCount(1);
       }
+      await expect(admin.locator("[data-contact-status]")).toHaveCount(3);
       assert.deepEqual(
         await admin
           .locator("[data-contact-status]")
@@ -378,10 +382,16 @@ try {
   await check(
     "reordering carries the social icon style and leaves existing records intact",
     async () => {
-      for (let i = newIndex; i > 0; i--)
+      for (let i = newIndex; i > 0; i--) {
         await admin
           .getByRole("button", { name: `ย้ายช่องทาง ${i + 1} ขึ้น`, exact: true })
           .click();
+        await expect(
+          admin
+            .locator(`[data-social-index="${i - 1}"]`)
+            .getByLabel("ลิงก์ปลายทาง", { exact: true }),
+        ).toHaveValue(channel.href);
+      }
       await saveDocument("contact");
       const reordered = (await request("GET", "/admin/documents")).contact
         .value;
@@ -655,18 +665,16 @@ try {
     `PASS: ${checks} revision04 browser checks; contact grouping, twenty platforms, local social icons and reorder, public form and inbox, local card colors and reset, restart persistence`,
   );
 } catch (error) {
-  const safe = String(error.stack || error).replaceAll(
-    credentials?.password || "\u0000",
-    "[REDACTED]",
-  );
+  let safe = String(error.stack || error);
+  for (const secret of [
+    credentials?.password,
+    credentials?.email,
+    runtime?.token,
+  ])
+    if (secret) safe = safe.replaceAll(secret, "[REDACTED]");
   if (process.env.GITHUB_ACTIONS)
     console.error(
-      "::error title=Revision 04 browser regression::" +
-        safe
-          .replaceAll("%", "%25")
-          .replaceAll("\r", "%0D")
-          .replaceAll("\n", "%0A")
-          .slice(0, 10000),
+      `::error title=Revision 04 browser regression::${checks} checks completed; ${activeCheck}; ${error.stack?.match(/revision04-browser\.js:\d+:\d+/)?.[0] || "unknown"}`,
     );
   for (const [name, page] of [
     ["admin", admin],

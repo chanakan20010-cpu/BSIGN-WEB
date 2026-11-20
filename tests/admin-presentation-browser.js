@@ -118,10 +118,9 @@ try {
     .locator(".cms-navigation")
     .getByRole("button", { name: "หน้าเข้าสู่ระบบ", exact: true })
     .click();
-  assert.equal(
-    await page.locator('[data-field-path^="adminPresentation."]').count(),
-    Object.keys(adminPresentationDefaults).length,
-  );
+  await expect(
+    page.locator('[data-field-path^="adminPresentation."]'),
+  ).toHaveCount(Object.keys(adminPresentationDefaults).length);
   for (const [key, value] of Object.entries(labels)) {
     await page
       .locator(`[data-field-path="adminPresentation.${key}"]`)
