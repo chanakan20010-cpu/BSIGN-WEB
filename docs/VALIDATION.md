@@ -5,8 +5,8 @@
 | รายการ | ผล |
 |---|---|
 | Production build | ผ่าน Node.js 24.22.1 |
-| API 48 ชุด | ผ่าน รวมฟอนต์/CSRF/auth/parser/ขนาด/ข้อมูลสาธารณะ, migration 4–5, client เก่า, social/iconStyle/สีการ์ด, adminPresentation allowlist, restart และ backup/restore พร้อม bytes/metadata ของฟอนต์ |
-| ความปลอดภัยของ backup/restore | ผ่านกรณี legacy backup, checksum/ไฟล์ไม่ตรงฐานข้อมูล, path traversal, symlink, ขนาดเกิน และไม่เขียนทับปลายทางที่มีอยู่ รวมชื่อรูปเก่าที่ไม่ได้เป็น UUID |
+| API 49 ชุด | ผ่าน รวมฟอนต์/CSRF/auth/parser/ขนาด/ข้อมูลสาธารณะ, migration 4–5, client เก่า, social/iconStyle/สีการ์ด, adminPresentation allowlist, restart และ backup/restore พร้อม bytes/metadata ของฟอนต์ |
+| ความปลอดภัยของ backup/restore | ผ่านกรณี legacy backup, checksum/ไฟล์ไม่ตรงฐานข้อมูล, path traversal, symlink, ขนาดเกิน และไม่เขียนทับปลายทางที่มีอยู่ รวมชื่อรูปเก่าที่ไม่ได้เป็น UUID และปิด SQLite ก่อนล้าง backup ที่ล้มเหลวเพื่อรองรับ Windows |
 | ฟอนต์ใน browser 10 กรณี | ผ่านรายการ 20 แบบพร้อม faces/น้ำหนักจริง, อัปโหลดผ่าน UI, preview แบบร่างยังไม่บันทึก, computed font + CDP ยืนยัน glyph ฟอนต์ที่อัปโหลดจริงบน Desktop/Mobile, restart และป้องกันลบที่ใช้อยู่/ลบหลังปลดการอ้างอิง |
 | แบรนด์/Login 11 กรณี | ผ่านโลโก้จริง/ข้อมูลบริษัท ข้อความและสถานะ Login, preview, Desktop/Mobile, maintenance, setup/recovery แยกหัวข้อ, restart และแก้ข้อมูลเก่าที่มี unknown key โดยไม่ล้างหรือเผยแพร่ key นั้น |
 | Contact/สีการ์ด 18 กรณี | ผ่านเลือกโซเชียล 20 แบบ ไอคอน/สี/เรียงลำดับตามข้อมูล, ช่องกรอกและสถานะ TH/EN, custom invalid โดยไม่ส่งฟอร์มที่ขาดข้อมูล, ส่งจริงเข้ากล่องข้อความและใช้ success ที่แก้ไว้, สีการ์ดรายใบ preview/reset/save และ restart |

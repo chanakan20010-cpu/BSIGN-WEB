@@ -67,7 +67,22 @@ export async function createBackup(source, target) {
     );
     return target;
   } catch (error) {
-    rmSync(target, { recursive: true, force: true });
+    // Windows keeps an open SQLite file locked. Release the snapshot before
+    // deleting this invocation's target, and retain the original failure if
+    // closing the handle or cleaning up also fails.
+    try {
+      db?.close();
+    } catch (cleanupError) {
+      if (error instanceof Error && error.cause === undefined)
+        error.cause = cleanupError;
+    }
+    db = null;
+    try {
+      rmSync(target, { recursive: true, force: true });
+    } catch (cleanupError) {
+      if (error instanceof Error && error.cause === undefined)
+        error.cause = cleanupError;
+    }
     throw error;
   } finally {
     db?.close();

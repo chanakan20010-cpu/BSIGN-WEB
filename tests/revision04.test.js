@@ -8,6 +8,8 @@ import {
   existsSync,
   symlinkSync,
   readlinkSync,
+  mkdirSync,
+  readdirSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -651,6 +653,82 @@ test("a backup from the previous schema restores and adds new presentation choic
     } finally {
       restored.db.close();
     }
+  } finally {
+    f.close();
+  }
+});
+
+test("failed font backups close their snapshot, remove only their new target and preserve source data", async () => {
+  const f = await fixture();
+  try {
+    const uploaded = await f.uploadFont();
+    assert.equal(uploaded.status, 201);
+    const sourceFont = path.join(f.directory, uploaded.body.url.slice(1));
+    const originalFont = readFileSync(sourceFont);
+    const sourceDocuments = f.db
+      .prepare("SELECT * FROM documents ORDER BY key")
+      .all();
+    const sourceUsers = f.db
+      .prepare("SELECT * FROM users ORDER BY email")
+      .all();
+    const sourceFonts = f.db
+      .prepare("SELECT * FROM custom_fonts ORDER BY id")
+      .all();
+    const marker = path.join(f.directory, ".env");
+    writeFileSync(marker, "PRESERVE_SOURCE=backup-failure-fixture");
+
+    for (const [label, expectedCode] of [
+      ["invalid-font", "FONT_INVALID"],
+      ["missing-font", "ENOENT"],
+    ]) {
+      if (label === "invalid-font")
+        writeFileSync(sourceFont, "invalid font bytes");
+      else rmSync(sourceFont);
+      const sourceFiles = readdirSync(path.join(f.directory, "fonts")).sort();
+      const target = path.join(f.root, label);
+      await assert.rejects(createBackup(f.directory, target), (error) => {
+        assert.equal(error.code, expectedCode);
+        return true;
+      });
+      assert.equal(existsSync(target), false);
+      assert.deepEqual(
+        readdirSync(path.join(f.directory, "fonts")).sort(),
+        sourceFiles,
+      );
+      assert.equal(existsSync(sourceFont), label === "invalid-font");
+      if (label === "invalid-font")
+        assert.equal(readFileSync(sourceFont, "utf8"), "invalid font bytes");
+      assert.deepEqual(
+        f.db.prepare("SELECT * FROM documents ORDER BY key").all(),
+        sourceDocuments,
+      );
+      assert.deepEqual(
+        f.db.prepare("SELECT * FROM users ORDER BY email").all(),
+        sourceUsers,
+      );
+      assert.deepEqual(
+        f.db.prepare("SELECT * FROM custom_fonts ORDER BY id").all(),
+        sourceFonts,
+      );
+      assert.equal(
+        readFileSync(marker, "utf8"),
+        "PRESERVE_SOURCE=backup-failure-fixture",
+      );
+      writeFileSync(sourceFont, originalFont);
+    }
+
+    const existingTarget = path.join(f.root, "existing-backup");
+    mkdirSync(existingTarget);
+    const existingMarker = path.join(existingTarget, "preserve.txt");
+    writeFileSync(existingMarker, "An existing target belongs to its owner.");
+    await assert.rejects(createBackup(f.directory, existingTarget), {
+      code: "EEXIST",
+    });
+    assert.equal(
+      readFileSync(existingMarker, "utf8"),
+      "An existing target belongs to its owner.",
+    );
+    assert.deepEqual(readFileSync(sourceFont), originalFont);
   } finally {
     f.close();
   }
