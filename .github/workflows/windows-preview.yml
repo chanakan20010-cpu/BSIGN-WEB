@@ -8,6 +8,7 @@ on:
       - 'src/**'
       - 'tests/**'
       - 'package*.json'
+      - '.gitattributes'
       - 'OPEN-PREVIEW.vbs'
       - 'START-WINDOWS.cmd'
       - '.github/workflows/windows-preview.yml'

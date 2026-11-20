@@ -18,6 +18,8 @@
 | การเข้าถึงหน้าจอใหม่ 8 หน้าจอ | fonts/adminPresentation/contact/home ที่ 1440 และ 390px ผ่าน automated axe WCAG A/AA โดยไม่มี violations หลังปรับสีข้อความว่างในคลังฟอนต์ให้ชัดเจน |
 | Docker / Compose | build v1.7.0 ผ่านหลังเพิ่มไฟล์ shared ที่ใช้ทั้ง browser/server; HTTP/API/non-root และข้อมูลอยู่หลังเปลี่ยน container ผ่าน; Compose config ผ่าน |
 
+ตรวจพบว่า `git archive` บน Windows แปลงบรรทัดในใบอนุญาตฟอนต์ ทำให้ hash ไม่ตรงกับต้นทาง จึงกำหนด `.gitattributes` ให้คง bytes ของใบอนุญาต/ไฟล์ social ต้นฉบับ และตรวจ ZIP ด้วย `core.autocrlf=true` เพิ่ม
+
 ชุดทดสอบฟอนต์ตรวจ WOFF/WOFF2/TTF ที่ใช้งานได้จริง โครงสร้างผิด ชนิดไฟล์ปลอม และ payload ที่ขยายเกิน 32 MB มีการอ่าน CFF OTF ตัวอย่างจริงในขั้นตรวจ parser ด้วย ไฟล์ที่รวมหลายฟอนต์ (TTC) ไม่รองรับ
 
 ข้อจำกัดเดิม: ไม่ได้ทดสอบ screen reader จริงหรือ Windows ARM64; SMTP จริงยังไม่ได้เชื่อม/ส่งทดสอบ หมุด iframe Maps ยังไม่เปิดจนยืนยันพิกัดได้ แต่ปุ่มนำทางใช้ลิงก์ที่ผู้ใช้ให้ LinkedIn ยังต้องระบุบัญชีจริง ไม่มีการเพิ่มบริการเสียเงินหรือ deploy โดเมนสาธารณะ

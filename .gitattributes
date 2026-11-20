@@ -1,3 +1,8 @@
 *.cmd text eol=crlf
 *.vbs text eol=crlf
 *.ps1 text eol=crlf
+
+# Preserve upstream notices/assets byte for byte, including their recorded hashes.
+# Windows git archive also applies core.autocrlf unless these are marked binary.
+public/font-licenses/** -text
+public/social-brand-assets/** -text
