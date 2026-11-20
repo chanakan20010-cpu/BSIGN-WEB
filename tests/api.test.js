@@ -279,7 +279,7 @@ test("restart and migrations preserve content, contacts, media, session and hash
   const reopened = createApp({ directory, origin });
   db = reopened.db;
   app = reopened.app;
-  assert.equal(db.prepare("SELECT count(*) n FROM migrations").get().n, 4);
+  assert.equal(db.prepare("SELECT count(*) n FROM migrations").get().n, 5);
   assert.equal(db.prepare("SELECT count(*) n FROM contacts").get().n, 1);
   assert.equal(
     JSON.parse(

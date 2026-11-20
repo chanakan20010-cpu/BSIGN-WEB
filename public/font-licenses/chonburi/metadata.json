@@ -1,0 +1,30 @@
+{
+  "family": "Chonburi",
+  "package": "@fontsource/chonburi",
+  "packageVersion": "5.3.0",
+  "license": "OFL-1.1",
+  "licenseUrl": "/font-licenses/chonburi/LICENSE.txt",
+  "licenseInformation": "https://openfontlicense.org",
+  "attribution": "Copyright (c) 2015, Cadson Demak (info@cadsondemak.com)",
+  "source": "https://github.com/google/fonts",
+  "distribution": "https://fontsource.org/fonts/chonburi",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fontsource/font-files.git",
+    "directory": "fonts/google/chonburi"
+  },
+  "weights": [
+    400
+  ],
+  "styles": [
+    "normal"
+  ],
+  "subsets": [
+    "latin",
+    "latin-ext",
+    "thai",
+    "vietnamese"
+  ],
+  "fontVersion": "v14",
+  "licenseSha256": "ebb21f3ee30a34bc2305d1d86720a416fb13f9e73624398a78f7a55c61a091c4"
+}

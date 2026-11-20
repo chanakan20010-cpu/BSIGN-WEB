@@ -1,0 +1,39 @@
+{
+  "family": "Prompt",
+  "package": "@fontsource/prompt",
+  "packageVersion": "5.3.0",
+  "license": "OFL-1.1",
+  "licenseUrl": "/font-licenses/prompt/LICENSE.txt",
+  "licenseInformation": "https://openfontlicense.org",
+  "attribution": "Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Prompt-ThinItalic.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Prompt-ExtraLight.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Prompt-ExtraLightItalic.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Prompt-Light.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Prompt-LightItalic.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Prompt-Regular.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Prompt-Italic.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Prompt-Medium.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Prompt-MediumItalic.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Prompt-SemiBold.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Prompt-SemiBoldItalic.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Prompt-Bold.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Prompt-BoldItalic.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Prompt-ExtraBold.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Prompt-ExtraBoldItalic.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Prompt-Black.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Prompt-BlackItalic.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com)",
+  "source": "https://github.com/google/fonts",
+  "distribution": "https://fontsource.org/fonts/prompt",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fontsource/font-files.git",
+    "directory": "fonts/google/prompt"
+  },
+  "weights": [
+    100,
+    200,
+    300,
+    400,
+    500,
+    600,
+    700,
+    800,
+    900
+  ],
+  "styles": [
+    "italic",
+    "normal"
+  ],
+  "subsets": [
+    "latin",
+    "latin-ext",
+    "thai",
+    "vietnamese"
+  ],
+  "fontVersion": "v12",
+  "licenseSha256": "d338ae85340b0629296ee6a20a4c873afaafaa7be4fd9a01ce1248231b0daef2"
+}

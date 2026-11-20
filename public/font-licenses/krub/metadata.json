@@ -1,0 +1,36 @@
+{
+  "family": "Krub",
+  "package": "@fontsource/krub",
+  "packageVersion": "5.3.0",
+  "license": "OFL-1.1",
+  "licenseUrl": "/font-licenses/krub/LICENSE.txt",
+  "licenseInformation": "https://openfontlicense.org",
+  "attribution": "Copyright 2018 The Krub Project Authors (https://github.com/cadsondemak/Krub) Krub-ExtraLightItalic.ttf: Copyright 2018 The Krub Project Authors (https://github.com/cadsondemak/Krub) Krub-Light.ttf: Copyright 2018 The Krub Project Authors (https://github.com/cadsondemak/Krub) Krub-LightItalic.ttf: Copyright 2018 The Krub Project Authors (https://github.com/cadsondemak/Krub) Krub-Regular.ttf: Copyright 2018 The Krub Project Authors (https://github.com/cadsondemak/Krub) Krub-Italic.ttf: Copyright 2018 The Krub Project Authors (https://github.com/cadsondemak/Krub) Krub-Medium.ttf: Copyright 2018 The Krub Project Authors (https://github.com/cadsondemak/Krub) Krub-MediumItalic.ttf: Copyright 2018 The Krub Project Authors (https://github.com/cadsondemak/Krub) Krub-SemiBold.ttf: Copyright 2018 The Krub Project Authors (https://github.com/cadsondemak/Krub) Krub-SemiBoldItalic.ttf: Copyright 2018 The Krub Project Authors (https://github.com/cadsondemak/Krub) Krub-Bold.ttf: Copyright 2018 The Krub Project Authors (https://github.com/cadsondemak/Krub) Krub-BoldItalic.ttf: Copyright 2018 The Krub Project Authors (https://github.com/cadsondemak/Krub)",
+  "source": "https://github.com/google/fonts",
+  "distribution": "https://fontsource.org/fonts/krub",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fontsource/font-files.git",
+    "directory": "fonts/google/krub"
+  },
+  "weights": [
+    200,
+    300,
+    400,
+    500,
+    600,
+    700
+  ],
+  "styles": [
+    "italic",
+    "normal"
+  ],
+  "subsets": [
+    "latin",
+    "latin-ext",
+    "thai",
+    "vietnamese"
+  ],
+  "fontVersion": "v11",
+  "licenseSha256": "650ad8e60c8f3b2ddce86c20e39d320b6634a2717b7d7c68f7ad6a709254b247"
+}

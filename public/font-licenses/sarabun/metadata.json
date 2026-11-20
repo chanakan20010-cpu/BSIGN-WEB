@@ -1,0 +1,38 @@
+{
+  "family": "Sarabun",
+  "package": "@fontsource/sarabun",
+  "packageVersion": "5.3.0",
+  "license": "OFL-1.1",
+  "licenseUrl": "/font-licenses/sarabun/LICENSE.txt",
+  "licenseInformation": "https://openfontlicense.org",
+  "attribution": "Copyright 2018 The Sarabun Project Authors (https://github.com/cadsondemak/Sarabun) Sarabun-ThinItalic.ttf: Copyright 2018 The Sarabun Project Authors (https://github.com/cadsondemak/Sarabun) Sarabun-ExtraLight.ttf: Copyright 2018 The Sarabun Project Authors (https://github.com/cadsondemak/Sarabun) Sarabun-ExtraLightItalic.ttf: Copyright 2018 The Sarabun Project Authors (https://github.com/cadsondemak/Sarabun) Sarabun-Light.ttf: Copyright 2018 The Sarabun Project Authors (https://github.com/cadsondemak/Sarabun) Sarabun-LightItalic.ttf: Copyright 2018 The Sarabun Project Authors (https://github.com/cadsondemak/Sarabun) Sarabun-Regular.ttf: Copyright 2018 The Sarabun Project Authors (https://github.com/cadsondemak/Sarabun) Sarabun-Italic.ttf: Copyright 2018 The Sarabun Project Authors (https://github.com/cadsondemak/Sarabun) Sarabun-Medium.ttf: Copyright 2018 The Sarabun Project Authors (https://github.com/cadsondemak/Sarabun) Sarabun-MediumItalic.ttf: Copyright 2018 The Sarabun Project Authors (https://github.com/cadsondemak/Sarabun) Sarabun-SemiBold.ttf: Copyright 2018 The Sarabun Project Authors (https://github.com/cadsondemak/Sarabun) Sarabun-SemiBoldItalic.ttf: Copyright 2018 The Sarabun Project Authors (https://github.com/cadsondemak/Sarabun) Sarabun-Bold.ttf: Copyright 2018 The Sarabun Project Authors (https://github.com/cadsondemak/Sarabun) Sarabun-BoldItalic.ttf: Copyright 2018 The Sarabun Project Authors (https://github.com/cadsondemak/Sarabun) Sarabun-ExtraBold.ttf: Copyright 2018 The Sarabun Project Authors (https://github.com/cadsondemak/Sarabun) Sarabun-ExtraBoldItalic.ttf: Copyright 2018 The Sarabun Project Authors (https://github.com/cadsondemak/Sarabun)",
+  "source": "https://github.com/google/fonts",
+  "distribution": "https://fontsource.org/fonts/sarabun",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fontsource/font-files.git",
+    "directory": "fonts/google/sarabun"
+  },
+  "weights": [
+    100,
+    200,
+    300,
+    400,
+    500,
+    600,
+    700,
+    800
+  ],
+  "styles": [
+    "italic",
+    "normal"
+  ],
+  "subsets": [
+    "latin",
+    "latin-ext",
+    "thai",
+    "vietnamese"
+  ],
+  "fontVersion": "v17",
+  "licenseSha256": "2b16d88bda534060561ccc38074ddce01f59e3f26fbabaafa33600934a30dd45"
+}

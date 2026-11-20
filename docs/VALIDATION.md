@@ -1,17 +1,26 @@
-# ผลการตรวจ v1.6.4 — 17 พฤศจิกายน 2026
+# ผลการตรวจ v1.7.0 — 20 พฤศจิกายน 2026
 
-ปรับหัวข้อกรอบ “ช่องทางการติดต่อ” และ “ส่งข้อความถึงเรา” ตามสัดส่วนในภาพดีไซน์ที่ผู้ใช้แนบ (Figma screenshot ซูม 83%) จากหัวข้อส่วน 36px/กรอบประมาณ 81px เป็นสไตล์กลาง panelHeading ขนาด Desktop/Tablet/Mobile 24/22/20px, line-height 1.6 กรอบ Desktop ประมาณ 60px และกรอบด้านซ้ายกว้างไม่เกิน 320px ไม่มี CSS เฉพาะตำแหน่งทับขนาดตัวอักษรกลาง
+รายการเทียบคำขอใน [REVISION-04.md](REVISION-04.md) ทดสอบด้วยบัญชี ฐานข้อมูล และไฟล์ชั่วคราว ไม่แก้ `.data`/`.env` ของผู้ใช้ ชุด browser รวม 325 ข้อ และการตรวจ accessibility เพิ่ม 8 หน้าจอ ภาพตัวอย่างรุ่นนี้อยู่ใน docs/screenshots/v170-*.png
 
 | รายการ | ผล |
 |---|---|
 | Production build | ผ่าน Node.js 24.22.1 |
-| API 37 ชุด | ผ่าน รวม migration 4 เติมเฉพาะ panelHeading ที่ขาด, รักษาสไตล์/รูปแบบข้อความเดิม, client เก่าบันทึกโดยไม่ล้างชนิดใหม่ และข้อมูลอยู่หลัง restart; backup/restore regression เดิมผ่าน |
-| Public browser 53 กรณี | ผ่าน TH/EN ทั้ง 5 หน้า responsive, ฟอร์ม, CMS edit/upload/icons, computed typography, keyboard และ automated accessibility |
-| Contact browser 33 กรณี | ผ่าน TH/EN ที่ 1440/768/390/320px, ขนาด/กรอบตามจอ, การแก้ font/size/weight/color/letter-spacing/line-height จาก CMS, preview ก่อนบันทึก, reset, dropdown ชนิดข้อความ, ฟอร์มลงกล่องข้อความจริง และข้อมูลหลัง restart |
-| ผลของสไตล์กลาง | หัวข้อทั้งสองเปลี่ยนตามค่าที่บันทึกโดยไม่เปลี่ยนหัวข้อใหญ่หน้าอื่น; การเลือกสไตล์/การจัดแนวที่ผู้ใช้บันทึกไว้ยังได้รับการเคารพ |
-| Docker / Compose | build v1.6.4, HTTP/API/non-root, ข้อมูลอยู่หลังเปลี่ยน container และ Compose config ผ่าน |
+| API 48 ชุด | ผ่าน รวมฟอนต์/CSRF/auth/parser/ขนาด/ข้อมูลสาธารณะ, migration 4–5, client เก่า, social/iconStyle/สีการ์ด, adminPresentation allowlist, restart และ backup/restore พร้อม bytes/metadata ของฟอนต์ |
+| ความปลอดภัยของ backup/restore | ผ่านกรณี legacy backup, checksum/ไฟล์ไม่ตรงฐานข้อมูล, path traversal, symlink, ขนาดเกิน และไม่เขียนทับปลายทางที่มีอยู่ รวมชื่อรูปเก่าที่ไม่ได้เป็น UUID |
+| ฟอนต์ใน browser 10 กรณี | ผ่านรายการ 20 แบบพร้อม faces/น้ำหนักจริง, อัปโหลดผ่าน UI, preview แบบร่างยังไม่บันทึก, computed font + CDP ยืนยัน glyph ฟอนต์ที่อัปโหลดจริงบน Desktop/Mobile, restart และป้องกันลบที่ใช้อยู่/ลบหลังปลดการอ้างอิง |
+| แบรนด์/Login 11 กรณี | ผ่านโลโก้จริง/ข้อมูลบริษัท ข้อความและสถานะ Login, preview, Desktop/Mobile, maintenance, setup/recovery แยกหัวข้อ, restart และแก้ข้อมูลเก่าที่มี unknown key โดยไม่ล้างหรือเผยแพร่ key นั้น |
+| Contact/สีการ์ด 18 กรณี | ผ่านเลือกโซเชียล 20 แบบ ไอคอน/สี/เรียงลำดับตามข้อมูล, ช่องกรอกและสถานะ TH/EN, custom invalid โดยไม่ส่งฟอร์มที่ขาดข้อมูล, ส่งจริงเข้ากล่องข้อความและใช้ success ที่แก้ไว้, สีการ์ดรายใบ preview/reset/save และ restart |
+| หน้าบ้านเดิม 53 กรณี | ผ่าน TH/EN ทั้ง 5 หน้า responsive, ฟอร์ม, edit/upload/icons, computed typography, keyboard และ automated accessibility |
+| หลังบ้านเดิม 82 กรณี | ผ่าน CRUD, อัปโหลด, สลับภาษา/บันทึกทั้งสองภาษา, sticky ถึงท้ายบทความ, responsive/keyboard/axe |
+| หัวข้อ Contact 33 กรณี | ผ่าน 1440/768/390/320px TH/EN, หัวข้อไม่มีกรอบและจัดกึ่งกลาง, สไตล์กลาง 24/22/20px ปรับ/preview/reset ผ่าน CMS, dropdown และข้อมูลหลัง restart |
+| รายการแก้ไขเดิม 118 กรณี | revision 01 จำนวน 40, revision 02 จำนวน 36 และ revision 03 จำนวน 42 ผ่าน รวมข้อความ/ไอคอน/บทความ/รูป/แกลเลอรี/header/footer/maintenance และข้อมูลหลัง restart |
+| เปิดพรีวิว/บัญชี | setup/recovery และ initial-admin → /admin → logout → restart → login ผ่าน ตัวเปิดทั้ง 4 ไฟล์ผ่านการตรวจ hash |
+| การเข้าถึงหน้าจอใหม่ 8 หน้าจอ | fonts/adminPresentation/contact/home ที่ 1440 และ 390px ผ่าน automated axe WCAG A/AA โดยไม่มี violations หลังปรับสีข้อความว่างในคลังฟอนต์ให้ชัดเจน |
+| Docker / Compose | build v1.7.0 ผ่านหลังเพิ่มไฟล์ shared ที่ใช้ทั้ง browser/server; HTTP/API/non-root และข้อมูลอยู่หลังเปลี่ยน container ผ่าน; Compose config ผ่าน |
 
-การตรวจทั้งหมดใช้ฐานข้อมูล บัญชี และไฟล์ชั่วคราว ไม่แก้ `.data` หรือ `.env` ที่มีอยู่ ข้อจำกัดบริการภายนอกและอุปกรณ์ที่ยังไม่ได้ทดสอบยังเป็นไปตามผลตรวจรุ่นก่อนด้านล่าง
+ชุดทดสอบฟอนต์ตรวจ WOFF/WOFF2/TTF ที่ใช้งานได้จริง โครงสร้างผิด ชนิดไฟล์ปลอม และ payload ที่ขยายเกิน 32 MB มีการอ่าน CFF OTF ตัวอย่างจริงในขั้นตรวจ parser ด้วย ไฟล์ที่รวมหลายฟอนต์ (TTC) ไม่รองรับ
+
+ข้อจำกัดเดิม: ไม่ได้ทดสอบ screen reader จริงหรือ Windows ARM64; SMTP จริงยังไม่ได้เชื่อม/ส่งทดสอบ หมุด iframe Maps ยังไม่เปิดจนยืนยันพิกัดได้ แต่ปุ่มนำทางใช้ลิงก์ที่ผู้ใช้ให้ LinkedIn ยังต้องระบุบัญชีจริง ไม่มีการเพิ่มบริการเสียเงินหรือ deploy โดเมนสาธารณะ
 
 ---
 

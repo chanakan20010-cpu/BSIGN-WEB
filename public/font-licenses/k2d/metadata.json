@@ -1,0 +1,38 @@
+{
+  "family": "K2D",
+  "package": "@fontsource/k2d",
+  "packageVersion": "5.3.0",
+  "license": "OFL-1.1",
+  "licenseUrl": "/font-licenses/k2d/LICENSE.txt",
+  "licenseInformation": "https://openfontlicense.org",
+  "attribution": "Copyright 2018 The K2D Project Authors (https://github.com/cadsondemak/K2D) K2D-ThinItalic.ttf: Copyright 2018 The K2D Project Authors (https://github.com/cadsondemak/K2D) K2D-ExtraLight.ttf: Copyright 2018 The K2D Project Authors (https://github.com/cadsondemak/K2D) K2D-ExtraLightItalic.ttf: Copyright 2018 The K2D Project Authors (https://github.com/cadsondemak/K2D) K2D-Light.ttf: Copyright 2018 The K2D Project Authors (https://github.com/cadsondemak/K2D) K2D-LightItalic.ttf: Copyright 2018 The K2D Project Authors (https://github.com/cadsondemak/K2D) K2D-Regular.ttf: Copyright 2018 The K2D Project Authors (https://github.com/cadsondemak/K2D) K2D-Italic.ttf: Copyright 2018 The K2D Project Authors (https://github.com/cadsondemak/K2D) K2D-Medium.ttf: Copyright 2018 The K2D Project Authors (https://github.com/cadsondemak/K2D) K2D-MediumItalic.ttf: Copyright 2018 The K2D Project Authors (https://github.com/cadsondemak/K2D) K2D-SemiBold.ttf: Copyright 2018 The K2D Project Authors (https://github.com/cadsondemak/K2D) K2D-SemiBoldItalic.ttf: Copyright 2018 The K2D Project Authors (https://github.com/cadsondemak/K2D) K2D-Bold.ttf: Copyright 2018 The K2D Project Authors (https://github.com/cadsondemak/K2D) K2D-BoldItalic.ttf: Copyright 2018 The K2D Project Authors (https://github.com/cadsondemak/K2D) K2D-ExtraBold.ttf: Copyright 2018 The K2D Project Authors (https://github.com/cadsondemak/K2D) K2D-ExtraBoldItalic.ttf: Copyright 2018 The K2D Project Authors (https://github.com/cadsondemak/K2D)",
+  "source": "https://github.com/google/fonts",
+  "distribution": "https://fontsource.org/fonts/k2d",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fontsource/font-files.git",
+    "directory": "fonts/google/k2d"
+  },
+  "weights": [
+    100,
+    200,
+    300,
+    400,
+    500,
+    600,
+    700,
+    800
+  ],
+  "styles": [
+    "italic",
+    "normal"
+  ],
+  "subsets": [
+    "latin",
+    "latin-ext",
+    "thai",
+    "vietnamese"
+  ],
+  "fontVersion": "v13",
+  "licenseSha256": "ad5d24e2a2117e950834b1cc2ff931ecc2406eb063a3bf75a24a42ebb363a83c"
+}

@@ -1,0 +1,373 @@
+.cms-font-library {
+  display: grid;
+  gap: 22px;
+  min-width: 0;
+}
+.cms-font-intro,
+.cms-font-upload,
+.cms-font-browse {
+  padding: 26px;
+}
+.cms-font-heading,
+.cms-font-section-heading,
+.cms-font-card-heading,
+.cms-font-upload-footer,
+.cms-font-list-heading,
+.cms-font-bundled-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+.cms-font-heading > div:first-of-type,
+.cms-font-card-heading > div {
+  min-width: 0;
+}
+.cms-font-symbol {
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  flex-shrink: 0;
+  border: 1px solid #e8dec8;
+  border-radius: 14px;
+  color: #775000;
+  background: #fff7e5;
+}
+.cms-font-heading > div:first-of-type {
+  flex: 1;
+}
+.admin.cms .cms-font-heading h2 {
+  font-size: 22px;
+  margin-bottom: 3px;
+}
+.cms-font-counts {
+  display: flex;
+  gap: 22px;
+  color: #6c665f;
+  font-size: 12px;
+  text-align: center;
+}
+.cms-font-counts strong {
+  display: block;
+  color: #252623;
+  font-size: 25px;
+  font-weight: 500;
+  line-height: 1.35;
+}
+.admin.cms .cms-font-section-heading h3 {
+  font-size: 17px;
+  margin-bottom: 3px;
+}
+.cms-font-section-heading {
+  margin-bottom: 23px;
+}
+.cms-font-section-heading > svg {
+  color: #9c7b3c;
+  flex-shrink: 0;
+}
+.cms-font-upload-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: start;
+  gap: 20px;
+}
+.admin.cms .cms-font-file-field input {
+  padding: 7px;
+}
+.admin.cms .cms-font-file-field input::file-selector-button {
+  margin-right: 12px;
+  padding: 7px 12px;
+  border: 0;
+  border-radius: 4px;
+  background: #f2eee6;
+  color: #4f4942;
+  font: inherit;
+  cursor: pointer;
+}
+.cms-font-upload-details {
+  margin-top: 19px;
+  padding-top: 15px;
+  border-top: 1px solid #eee9e2;
+}
+.cms-font-upload-details summary,
+.cms-font-metadata summary {
+  width: fit-content;
+  color: #775000;
+  font-size: 13px;
+  cursor: pointer;
+}
+.cms-font-upload-details[open] summary {
+  margin-bottom: 17px;
+}
+.cms-font-upload-footer {
+  margin-top: 22px;
+}
+.cms-font-upload-footer button {
+  flex-shrink: 0;
+}
+.cms-font-notice {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 15px 18px;
+  border: 1px solid #caddcd;
+  border-radius: 8px;
+  background: #f1f8f0;
+  color: #315b37;
+}
+.cms-font-notice svg {
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+.cms-font-notice.is-error {
+  border-color: #ecc9c9;
+  background: #fff3f1;
+  color: #923b37;
+}
+.cms-font-preview-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(150px, 0.7fr) minmax(0, 1fr);
+  gap: 20px;
+  padding-bottom: 24px;
+  margin-bottom: 26px;
+  border-bottom: 1px solid #eee9e2;
+}
+.cms-font-search-field > span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.admin.cms .cms-font-size-field input {
+  min-height: 46px;
+  padding: 0;
+  accent-color: #896000;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+.cms-font-list-heading {
+  margin: 26px 0 15px;
+}
+.cms-font-list-heading h4 {
+  font-size: 15px;
+}
+.cms-font-list-heading > span {
+  color: #6c665f;
+  font-size: 12px;
+}
+.cms-font-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 17px;
+}
+.cms-font-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-width: 0;
+  border: 1px solid #e8e4df;
+  border-radius: 10px;
+  padding: 19px;
+  background: #fff;
+}
+.cms-font-card-heading {
+  align-items: flex-start;
+  gap: 12px;
+}
+.admin.cms .cms-font-card h4 {
+  font-size: 14px;
+}
+.cms-font-card-subtitle {
+  display: block;
+  margin-top: 4px;
+  color: #766e62;
+  font-size: 11px;
+}
+.cms-font-badge {
+  display: inline-flex;
+  flex-shrink: 0;
+  padding: 3px 8px;
+  border-radius: 5px;
+  background: #f5f3ee;
+  color: #6b6256;
+  font-size: 10px;
+  white-space: nowrap;
+}
+.cms-font-badge.is-used {
+  background: #fff2d2;
+  color: #775000;
+}
+.admin.cms .cms-font-preview {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-height: 136px;
+  margin: 14px 0;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+  color: #34332f;
+}
+.cms-font-bundled-meta {
+  align-items: baseline;
+  padding-top: 12px;
+  border-top: 1px solid #f0ede8;
+  color: #766e62;
+  font-size: 10px;
+}
+.admin.cms .cms-font-bundled-meta a,
+.admin.cms .cms-font-metadata a {
+  color: #775000;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.cms-font-bundled-meta a {
+  flex-shrink: 0;
+}
+.cms-font-metadata {
+  padding-top: 14px;
+  border-top: 1px solid #f0ede8;
+}
+.cms-font-metadata dl {
+  display: grid;
+  gap: 10px;
+  padding-top: 15px;
+  font-size: 12px;
+}
+.cms-font-metadata dl > div {
+  display: grid;
+  grid-template-columns: 104px minmax(0, 1fr);
+  gap: 12px;
+}
+.cms-font-metadata dt {
+  color: #766e62;
+}
+.cms-font-metadata dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.cms-font-license-text {
+  white-space: pre-wrap;
+}
+.cms-font-card-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 17px;
+}
+.admin.cms .cms-font-card-footer button {
+  min-height: 38px;
+  padding: 7px 12px;
+  font-size: 12px;
+}
+.cms-font-delete-confirm {
+  display: grid;
+  gap: 11px;
+  width: 100%;
+  padding: 12px;
+  border-radius: 6px;
+  color: #923b37;
+  background: #fff5f2;
+  font-size: 12px;
+}
+.cms-font-delete-confirm > div {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.cms-font-usage {
+  margin: 0 0 16px;
+  padding: 13px;
+  border-radius: 6px;
+  background: #fffaed;
+  color: #75603b;
+  font-size: 12px;
+}
+.cms-font-usage strong {
+  font-weight: 500;
+}
+.cms-font-usage ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  list-style: none;
+  padding: 0;
+  margin: 8px 0;
+}
+.cms-font-usage li {
+  padding: 2px 7px;
+  border: 1px solid #eadfbd;
+  border-radius: 4px;
+  background: #fff;
+}
+.cms-font-empty {
+  display: grid;
+  justify-items: center;
+  gap: 7px;
+  padding: 30px 20px;
+  border: 1px dashed #e3ddd3;
+  border-radius: 8px;
+  background: #fcfbf8;
+  color: #6c665f;
+  text-align: center;
+  font-size: 13px;
+}
+.cms-font-empty svg {
+  color: #9e8f78;
+  margin-bottom: 4px;
+}
+.cms-font-empty > span {
+  color: inherit;
+  font-size: 12px;
+}
+@media (max-width: 1100px) {
+  .cms-font-heading {
+    flex-wrap: wrap;
+  }
+  .cms-font-counts {
+    width: calc(100% - 76px);
+    justify-content: flex-start;
+    margin-left: 76px;
+    text-align: left;
+  }
+  .cms-font-preview-controls {
+    grid-template-columns: minmax(0, 1.3fr) minmax(140px, 0.7fr);
+  }
+  .cms-font-search-field {
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 760px) {
+  .cms-font-intro,
+  .cms-font-upload,
+  .cms-font-browse {
+    padding: 19px;
+  }
+  .cms-font-upload-grid,
+  .cms-font-grid,
+  .cms-font-preview-controls {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .cms-font-upload-footer,
+  .cms-font-list-heading,
+  .cms-font-section-heading {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .cms-font-upload-footer button {
+    width: 100%;
+  }
+  .cms-font-counts {
+    width: 100%;
+    margin-left: 0;
+    gap: 30px;
+  }
+  .cms-font-card {
+    padding: 16px;
+  }
+  .cms-font-metadata dl > div {
+    grid-template-columns: 86px minmax(0, 1fr);
+    gap: 10px;
+  }
+}

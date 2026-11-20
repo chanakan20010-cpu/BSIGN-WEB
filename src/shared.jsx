@@ -25,10 +25,48 @@ import {
   faLine,
   faLinkedin,
 } from "@fortawesome/free-brands-svg-icons";
+import {
+  siInstagram,
+  siTiktok,
+  siYoutube,
+  siX,
+  siThreads,
+  siPinterest,
+  siSnapchat,
+  siReddit,
+  siDiscord,
+  siTelegram,
+  siWhatsapp,
+  siBluesky,
+  siWechat,
+  siSinaweibo,
+  siKuaishou,
+  siXiaohongshu,
+} from "simple-icons";
+import { getSocialPlatform, socialIconDefaults } from "./social-catalog";
 import { textFormatting } from "./text-format";
 export { textFormatProps } from "./text-format";
 import "./text-format.css";
 const brands = { facebook: faFacebook, line: faLine, linkedin: faLinkedin };
+const socialBrands = {
+  instagram: siInstagram,
+  tiktok: siTiktok,
+  youtube: siYoutube,
+  x: siX,
+  threads: siThreads,
+  pinterest: siPinterest,
+  snapchat: siSnapchat,
+  reddit: siReddit,
+  discord: siDiscord,
+  telegram: siTelegram,
+  whatsapp: siWhatsapp,
+  bluesky: siBluesky,
+  wechat: siWechat,
+  weibo: siSinaweibo,
+  kuaishou: siKuaishou,
+  xiaohongshu: siXiaohongshu,
+};
+const socialBrandAssets = { douyin: "/social-brand-assets/douyin.svg" };
 export const Site = createContext(null);
 export const useSite = () => useContext(Site);
 export const glyphs = {
@@ -54,19 +92,22 @@ export const glyphs = {
 };
 export const iconNames = [
   ...Object.keys(glyphs),
-  "facebook",
-  "line",
-  "linkedin",
+  ...Object.keys(brands),
+  ...Object.keys(socialBrands),
+  ...Object.keys(socialBrandAssets),
 ];
 export function Typography({ styles, children }) {
   const vars = {};
   for (const [key, s] of Object.entries(styles))
     for (const [k, v] of Object.entries(s))
-      vars[`--${key}-${k}`] = ["size", "tablet", "mobile", "spacing"].includes(
-        k,
-      )
-        ? `${v}px`
-        : v;
+      vars[`--${key}-${k}`] =
+        k === "font"
+          ? ["sans-serif", "serif"].includes(v)
+            ? v
+            : JSON.stringify(v)
+          : ["size", "tablet", "mobile", "spacing"].includes(k)
+            ? `${v}px`
+            : v;
   return (
     <div className="site-theme" style={vars}>
       {children}
@@ -123,13 +164,17 @@ export function FormattedText({
 }
 export function Icon({ name, slot = name, value }) {
   const { content } = useSite();
-  const s = value ||
+  const s =
+    value ||
     content.icons?.overrides?.[slot] ||
-    content.icons?.shared?.[name] || {
-      name: "ArrowRight",
-      color: "#805b00",
-      background: "#fff3dc",
-    };
+    content.icons?.shared?.[name] ||
+    (getSocialPlatform(name)
+      ? socialIconDefaults(name)
+      : {
+          name: "ArrowRight",
+          color: "#805b00",
+          background: "#fff3dc",
+        });
   const Glyph = glyphs[s.name];
   return (
     <span
@@ -155,6 +200,19 @@ export function Icon({ name, slot = name, value }) {
         >
           <path d={brands[s.name].icon[4]} />
         </svg>
+      ) : socialBrands[s.name] ? (
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d={socialBrands[s.name].path} />
+        </svg>
+      ) : socialBrandAssets[s.name] ? (
+        <span
+          className="mask"
+          style={{
+            maskImage: `url(${socialBrandAssets[s.name]})`,
+            WebkitMaskImage: `url(${socialBrandAssets[s.name]})`,
+            backgroundColor: "currentColor",
+          }}
+        />
       ) : null}
     </span>
   );

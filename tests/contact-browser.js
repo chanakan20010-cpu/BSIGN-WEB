@@ -87,7 +87,7 @@ async function stylesPanel() {
     .click();
   await admin
     .getByRole("group", { name: "ชนิดตัวอักษร", exact: true })
-    .getByRole("button", { name: "หัวข้อกรอบเนื้อหา", exact: true })
+    .getByRole("button", { name: "หัวข้อการ์ดเนื้อหา", exact: true })
     .click();
 }
 async function language(lang) {
@@ -99,8 +99,19 @@ async function contactStyles(width, lang, role, defaults = false) {
   await visitor.setViewportSize({ width, height: 1000 });
   await visitor.goto(runtime.origin + "/contact");
   await language(lang);
-  const headings = visitor.locator(".contact-grid h2.outlined");
+  const headings = visitor.locator(".contact-grid h2.type-panelHeading");
   await expect(headings).toHaveCount(2);
+  const allContactHeadings = visitor.locator(
+    ".contact-grid .contact-section-title",
+  );
+  await expect(allContactHeadings).toHaveCount(3);
+  for (const heading of await allContactHeadings.all()) {
+    await expect(heading).toHaveCSS("text-align", "center");
+    for (const edge of ["top", "right", "bottom", "left"]) {
+      await expect(heading).toHaveCSS(`border-${edge}-width`, "0px");
+      await expect(heading).toHaveCSS(`padding-${edge}`, "0px");
+    }
+  }
   const size =
     width <= 700 ? role.mobile : width <= 1050 ? role.tablet : role.size;
   for (const heading of await headings.all()) {
@@ -126,8 +137,8 @@ async function contactStyles(width, lang, role, defaults = false) {
     );
     if (defaults)
       assert.ok(
-        Math.abs(metric.height - (size * 1.6 + 22)) < 1,
-        `${width}px ${lang}: framed heading height ${metric.height}`,
+        Math.abs(metric.height - size * 1.6) < 1,
+        `${width}px ${lang}: borderless heading height ${metric.height}`,
       );
     if (!defaults) {
       await expect(heading).toHaveCSS("color", "rgb(18, 52, 86)");
@@ -140,7 +151,9 @@ async function contactStyles(width, lang, role, defaults = false) {
   const geometry = await visitor.locator(".contact-info").evaluate((card) => {
     const c = card.getBoundingClientRect();
     return Array.from(
-      card.querySelectorAll(":scope > .outlined, :scope > .contact-line"),
+      card.querySelectorAll(
+        ":scope > .contact-section-title, :scope > .contact-line",
+      ),
       (el) => {
         const r = el.getBoundingClientRect();
         return {
@@ -292,7 +305,7 @@ try {
   await formatted.locator(".cms-text-format-controls > summary").click();
   await formatted
     .getByLabel(/^รูปแบบข้อความ /)
-    .selectOption({ label: "หัวข้อกรอบเนื้อหา" });
+    .selectOption({ label: "หัวข้อการ์ดเนื้อหา" });
   await saveDocument("contact");
   assert.equal(
     (await request("GET", "/admin/documents")).contact.value.formHeading.format

@@ -1,0 +1,36 @@
+{
+  "family": "Bai Jamjuree",
+  "package": "@fontsource/bai-jamjuree",
+  "packageVersion": "5.3.0",
+  "license": "OFL-1.1",
+  "licenseUrl": "/font-licenses/bai-jamjuree/LICENSE.txt",
+  "licenseInformation": "https://openfontlicense.org",
+  "attribution": "Copyright 2018 Bai Jamjuree (https://github.com/cadsondemak/Bai-Jamjuree) BaiJamjuree-ExtraLightItalic.ttf: Copyright 2018 Bai Jamjuree (https://github.com/cadsondemak/Bai-Jamjuree) BaiJamjuree-Light.ttf: Copyright 2018 Bai Jamjuree (https://github.com/cadsondemak/Bai-Jamjuree) BaiJamjuree-LightItalic.ttf: Copyright 2018 Bai Jamjuree (https://github.com/cadsondemak/Bai-Jamjuree) BaiJamjuree-Regular.ttf: Copyright 2018 Bai Jamjuree (https://github.com/cadsondemak/Bai-Jamjuree) BaiJamjuree-Italic.ttf: Copyright 2018 Bai Jamjuree (https://github.com/cadsondemak/Bai-Jamjuree) BaiJamjuree-Medium.ttf: Copyright 2018 Bai Jamjuree (https://github.com/cadsondemak/Bai-Jamjuree) BaiJamjuree-MediumItalic.ttf: Copyright 2018 Bai Jamjuree (https://github.com/cadsondemak/Bai-Jamjuree) BaiJamjuree-SemiBold.ttf: Copyright 2018 Bai Jamjuree (https://github.com/cadsondemak/Bai-Jamjuree) BaiJamjuree-SemiBoldItalic.ttf: Copyright 2018 Bai Jamjuree (https://github.com/cadsondemak/Bai-Jamjuree) BaiJamjuree-Bold.ttf: Copyright 2018 Bai Jamjuree (https://github.com/cadsondemak/Bai-Jamjuree) BaiJamjuree-BoldItalic.ttf: Copyright 2018 Bai Jamjuree (https://github.com/cadsondemak/Bai-Jamjuree)",
+  "source": "https://github.com/google/fonts",
+  "distribution": "https://fontsource.org/fonts/bai-jamjuree",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fontsource/font-files.git",
+    "directory": "fonts/google/bai-jamjuree"
+  },
+  "weights": [
+    200,
+    300,
+    400,
+    500,
+    600,
+    700
+  ],
+  "styles": [
+    "italic",
+    "normal"
+  ],
+  "subsets": [
+    "latin",
+    "latin-ext",
+    "thai",
+    "vietnamese"
+  ],
+  "fontVersion": "v13",
+  "licenseSha256": "74b7deafa632a5ed301dc322fcc2867ac200402e06b6d0b0b01faf09b8514e3e"
+}

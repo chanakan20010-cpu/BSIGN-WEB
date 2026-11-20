@@ -2,7 +2,7 @@ export const textStyleLabels = {
   brand: "ชื่อแบรนด์",
   hero: "หัวข้อหลัก",
   heading: "หัวข้อส่วน",
-  panelHeading: "หัวข้อกรอบเนื้อหา",
+  panelHeading: "หัวข้อการ์ดเนื้อหา",
   subheading: "หัวข้อรอง",
   intro: "คำโปรย",
   body: "เนื้อหา",

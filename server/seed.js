@@ -1,4 +1,6 @@
 import launchContent from "./launch-content.json" with { type: "json" };
+import { adminPresentationDefaults } from "./admin-presentation-defaults.js";
+import { socialIconDefaults } from "../src/social-catalog.js";
 export const bi = (th, en) => ({ th, en });
 const img = (page, alt, crop) => ({
   url: `/reference/${page}.jpg`,
@@ -67,6 +69,7 @@ const slot = (name) => ({
   mode: "mask",
 });
 export const defaults = {
+  adminPresentation: structuredClone(adminPresentationDefaults),
   maintenance: {
     enabled: false,
     title: bi("เว็บไซต์กำลังปรับปรุง", "Website maintenance"),
@@ -491,6 +494,84 @@ for (const { page, list, slotPrefix, shared, foot } of embeddedIconLists) {
       : {}),
   }));
 }
+for (const item of defaults.home.advantages)
+  item.appearance = { background: "#f1f2f4", border: "transparent" };
+defaults.contact.socials = defaults.contact.socials.map((item, i) => ({
+  ...item,
+  platform: item.icon,
+  iconStyle: resolvedCardIcon(defaults.icons, `social.${i}`, item.icon),
+}));
+
+// Add presentation choices once, using saved per-row and legacy icon choices
+// before shipped defaults. Existing content, formats and future keys stay put.
+function migrateRevisionFourPresentation(db) {
+  if (db.prepare("SELECT 1 FROM migrations WHERE version=5").get()) return;
+  db.exec("BEGIN IMMEDIATE");
+  try {
+    if (!db.prepare("SELECT 1 FROM migrations WHERE version=5").get()) {
+      const read = (key) =>
+        JSON.parse(
+          db.prepare("SELECT value FROM documents WHERE key=?").get(key).value,
+        );
+      const save = (key, value) =>
+        db
+          .prepare(
+            "UPDATE documents SET value=?,revision=revision+1 WHERE key=?",
+          )
+          .run(JSON.stringify(value), key);
+      const home = read("home"),
+        contact = read("contact"),
+        icons = read("icons");
+      let homeChanged = false,
+        contactChanged = false;
+      for (const item of home.advantages || []) {
+        if (!Object.hasOwn(item, "appearance")) {
+          item.appearance = { background: "#f1f2f4", border: "transparent" };
+          homeChanged = true;
+        } else if (
+          item.appearance &&
+          typeof item.appearance === "object" &&
+          !Array.isArray(item.appearance)
+        ) {
+          for (const [key, value] of Object.entries({
+            background: "#f1f2f4",
+            border: "transparent",
+          }))
+            if (!Object.hasOwn(item.appearance, key)) {
+              item.appearance[key] = value;
+              homeChanged = true;
+            }
+        }
+      }
+      for (const [i, item] of (contact.socials || []).entries()) {
+        if (Object.hasOwn(item, "iconStyle")) continue;
+        item.iconStyle = structuredClone(
+          icons.overrides?.[`social.${i}`] ||
+            icons.shared?.[item.icon] ||
+            socialIconDefaults(item.platform || item.icon),
+        );
+        contactChanged = true;
+      }
+      if (homeChanged) save("home", home);
+      if (contactChanged) save("contact", contact);
+      const presentation = read("adminPresentation");
+      let presentationChanged = false;
+      for (const [key, value] of Object.entries(adminPresentationDefaults))
+        if (!Object.hasOwn(presentation, key)) {
+          presentation[key] = value;
+          presentationChanged = true;
+        }
+      if (presentationChanged) save("adminPresentation", presentation);
+      db.prepare(
+        "INSERT INTO migrations(version,applied_at) VALUES(5,datetime('now'))",
+      ).run();
+    }
+    db.exec("COMMIT");
+  } catch (error) {
+    db.exec("ROLLBACK");
+    throw error;
+  }
+}
 
 // Move each card's current appearance with its content. Existing per-card
 // choices win, and old position overrides remain available for older clients.
@@ -583,7 +664,7 @@ function migrateCardPresentation(db) {
   }
 }
 
-// Add the smaller framed heading role without changing existing text choices
+// Add the smaller contact card heading role without changing existing text choices
 // or any typography the site owner has already customized.
 function migratePanelHeading(db) {
   if (db.prepare("SELECT 1 FROM migrations WHERE version=4").get()) return;
@@ -761,4 +842,5 @@ export function seed(db) {
   migrateIconAppearance(db);
   migrateCardPresentation(db);
   migratePanelHeading(db);
+  migrateRevisionFourPresentation(db);
 }

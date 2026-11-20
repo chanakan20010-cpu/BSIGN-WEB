@@ -1,0 +1,39 @@
+{
+  "family": "Kanit",
+  "package": "@fontsource/kanit",
+  "packageVersion": "5.3.0",
+  "license": "OFL-1.1",
+  "licenseUrl": "/font-licenses/kanit/LICENSE.txt",
+  "licenseInformation": "https://openfontlicense.org",
+  "attribution": "Copyright 2020 The Kanit Project Authors (https://github.com/cadsondemak/kanit) Kanit-ThinItalic.ttf: Copyright 2020 The Kanit Project Authors (https://github.com/cadsondemak/kanit) Kanit-ExtraLight.ttf: Copyright 2020 The Kanit Project Authors (https://github.com/cadsondemak/kanit) Kanit-ExtraLightItalic.ttf: Copyright 2020 The Kanit Project Authors (https://github.com/cadsondemak/kanit) Kanit-Light.ttf: Copyright 2020 The Kanit Project Authors (https://github.com/cadsondemak/kanit) Kanit-LightItalic.ttf: Copyright 2020 The Kanit Project Authors (https://github.com/cadsondemak/kanit) Kanit-Regular.ttf: Copyright 2020 The Kanit Project Authors (https://github.com/cadsondemak/kanit) Kanit-Italic.ttf: Copyright 2020 The Kanit Project Authors (https://github.com/cadsondemak/kanit) Kanit-Medium.ttf: Copyright 2020 The Kanit Project Authors (https://github.com/cadsondemak/kanit) Kanit-MediumItalic.ttf: Copyright 2020 The Kanit Project Authors (https://github.com/cadsondemak/kanit) Kanit-SemiBold.ttf: Copyright 2020 The Kanit Project Authors (https://github.com/cadsondemak/kanit) Kanit-SemiBoldItalic.ttf: Copyright 2020 The Kanit Project Authors (https://github.com/cadsondemak/kanit) Kanit-Bold.ttf: Copyright 2020 The Kanit Project Authors (https://github.com/cadsondemak/kanit) Kanit-BoldItalic.ttf: Copyright 2020 The Kanit Project Authors (https://github.com/cadsondemak/kanit) Kanit-ExtraBold.ttf: Copyright 2020 The Kanit Project Authors (https://github.com/cadsondemak/kanit) Kanit-ExtraBoldItalic.ttf: Copyright 2020 The Kanit Project Authors (https://github.com/cadsondemak/kanit) Kanit-Black.ttf: Copyright 2020 The Kanit Project Authors (https://github.com/cadsondemak/kanit) Kanit-BlackItalic.ttf: Copyright 2020 The Kanit Project Authors (https://github.com/cadsondemak/kanit)",
+  "source": "https://github.com/google/fonts",
+  "distribution": "https://fontsource.org/fonts/kanit",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fontsource/font-files.git",
+    "directory": "fonts/google/kanit"
+  },
+  "weights": [
+    100,
+    200,
+    300,
+    400,
+    500,
+    600,
+    700,
+    800,
+    900
+  ],
+  "styles": [
+    "italic",
+    "normal"
+  ],
+  "subsets": [
+    "latin",
+    "latin-ext",
+    "thai",
+    "vietnamese"
+  ],
+  "fontVersion": "v17",
+  "licenseSha256": "0c796c259354fbbc1a5041e468085d219519b3fd93f4e882bcb21ed602dbcca8"
+}

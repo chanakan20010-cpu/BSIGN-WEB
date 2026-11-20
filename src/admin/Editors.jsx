@@ -13,6 +13,8 @@ import {
 import { useSite, Site, Typography, Picture, Icon, iconNames } from "../shared";
 import { DeviceImageUpload } from "./DeviceImageUpload";
 import TextFormatControls from "./TextFormatControls";
+import CardAppearanceEditor from "./CardAppearanceEditor";
+import { useFontLibrary } from "../font-library";
 export { default as TextFormatControls } from "./TextFormatControls";
 
 // A language switch changes the visible controls, never the stored object.
@@ -302,7 +304,7 @@ const labels = {
   inlineImage: "ภาพประกอบในบทความ",
   heroImage: "ภาพส่วนหัวบทความ",
   headingStyle: "หัวข้อของส่วน",
-  panelHeading: "หัวข้อกรอบเนื้อหา",
+  panelHeading: "หัวข้อการ์ดเนื้อหา",
   subheading: "หัวข้อรอง",
   inverse: "เนื้อหาบนพื้นเข้ม",
   menu: "เมนูนำทาง",
@@ -564,8 +566,18 @@ export function Field({ value, onChange, path = "", media = [] }) {
   const language = useContext(EditorLanguageContext);
   const page = useContext(EditorPageContext);
   const site = useSite();
+  const { fonts } = useFontLibrary();
   const key = path.split(".").at(-1),
     label = page?.labels?.fields?.[path]?.trim() || fieldLabel(path);
+  if (path.startsWith("home.advantages.") && key === "appearance")
+    return (
+      <CardAppearanceEditor
+        value={value}
+        onChange={onChange}
+        label="สีของการ์ดนี้"
+        path={path}
+      />
+    );
   if (key === "favicon" && typeof value === "string")
     return <FaviconField value={value} onChange={onChange} path={path} />;
   if (isBilingual(value))
@@ -834,11 +846,11 @@ export function Field({ value, onChange, path = "", media = [] }) {
           value={value}
           onChange={(e) => onChange(e.target.value)}
         >
-          {["Noto Sans Thai", "Noto Sans", "sans-serif", "serif"].map(
-            (font) => (
-              <option key={font}>{font}</option>
-            ),
-          )}
+          {fonts.map((font) => (
+            <option key={font.family} value={font.family}>
+              {font.label}
+            </option>
+          ))}
         </select>
       </label>
     );
@@ -1449,7 +1461,7 @@ const styleKinds = {
   hero: ["หัวข้อใหญ่", "หัวข้อหลักแต่ละหน้า ใช้ขนาดและฟอนต์ร่วมกัน"],
   heading: ["หัวข้อของส่วน", "หัวข้อหลักภายในหน้าเว็บไซต์"],
   panelHeading: [
-    "หัวข้อกรอบเนื้อหา",
+    "หัวข้อการ์ดเนื้อหา",
     "หัวข้อช่องทางการติดต่อและแบบฟอร์ม ใช้ร่วมกันทั้ง TH/EN",
   ],
   subheading: ["หัวข้อรอง", "หัวข้อการ์ดและหัวข้อย่อย"],

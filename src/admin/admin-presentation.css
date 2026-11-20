@@ -1,0 +1,257 @@
+.cms-brand-logo {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 46px;
+  overflow: hidden;
+  border-radius: 5px;
+}
+.cms-brand-logo > :is(img, svg) {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.cms-brand-logo > svg:not(.crop) {
+  width: 28px;
+  height: 28px;
+  color: currentColor;
+}
+.cms-brand-wordmark > b {
+  overflow-wrap: anywhere;
+  white-space: normal;
+  letter-spacing: -0.3px;
+}
+.cms-brand-wordmark > small {
+  font-family: inherit;
+  font-size: 10px;
+  letter-spacing: 0;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+}
+.cms-auth-heading .cms-brand-logo {
+  width: 72px;
+  height: 74px;
+}
+.cms-auth-story
+  :is(
+    h1,
+    .cms-auth-intro,
+    .cms-login-tagline,
+    .cms-auth-story-footer,
+    .cms-eyebrow
+  ),
+.cms-auth-panel
+  :is(
+    .cms-auth-description,
+    .cms-auth-panel-footer,
+    .cms-auth-note p,
+    .cms-caps-note,
+    .cms-status
+  ) {
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+.cms-presentation-editor,
+.cms-presentation-groups {
+  display: grid;
+  gap: 24px;
+  min-width: 0;
+}
+.cms-presentation-identity {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+.cms-presentation-identity > .cms-brand {
+  flex: 0 1 320px;
+}
+.cms-presentation-identity > p {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  color: var(--cms-muted);
+  font-size: 13px;
+  line-height: 1.8;
+  flex: 1;
+}
+.cms-presentation-identity > p > svg {
+  flex: none;
+  margin-top: 3px;
+}
+.cms-presentation-guidance code {
+  color: #745310;
+  background: #f7f2e7;
+  border-radius: 3px;
+  padding: 2px 4px;
+}
+.cms-presentation-group-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+}
+.cms-presentation-group-heading > svg {
+  flex: none;
+  color: #8b671d;
+  margin-top: 4px;
+}
+.cms-presentation-preview-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.admin.cms .cms-presentation-preview-options button {
+  min-height: 34px;
+  padding: 6px 10px;
+  font-size: 11px;
+}
+.admin.cms .cms-presentation-preview-options button[aria-pressed="true"] {
+  background: #f6ecd3;
+  color: #644809;
+  border-color: #d5be8a;
+}
+.cms-presentation-preview-card {
+  overflow: hidden;
+}
+.cms-login-preview {
+  pointer-events: none;
+  border-block: 1px solid var(--cms-line);
+  min-width: 0;
+}
+.cms-login-preview .admin.cms-auth,
+.cms-login-preview .cms-auth-frame,
+.cms-login-preview .cms-auth-story,
+.cms-login-preview .cms-auth-panel {
+  min-height: 0;
+}
+.cms-login-preview .cms-auth-frame {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.cms-login-preview .cms-auth-story {
+  display: flex;
+  padding: 30px 28px 25px;
+}
+.cms-login-preview .cms-auth-story-copy {
+  padding-block: 45px;
+}
+.cms-login-preview .admin.cms-auth .cms-auth-story h1 {
+  font-size: clamp(24px, 2.3vw, 38px);
+  line-height: 1.7;
+}
+.cms-login-preview .cms-auth-intro {
+  font-size: 12px;
+}
+.cms-login-preview .cms-auth-story .cms-eyebrow {
+  font-size: 9px;
+  letter-spacing: 1px;
+}
+.cms-login-preview .cms-auth-panel {
+  padding: 75px 27px 24px;
+}
+.cms-login-preview .cms-auth-back {
+  top: 27px;
+  left: 27px;
+  font-size: 10px;
+}
+.cms-login-preview .cms-auth-heading > .cms-brand {
+  margin-bottom: 17px;
+}
+.cms-login-preview .cms-auth-heading .cms-brand-logo {
+  width: 48px;
+  height: 50px;
+}
+.cms-login-preview .cms-auth-heading {
+  margin-bottom: 20px;
+}
+.cms-login-preview .admin.cms-auth .cms-auth-heading h2 {
+  font-size: 20px;
+}
+.cms-login-preview .cms-auth-description {
+  font-size: 11px;
+}
+.cms-login-preview .admin.cms-auth form {
+  gap: 14px;
+}
+.cms-login-preview .admin.cms-auth form > label {
+  font-size: 12px;
+  gap: 7px;
+}
+.cms-login-preview .admin.cms-auth form input {
+  min-height: 43px;
+  font-size: 11px;
+  padding: 10px 12px;
+}
+.cms-login-preview .admin.cms-auth .cms-password-control input {
+  padding-right: 43px;
+}
+.cms-login-preview .admin.cms-auth .cms-password-toggle {
+  width: 32px;
+  height: 32px;
+  min-height: 32px;
+  top: 5px;
+  right: 5px;
+}
+.cms-login-preview .admin.cms-auth .cms-login-submit {
+  min-height: 43px;
+  font-size: 12px;
+  padding: 11px;
+}
+.cms-login-preview .cms-auth-note {
+  margin-top: 19px;
+  padding: 12px;
+  gap: 8px;
+}
+.cms-login-preview .cms-auth-note :is(p, summary) {
+  font-size: 10px;
+}
+.cms-login-preview .admin.cms-auth .cms-auth-panel-footer {
+  margin-top: 24px;
+  font-size: 9px;
+}
+.cms-presentation-workspace-preview {
+  display: grid;
+  gap: 6px;
+  padding: 20px 24px;
+  background: #faf9f6;
+  overflow-wrap: anywhere;
+}
+.cms-presentation-workspace-preview > :is(span, small) {
+  color: var(--cms-muted);
+  font-size: 11px;
+  white-space: pre-line;
+}
+.cms-presentation-workspace-preview > strong {
+  font-size: 15px;
+  font-weight: 500;
+}
+@media (max-width: 1100px) {
+  .cms-presentation-preview-card > .cms-card-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 15px;
+  }
+}
+@media (max-width: 700px) {
+  .cms-presentation-identity {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .cms-presentation-identity > .cms-brand {
+    flex-basis: auto;
+  }
+  .cms-login-preview .cms-auth-frame {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .cms-login-preview .cms-auth-story-copy {
+    padding-block: 30px;
+  }
+  .cms-login-preview .cms-auth-story-footer {
+    display: block;
+  }
+  .cms-login-preview .admin.cms-auth .cms-auth-story h1 {
+    font-size: 29px;
+  }
+}

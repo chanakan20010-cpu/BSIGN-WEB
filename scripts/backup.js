@@ -5,45 +5,73 @@ import {
   cpSync,
   writeFileSync,
   readFileSync,
-  readdirSync,
-  statSync,
+  rmSync,
 } from "node:fs";
 import { createHash } from "node:crypto";
 import path from "node:path";
+import {
+  checkedBackupFile,
+  fontFilesInDatabase,
+  uploadFiles,
+  validateBackupFonts,
+  MAX_BACKUP_FILES,
+  MAX_BACKUP_BYTES,
+} from "./backup-assets.js";
 export async function createBackup(source, target) {
   source = path.resolve(source);
   target = path.resolve(target);
   if (target === source || target.startsWith(source + path.sep))
     throw Error("Backup must be outside DATA_DIR");
   mkdirSync(target, { recursive: false, mode: 0o700 });
-  const db = new DatabaseSync(path.join(source, "site.sqlite"), {
-    readOnly: true,
-  });
-  await backup(db, path.join(target, "site.sqlite"));
-  db.close();
-  cpSync(path.join(source, "uploads"), path.join(target, "uploads"), {
-    recursive: true,
-  });
-  const checksums = {};
-  function walk(dir) {
-    for (const f of readdirSync(dir)) {
-      const p = path.join(dir, f);
-      if (statSync(p).isDirectory()) walk(p);
-      else
-        checksums[path.relative(target, p).split(path.sep).join("/")] =
-          createHash("sha256").update(readFileSync(p)).digest("hex");
+  let db;
+  try {
+    checkedBackupFile(source, "site.sqlite");
+    db = new DatabaseSync(path.join(source, "site.sqlite"), { readOnly: true });
+    await backup(db, path.join(target, "site.sqlite"));
+    db.close();
+    db = null;
+    db = new DatabaseSync(path.join(target, "site.sqlite"), { readOnly: true });
+    const assets = [...uploadFiles(source), ...fontFilesInDatabase(db)];
+    if (assets.length + 1 > MAX_BACKUP_FILES)
+      throw Error("Too many backup files");
+    validateBackupFonts(db, source, assets);
+    for (const file of assets) {
+      const sourceFile = checkedBackupFile(source, file);
+      mkdirSync(path.dirname(path.join(target, file)), {
+        recursive: true,
+        mode: 0o700,
+      });
+      cpSync(sourceFile, path.join(target, file), {
+        errorOnExist: true,
+        force: false,
+      });
     }
+    mkdirSync(path.join(target, "uploads"), { recursive: true, mode: 0o700 });
+    mkdirSync(path.join(target, "fonts"), { recursive: true, mode: 0o700 });
+    const checksums = {};
+    let bytes = 0;
+    for (const file of ["site.sqlite", ...assets]) {
+      const buffer = readFileSync(checkedBackupFile(target, file));
+      bytes += buffer.length;
+      if (bytes > MAX_BACKUP_BYTES) throw Error("Backup exceeds size limit");
+      checksums[file] = createHash("sha256").update(buffer).digest("hex");
+    }
+    writeFileSync(
+      path.join(target, "manifest.json"),
+      JSON.stringify(
+        { version: 1, createdAt: new Date().toISOString(), checksums },
+        null,
+        2,
+      ),
+      { mode: 0o600 },
+    );
+    return target;
+  } catch (error) {
+    rmSync(target, { recursive: true, force: true });
+    throw error;
+  } finally {
+    db?.close();
   }
-  walk(target);
-  writeFileSync(
-    path.join(target, "manifest.json"),
-    JSON.stringify(
-      { version: 1, createdAt: new Date().toISOString(), checksums },
-      null,
-      2,
-    ),
-  );
-  return target;
 }
 if (
   process.argv[1] &&

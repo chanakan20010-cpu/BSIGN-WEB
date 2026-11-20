@@ -1,0 +1,36 @@
+{
+  "family": "Anuphan",
+  "package": "@fontsource/anuphan",
+  "packageVersion": "5.3.0",
+  "license": "OFL-1.1",
+  "licenseUrl": "/font-licenses/anuphan/LICENSE.txt",
+  "licenseInformation": "https://openfontlicense.org",
+  "attribution": "Copyright 2019 The Anuphan Project Authors (https://github.com/cadsondemak/Anuphan)",
+  "source": "https://github.com/google/fonts",
+  "distribution": "https://fontsource.org/fonts/anuphan",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fontsource/font-files.git",
+    "directory": "fonts/google/anuphan"
+  },
+  "weights": [
+    100,
+    200,
+    300,
+    400,
+    500,
+    600,
+    700
+  ],
+  "styles": [
+    "normal"
+  ],
+  "subsets": [
+    "latin",
+    "latin-ext",
+    "thai",
+    "vietnamese"
+  ],
+  "fontVersion": "v6",
+  "licenseSha256": "0d0e5c8b262569370f49782450985206d738f7c7390f6856e7bbd4f7d2347150"
+}

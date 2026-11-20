@@ -1,0 +1,808 @@
+[
+  {
+    "family": "IBM Plex Sans Thai",
+    "package": "@fontsource/ibm-plex-sans-thai",
+    "packageVersion": "5.3.0",
+    "license": "OFL-1.1",
+    "licenseUrl": "/font-licenses/ibm-plex-sans-thai/LICENSE.txt",
+    "licenseInformation": "https://openfontlicense.org",
+    "attribution": "Copyright 2019 IBM Corp. All rights reserved. IBMPlexSansThai-ExtraLight.ttf: Copyright 2019 IBM Corp. All rights reserved. IBMPlexSansThai-Light.ttf: Copyright 2019 IBM Corp. All rights reserved. IBMPlexSansThai-Regular.ttf: Copyright 2019 IBM Corp. All rights reserved. IBMPlexSansThai-Medium.ttf: Copyright 2019 IBM Corp. All rights reserved. IBMPlexSansThai-SemiBold.ttf: Copyright 2019 IBM Corp. All rights reserved. IBMPlexSansThai-Bold.ttf: Copyright 2019 IBM Corp. All rights reserved.",
+    "source": "https://github.com/google/fonts",
+    "distribution": "https://fontsource.org/fonts/ibm-plex-sans-thai",
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/fontsource/font-files.git",
+      "directory": "fonts/google/ibm-plex-sans-thai"
+    },
+    "weights": [
+      100,
+      200,
+      300,
+      400,
+      500,
+      600,
+      700
+    ],
+    "styles": [
+      "normal"
+    ],
+    "subsets": [
+      "cyrillic-ext",
+      "latin",
+      "latin-ext",
+      "thai"
+    ],
+    "fontVersion": "v11",
+    "licenseSha256": "0eda9417087c7f8fd73ef70d2598e66bbf2e5fabc121fe796fa2e36b9eb16789"
+  },
+  {
+    "family": "Noto Sans Thai",
+    "package": "@fontsource/noto-sans-thai",
+    "packageVersion": "5.3.0",
+    "license": "OFL-1.1",
+    "licenseUrl": "/font-licenses/noto-sans-thai/LICENSE.txt",
+    "licenseInformation": "https://openfontlicense.org",
+    "attribution": "Copyright 2022 The Noto Project Authors (https://github.com/notofonts/thai)",
+    "source": "https://github.com/google/fonts",
+    "distribution": "https://fontsource.org/fonts/noto-sans-thai",
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/fontsource/font-files.git",
+      "directory": "fonts/google/noto-sans-thai"
+    },
+    "weights": [
+      100,
+      200,
+      300,
+      400,
+      500,
+      600,
+      700,
+      800,
+      900
+    ],
+    "styles": [
+      "normal"
+    ],
+    "subsets": [
+      "latin",
+      "latin-ext",
+      "thai"
+    ],
+    "fontVersion": "v29",
+    "licenseSha256": "bd85ada3eef71267263e0fd24a40ae20380015c7cf1afa0c27a4340b03431320"
+  },
+  {
+    "family": "Sarabun",
+    "package": "@fontsource/sarabun",
+    "packageVersion": "5.3.0",
+    "license": "OFL-1.1",
+    "licenseUrl": "/font-licenses/sarabun/LICENSE.txt",
+    "licenseInformation": "https://openfontlicense.org",
+    "attribution": "Copyright 2018 The Sarabun Project Authors (https://github.com/cadsondemak/Sarabun) Sarabun-ThinItalic.ttf: Copyright 2018 The Sarabun Project Authors (https://github.com/cadsondemak/Sarabun) Sarabun-ExtraLight.ttf: Copyright 2018 The Sarabun Project Authors (https://github.com/cadsondemak/Sarabun) Sarabun-ExtraLightItalic.ttf: Copyright 2018 The Sarabun Project Authors (https://github.com/cadsondemak/Sarabun) Sarabun-Light.ttf: Copyright 2018 The Sarabun Project Authors (https://github.com/cadsondemak/Sarabun) Sarabun-LightItalic.ttf: Copyright 2018 The Sarabun Project Authors (https://github.com/cadsondemak/Sarabun) Sarabun-Regular.ttf: Copyright 2018 The Sarabun Project Authors (https://github.com/cadsondemak/Sarabun) Sarabun-Italic.ttf: Copyright 2018 The Sarabun Project Authors (https://github.com/cadsondemak/Sarabun) Sarabun-Medium.ttf: Copyright 2018 The Sarabun Project Authors (https://github.com/cadsondemak/Sarabun) Sarabun-MediumItalic.ttf: Copyright 2018 The Sarabun Project Authors (https://github.com/cadsondemak/Sarabun) Sarabun-SemiBold.ttf: Copyright 2018 The Sarabun Project Authors (https://github.com/cadsondemak/Sarabun) Sarabun-SemiBoldItalic.ttf: Copyright 2018 The Sarabun Project Authors (https://github.com/cadsondemak/Sarabun) Sarabun-Bold.ttf: Copyright 2018 The Sarabun Project Authors (https://github.com/cadsondemak/Sarabun) Sarabun-BoldItalic.ttf: Copyright 2018 The Sarabun Project Authors (https://github.com/cadsondemak/Sarabun) Sarabun-ExtraBold.ttf: Copyright 2018 The Sarabun Project Authors (https://github.com/cadsondemak/Sarabun) Sarabun-ExtraBoldItalic.ttf: Copyright 2018 The Sarabun Project Authors (https://github.com/cadsondemak/Sarabun)",
+    "source": "https://github.com/google/fonts",
+    "distribution": "https://fontsource.org/fonts/sarabun",
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/fontsource/font-files.git",
+      "directory": "fonts/google/sarabun"
+    },
+    "weights": [
+      100,
+      200,
+      300,
+      400,
+      500,
+      600,
+      700,
+      800
+    ],
+    "styles": [
+      "italic",
+      "normal"
+    ],
+    "subsets": [
+      "latin",
+      "latin-ext",
+      "thai",
+      "vietnamese"
+    ],
+    "fontVersion": "v17",
+    "licenseSha256": "2b16d88bda534060561ccc38074ddce01f59e3f26fbabaafa33600934a30dd45"
+  },
+  {
+    "family": "Anuphan",
+    "package": "@fontsource/anuphan",
+    "packageVersion": "5.3.0",
+    "license": "OFL-1.1",
+    "licenseUrl": "/font-licenses/anuphan/LICENSE.txt",
+    "licenseInformation": "https://openfontlicense.org",
+    "attribution": "Copyright 2019 The Anuphan Project Authors (https://github.com/cadsondemak/Anuphan)",
+    "source": "https://github.com/google/fonts",
+    "distribution": "https://fontsource.org/fonts/anuphan",
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/fontsource/font-files.git",
+      "directory": "fonts/google/anuphan"
+    },
+    "weights": [
+      100,
+      200,
+      300,
+      400,
+      500,
+      600,
+      700
+    ],
+    "styles": [
+      "normal"
+    ],
+    "subsets": [
+      "latin",
+      "latin-ext",
+      "thai",
+      "vietnamese"
+    ],
+    "fontVersion": "v6",
+    "licenseSha256": "0d0e5c8b262569370f49782450985206d738f7c7390f6856e7bbd4f7d2347150"
+  },
+  {
+    "family": "Prompt",
+    "package": "@fontsource/prompt",
+    "packageVersion": "5.3.0",
+    "license": "OFL-1.1",
+    "licenseUrl": "/font-licenses/prompt/LICENSE.txt",
+    "licenseInformation": "https://openfontlicense.org",
+    "attribution": "Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Prompt-ThinItalic.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Prompt-ExtraLight.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Prompt-ExtraLightItalic.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Prompt-Light.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Prompt-LightItalic.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Prompt-Regular.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Prompt-Italic.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Prompt-Medium.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Prompt-MediumItalic.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Prompt-SemiBold.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Prompt-SemiBoldItalic.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Prompt-Bold.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Prompt-BoldItalic.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Prompt-ExtraBold.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Prompt-ExtraBoldItalic.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Prompt-Black.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Prompt-BlackItalic.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com)",
+    "source": "https://github.com/google/fonts",
+    "distribution": "https://fontsource.org/fonts/prompt",
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/fontsource/font-files.git",
+      "directory": "fonts/google/prompt"
+    },
+    "weights": [
+      100,
+      200,
+      300,
+      400,
+      500,
+      600,
+      700,
+      800,
+      900
+    ],
+    "styles": [
+      "italic",
+      "normal"
+    ],
+    "subsets": [
+      "latin",
+      "latin-ext",
+      "thai",
+      "vietnamese"
+    ],
+    "fontVersion": "v12",
+    "licenseSha256": "d338ae85340b0629296ee6a20a4c873afaafaa7be4fd9a01ce1248231b0daef2"
+  },
+  {
+    "family": "Kanit",
+    "package": "@fontsource/kanit",
+    "packageVersion": "5.3.0",
+    "license": "OFL-1.1",
+    "licenseUrl": "/font-licenses/kanit/LICENSE.txt",
+    "licenseInformation": "https://openfontlicense.org",
+    "attribution": "Copyright 2020 The Kanit Project Authors (https://github.com/cadsondemak/kanit) Kanit-ThinItalic.ttf: Copyright 2020 The Kanit Project Authors (https://github.com/cadsondemak/kanit) Kanit-ExtraLight.ttf: Copyright 2020 The Kanit Project Authors (https://github.com/cadsondemak/kanit) Kanit-ExtraLightItalic.ttf: Copyright 2020 The Kanit Project Authors (https://github.com/cadsondemak/kanit) Kanit-Light.ttf: Copyright 2020 The Kanit Project Authors (https://github.com/cadsondemak/kanit) Kanit-LightItalic.ttf: Copyright 2020 The Kanit Project Authors (https://github.com/cadsondemak/kanit) Kanit-Regular.ttf: Copyright 2020 The Kanit Project Authors (https://github.com/cadsondemak/kanit) Kanit-Italic.ttf: Copyright 2020 The Kanit Project Authors (https://github.com/cadsondemak/kanit) Kanit-Medium.ttf: Copyright 2020 The Kanit Project Authors (https://github.com/cadsondemak/kanit) Kanit-MediumItalic.ttf: Copyright 2020 The Kanit Project Authors (https://github.com/cadsondemak/kanit) Kanit-SemiBold.ttf: Copyright 2020 The Kanit Project Authors (https://github.com/cadsondemak/kanit) Kanit-SemiBoldItalic.ttf: Copyright 2020 The Kanit Project Authors (https://github.com/cadsondemak/kanit) Kanit-Bold.ttf: Copyright 2020 The Kanit Project Authors (https://github.com/cadsondemak/kanit) Kanit-BoldItalic.ttf: Copyright 2020 The Kanit Project Authors (https://github.com/cadsondemak/kanit) Kanit-ExtraBold.ttf: Copyright 2020 The Kanit Project Authors (https://github.com/cadsondemak/kanit) Kanit-ExtraBoldItalic.ttf: Copyright 2020 The Kanit Project Authors (https://github.com/cadsondemak/kanit) Kanit-Black.ttf: Copyright 2020 The Kanit Project Authors (https://github.com/cadsondemak/kanit) Kanit-BlackItalic.ttf: Copyright 2020 The Kanit Project Authors (https://github.com/cadsondemak/kanit)",
+    "source": "https://github.com/google/fonts",
+    "distribution": "https://fontsource.org/fonts/kanit",
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/fontsource/font-files.git",
+      "directory": "fonts/google/kanit"
+    },
+    "weights": [
+      100,
+      200,
+      300,
+      400,
+      500,
+      600,
+      700,
+      800,
+      900
+    ],
+    "styles": [
+      "italic",
+      "normal"
+    ],
+    "subsets": [
+      "latin",
+      "latin-ext",
+      "thai",
+      "vietnamese"
+    ],
+    "fontVersion": "v17",
+    "licenseSha256": "0c796c259354fbbc1a5041e468085d219519b3fd93f4e882bcb21ed602dbcca8"
+  },
+  {
+    "family": "Bai Jamjuree",
+    "package": "@fontsource/bai-jamjuree",
+    "packageVersion": "5.3.0",
+    "license": "OFL-1.1",
+    "licenseUrl": "/font-licenses/bai-jamjuree/LICENSE.txt",
+    "licenseInformation": "https://openfontlicense.org",
+    "attribution": "Copyright 2018 Bai Jamjuree (https://github.com/cadsondemak/Bai-Jamjuree) BaiJamjuree-ExtraLightItalic.ttf: Copyright 2018 Bai Jamjuree (https://github.com/cadsondemak/Bai-Jamjuree) BaiJamjuree-Light.ttf: Copyright 2018 Bai Jamjuree (https://github.com/cadsondemak/Bai-Jamjuree) BaiJamjuree-LightItalic.ttf: Copyright 2018 Bai Jamjuree (https://github.com/cadsondemak/Bai-Jamjuree) BaiJamjuree-Regular.ttf: Copyright 2018 Bai Jamjuree (https://github.com/cadsondemak/Bai-Jamjuree) BaiJamjuree-Italic.ttf: Copyright 2018 Bai Jamjuree (https://github.com/cadsondemak/Bai-Jamjuree) BaiJamjuree-Medium.ttf: Copyright 2018 Bai Jamjuree (https://github.com/cadsondemak/Bai-Jamjuree) BaiJamjuree-MediumItalic.ttf: Copyright 2018 Bai Jamjuree (https://github.com/cadsondemak/Bai-Jamjuree) BaiJamjuree-SemiBold.ttf: Copyright 2018 Bai Jamjuree (https://github.com/cadsondemak/Bai-Jamjuree) BaiJamjuree-SemiBoldItalic.ttf: Copyright 2018 Bai Jamjuree (https://github.com/cadsondemak/Bai-Jamjuree) BaiJamjuree-Bold.ttf: Copyright 2018 Bai Jamjuree (https://github.com/cadsondemak/Bai-Jamjuree) BaiJamjuree-BoldItalic.ttf: Copyright 2018 Bai Jamjuree (https://github.com/cadsondemak/Bai-Jamjuree)",
+    "source": "https://github.com/google/fonts",
+    "distribution": "https://fontsource.org/fonts/bai-jamjuree",
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/fontsource/font-files.git",
+      "directory": "fonts/google/bai-jamjuree"
+    },
+    "weights": [
+      200,
+      300,
+      400,
+      500,
+      600,
+      700
+    ],
+    "styles": [
+      "italic",
+      "normal"
+    ],
+    "subsets": [
+      "latin",
+      "latin-ext",
+      "thai",
+      "vietnamese"
+    ],
+    "fontVersion": "v13",
+    "licenseSha256": "74b7deafa632a5ed301dc322fcc2867ac200402e06b6d0b0b01faf09b8514e3e"
+  },
+  {
+    "family": "Chakra Petch",
+    "package": "@fontsource/chakra-petch",
+    "packageVersion": "5.3.0",
+    "license": "OFL-1.1",
+    "licenseUrl": "/font-licenses/chakra-petch/LICENSE.txt",
+    "licenseInformation": "https://openfontlicense.org",
+    "attribution": "Copyright 2018 The Chakra Petch Project Authors (https://github.com/m4rc1e/Chakra-Petch.git) ChakraPetch-LightItalic.ttf: Copyright 2018 The Chakra Petch Project Authors (https://github.com/m4rc1e/Chakra-Petch.git) ChakraPetch-Regular.ttf: Copyright 2018 The Chakra Petch Project Authors (https://github.com/m4rc1e/Chakra-Petch.git) ChakraPetch-Italic.ttf: Copyright 2018 The Chakra Petch Project Authors (https://github.com/m4rc1e/Chakra-Petch.git) ChakraPetch-Medium.ttf: Copyright 2018 The Chakra Petch Project Authors (https://github.com/m4rc1e/Chakra-Petch.git) ChakraPetch-MediumItalic.ttf: Copyright 2018 The Chakra Petch Project Authors (https://github.com/m4rc1e/Chakra-Petch.git) ChakraPetch-SemiBold.ttf: Copyright 2018 The Chakra Petch Project Authors (https://github.com/m4rc1e/Chakra-Petch.git) ChakraPetch-SemiBoldItalic.ttf: Copyright 2018 The Chakra Petch Project Authors (https://github.com/m4rc1e/Chakra-Petch.git) ChakraPetch-Bold.ttf: Copyright 2018 The Chakra Petch Project Authors (https://github.com/m4rc1e/Chakra-Petch.git) ChakraPetch-BoldItalic.ttf: Copyright 2018 The Chakra Petch Project Authors (https://github.com/m4rc1e/Chakra-Petch.git)",
+    "source": "https://github.com/google/fonts",
+    "distribution": "https://fontsource.org/fonts/chakra-petch",
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/fontsource/font-files.git",
+      "directory": "fonts/google/chakra-petch"
+    },
+    "weights": [
+      300,
+      400,
+      500,
+      600,
+      700
+    ],
+    "styles": [
+      "italic",
+      "normal"
+    ],
+    "subsets": [
+      "latin",
+      "latin-ext",
+      "thai",
+      "vietnamese"
+    ],
+    "fontVersion": "v13",
+    "licenseSha256": "8f32c96ea465c5916489845361238b31b365414228bc2e4e45e3ae98ba1d311a"
+  },
+  {
+    "family": "Krub",
+    "package": "@fontsource/krub",
+    "packageVersion": "5.3.0",
+    "license": "OFL-1.1",
+    "licenseUrl": "/font-licenses/krub/LICENSE.txt",
+    "licenseInformation": "https://openfontlicense.org",
+    "attribution": "Copyright 2018 The Krub Project Authors (https://github.com/cadsondemak/Krub) Krub-ExtraLightItalic.ttf: Copyright 2018 The Krub Project Authors (https://github.com/cadsondemak/Krub) Krub-Light.ttf: Copyright 2018 The Krub Project Authors (https://github.com/cadsondemak/Krub) Krub-LightItalic.ttf: Copyright 2018 The Krub Project Authors (https://github.com/cadsondemak/Krub) Krub-Regular.ttf: Copyright 2018 The Krub Project Authors (https://github.com/cadsondemak/Krub) Krub-Italic.ttf: Copyright 2018 The Krub Project Authors (https://github.com/cadsondemak/Krub) Krub-Medium.ttf: Copyright 2018 The Krub Project Authors (https://github.com/cadsondemak/Krub) Krub-MediumItalic.ttf: Copyright 2018 The Krub Project Authors (https://github.com/cadsondemak/Krub) Krub-SemiBold.ttf: Copyright 2018 The Krub Project Authors (https://github.com/cadsondemak/Krub) Krub-SemiBoldItalic.ttf: Copyright 2018 The Krub Project Authors (https://github.com/cadsondemak/Krub) Krub-Bold.ttf: Copyright 2018 The Krub Project Authors (https://github.com/cadsondemak/Krub) Krub-BoldItalic.ttf: Copyright 2018 The Krub Project Authors (https://github.com/cadsondemak/Krub)",
+    "source": "https://github.com/google/fonts",
+    "distribution": "https://fontsource.org/fonts/krub",
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/fontsource/font-files.git",
+      "directory": "fonts/google/krub"
+    },
+    "weights": [
+      200,
+      300,
+      400,
+      500,
+      600,
+      700
+    ],
+    "styles": [
+      "italic",
+      "normal"
+    ],
+    "subsets": [
+      "latin",
+      "latin-ext",
+      "thai",
+      "vietnamese"
+    ],
+    "fontVersion": "v11",
+    "licenseSha256": "650ad8e60c8f3b2ddce86c20e39d320b6634a2717b7d7c68f7ad6a709254b247"
+  },
+  {
+    "family": "K2D",
+    "package": "@fontsource/k2d",
+    "packageVersion": "5.3.0",
+    "license": "OFL-1.1",
+    "licenseUrl": "/font-licenses/k2d/LICENSE.txt",
+    "licenseInformation": "https://openfontlicense.org",
+    "attribution": "Copyright 2018 The K2D Project Authors (https://github.com/cadsondemak/K2D) K2D-ThinItalic.ttf: Copyright 2018 The K2D Project Authors (https://github.com/cadsondemak/K2D) K2D-ExtraLight.ttf: Copyright 2018 The K2D Project Authors (https://github.com/cadsondemak/K2D) K2D-ExtraLightItalic.ttf: Copyright 2018 The K2D Project Authors (https://github.com/cadsondemak/K2D) K2D-Light.ttf: Copyright 2018 The K2D Project Authors (https://github.com/cadsondemak/K2D) K2D-LightItalic.ttf: Copyright 2018 The K2D Project Authors (https://github.com/cadsondemak/K2D) K2D-Regular.ttf: Copyright 2018 The K2D Project Authors (https://github.com/cadsondemak/K2D) K2D-Italic.ttf: Copyright 2018 The K2D Project Authors (https://github.com/cadsondemak/K2D) K2D-Medium.ttf: Copyright 2018 The K2D Project Authors (https://github.com/cadsondemak/K2D) K2D-MediumItalic.ttf: Copyright 2018 The K2D Project Authors (https://github.com/cadsondemak/K2D) K2D-SemiBold.ttf: Copyright 2018 The K2D Project Authors (https://github.com/cadsondemak/K2D) K2D-SemiBoldItalic.ttf: Copyright 2018 The K2D Project Authors (https://github.com/cadsondemak/K2D) K2D-Bold.ttf: Copyright 2018 The K2D Project Authors (https://github.com/cadsondemak/K2D) K2D-BoldItalic.ttf: Copyright 2018 The K2D Project Authors (https://github.com/cadsondemak/K2D) K2D-ExtraBold.ttf: Copyright 2018 The K2D Project Authors (https://github.com/cadsondemak/K2D) K2D-ExtraBoldItalic.ttf: Copyright 2018 The K2D Project Authors (https://github.com/cadsondemak/K2D)",
+    "source": "https://github.com/google/fonts",
+    "distribution": "https://fontsource.org/fonts/k2d",
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/fontsource/font-files.git",
+      "directory": "fonts/google/k2d"
+    },
+    "weights": [
+      100,
+      200,
+      300,
+      400,
+      500,
+      600,
+      700,
+      800
+    ],
+    "styles": [
+      "italic",
+      "normal"
+    ],
+    "subsets": [
+      "latin",
+      "latin-ext",
+      "thai",
+      "vietnamese"
+    ],
+    "fontVersion": "v13",
+    "licenseSha256": "ad5d24e2a2117e950834b1cc2ff931ecc2406eb063a3bf75a24a42ebb363a83c"
+  },
+  {
+    "family": "Athiti",
+    "package": "@fontsource/athiti",
+    "packageVersion": "5.3.0",
+    "license": "OFL-1.1",
+    "licenseUrl": "/font-licenses/athiti/LICENSE.txt",
+    "licenseInformation": "https://openfontlicense.org",
+    "attribution": "Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Athiti-Light.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Athiti-Regular.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Athiti-Medium.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Athiti-SemiBold.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Athiti-Bold.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com)",
+    "source": "https://github.com/google/fonts",
+    "distribution": "https://fontsource.org/fonts/athiti",
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/fontsource/font-files.git",
+      "directory": "fonts/google/athiti"
+    },
+    "weights": [
+      200,
+      300,
+      400,
+      500,
+      600,
+      700
+    ],
+    "styles": [
+      "normal"
+    ],
+    "subsets": [
+      "latin",
+      "latin-ext",
+      "thai",
+      "vietnamese"
+    ],
+    "fontVersion": "v14",
+    "licenseSha256": "45ffc83724580fdba92e809563c9f05d776d898a516d97dd5ea7ae2176fdee12"
+  },
+  {
+    "family": "Mitr",
+    "package": "@fontsource/mitr",
+    "packageVersion": "5.3.0",
+    "license": "OFL-1.1",
+    "licenseUrl": "/font-licenses/mitr/LICENSE.txt",
+    "licenseInformation": "https://openfontlicense.org",
+    "attribution": "Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Mitr-Light.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Mitr-Regular.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Mitr-Medium.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Mitr-SemiBold.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Mitr-Bold.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com)",
+    "source": "https://github.com/google/fonts",
+    "distribution": "https://fontsource.org/fonts/mitr",
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/fontsource/font-files.git",
+      "directory": "fonts/google/mitr"
+    },
+    "weights": [
+      200,
+      300,
+      400,
+      500,
+      600,
+      700
+    ],
+    "styles": [
+      "normal"
+    ],
+    "subsets": [
+      "latin",
+      "latin-ext",
+      "thai",
+      "vietnamese"
+    ],
+    "fontVersion": "v13",
+    "licenseSha256": "9571076e7e2fac2bb7f5edb4a0d652ae1a2d4d7040c468baa2f3a4d450963048"
+  },
+  {
+    "family": "Noto Serif Thai",
+    "package": "@fontsource/noto-serif-thai",
+    "packageVersion": "5.3.0",
+    "license": "OFL-1.1",
+    "licenseUrl": "/font-licenses/noto-serif-thai/LICENSE.txt",
+    "licenseInformation": "https://openfontlicense.org",
+    "attribution": "Copyright 2022 The Noto Project Authors (https://github.com/notofonts/thai)",
+    "source": "https://github.com/google/fonts",
+    "distribution": "https://fontsource.org/fonts/noto-serif-thai",
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/fontsource/font-files.git",
+      "directory": "fonts/google/noto-serif-thai"
+    },
+    "weights": [
+      100,
+      200,
+      300,
+      400,
+      500,
+      600,
+      700,
+      800,
+      900
+    ],
+    "styles": [
+      "normal"
+    ],
+    "subsets": [
+      "latin",
+      "latin-ext",
+      "thai"
+    ],
+    "fontVersion": "v28",
+    "licenseSha256": "bd85ada3eef71267263e0fd24a40ae20380015c7cf1afa0c27a4340b03431320"
+  },
+  {
+    "family": "Pridi",
+    "package": "@fontsource/pridi",
+    "packageVersion": "5.3.0",
+    "license": "OFL-1.1",
+    "licenseUrl": "/font-licenses/pridi/LICENSE.txt",
+    "licenseInformation": "https://openfontlicense.org",
+    "attribution": "Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Pridi-Light.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Pridi-Regular.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Pridi-Medium.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Pridi-SemiBold.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Pridi-Bold.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com)",
+    "source": "https://github.com/google/fonts",
+    "distribution": "https://fontsource.org/fonts/pridi",
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/fontsource/font-files.git",
+      "directory": "fonts/google/pridi"
+    },
+    "weights": [
+      200,
+      300,
+      400,
+      500,
+      600,
+      700
+    ],
+    "styles": [
+      "normal"
+    ],
+    "subsets": [
+      "latin",
+      "latin-ext",
+      "thai",
+      "vietnamese"
+    ],
+    "fontVersion": "v15",
+    "licenseSha256": "ad3cb51b9e89527fa770b62ba189c9c1718bbd29b8f4d9165f976f98a4af34fd"
+  },
+  {
+    "family": "Maitree",
+    "package": "@fontsource/maitree",
+    "packageVersion": "5.3.0",
+    "license": "OFL-1.1",
+    "licenseUrl": "/font-licenses/maitree/LICENSE.txt",
+    "licenseInformation": "https://openfontlicense.org",
+    "attribution": "Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Maitree-Light.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Maitree-Regular.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Maitree-Medium.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Maitree-SemiBold.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Maitree-Bold.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com)",
+    "source": "https://github.com/google/fonts",
+    "distribution": "https://fontsource.org/fonts/maitree",
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/fontsource/font-files.git",
+      "directory": "fonts/google/maitree"
+    },
+    "weights": [
+      200,
+      300,
+      400,
+      500,
+      600,
+      700
+    ],
+    "styles": [
+      "normal"
+    ],
+    "subsets": [
+      "latin",
+      "latin-ext",
+      "thai",
+      "vietnamese"
+    ],
+    "fontVersion": "v11",
+    "licenseSha256": "7a6252336f098802395ded62a6a968375c7241bf11e79cac7ee1094cb439e29a"
+  },
+  {
+    "family": "Taviraj",
+    "package": "@fontsource/taviraj",
+    "packageVersion": "5.3.0",
+    "license": "OFL-1.1",
+    "licenseUrl": "/font-licenses/taviraj/LICENSE.txt",
+    "licenseInformation": "https://openfontlicense.org",
+    "attribution": "Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Taviraj-ThinItalic.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Taviraj-ExtraLight.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Taviraj-ExtraLightItalic.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Taviraj-Light.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Taviraj-LightItalic.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Taviraj-Regular.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Taviraj-Italic.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Taviraj-Medium.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Taviraj-MediumItalic.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Taviraj-SemiBold.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Taviraj-SemiBoldItalic.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Taviraj-Bold.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Taviraj-BoldItalic.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Taviraj-ExtraBold.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Taviraj-ExtraBoldItalic.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Taviraj-Black.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Taviraj-BlackItalic.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com)",
+    "source": "https://github.com/google/fonts",
+    "distribution": "https://fontsource.org/fonts/taviraj",
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/fontsource/font-files.git",
+      "directory": "fonts/google/taviraj"
+    },
+    "weights": [
+      100,
+      200,
+      300,
+      400,
+      500,
+      600,
+      700,
+      800,
+      900
+    ],
+    "styles": [
+      "italic",
+      "normal"
+    ],
+    "subsets": [
+      "latin",
+      "latin-ext",
+      "thai",
+      "vietnamese"
+    ],
+    "fontVersion": "v15",
+    "licenseSha256": "3059fc9c8c4afaf71b135f331079e2c91f3c9570954560d66c033b680811cffa"
+  },
+  {
+    "family": "Trirong",
+    "package": "@fontsource/trirong",
+    "packageVersion": "5.3.0",
+    "license": "OFL-1.1",
+    "licenseUrl": "/font-licenses/trirong/LICENSE.txt",
+    "licenseInformation": "https://openfontlicense.org",
+    "attribution": "Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Trirong-ThinItalic.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Trirong-ExtraLight.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Trirong-ExtraLightItalic.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Trirong-Light.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Trirong-LightItalic.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Trirong-Regular.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Trirong-Italic.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Trirong-Medium.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Trirong-MediumItalic.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Trirong-SemiBold.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Trirong-SemiBoldItalic.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Trirong-Bold.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Trirong-BoldItalic.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Trirong-ExtraBold.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Trirong-ExtraBoldItalic.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Trirong-Black.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Trirong-BlackItalic.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com)",
+    "source": "https://github.com/google/fonts",
+    "distribution": "https://fontsource.org/fonts/trirong",
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/fontsource/font-files.git",
+      "directory": "fonts/google/trirong"
+    },
+    "weights": [
+      100,
+      200,
+      300,
+      400,
+      500,
+      600,
+      700,
+      800,
+      900
+    ],
+    "styles": [
+      "italic",
+      "normal"
+    ],
+    "subsets": [
+      "latin",
+      "latin-ext",
+      "thai",
+      "vietnamese"
+    ],
+    "fontVersion": "v17",
+    "licenseSha256": "8b126f6c809695c19a8073040e3225f055dfdb8a46c41279a5974861b383790c"
+  },
+  {
+    "family": "Chonburi",
+    "package": "@fontsource/chonburi",
+    "packageVersion": "5.3.0",
+    "license": "OFL-1.1",
+    "licenseUrl": "/font-licenses/chonburi/LICENSE.txt",
+    "licenseInformation": "https://openfontlicense.org",
+    "attribution": "Copyright (c) 2015, Cadson Demak (info@cadsondemak.com)",
+    "source": "https://github.com/google/fonts",
+    "distribution": "https://fontsource.org/fonts/chonburi",
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/fontsource/font-files.git",
+      "directory": "fonts/google/chonburi"
+    },
+    "weights": [
+      400
+    ],
+    "styles": [
+      "normal"
+    ],
+    "subsets": [
+      "latin",
+      "latin-ext",
+      "thai",
+      "vietnamese"
+    ],
+    "fontVersion": "v14",
+    "licenseSha256": "ebb21f3ee30a34bc2305d1d86720a416fb13f9e73624398a78f7a55c61a091c4"
+  },
+  {
+    "family": "Mali",
+    "package": "@fontsource/mali",
+    "packageVersion": "5.3.0",
+    "license": "OFL-1.1",
+    "licenseUrl": "/font-licenses/mali/LICENSE.txt",
+    "licenseInformation": "https://openfontlicense.org",
+    "attribution": "Copyright 2018 The Mali Project Authors (https://github.com/cadsondemak/Mali) Mali-ExtraLightItalic.ttf: Copyright 2018 The Mali Project Authors (https://github.com/cadsondemak/Mali) Mali-Light.ttf: Copyright 2018 The Mali Project Authors (https://github.com/cadsondemak/Mali) Mali-LightItalic.ttf: Copyright 2018 The Mali Project Authors (https://github.com/cadsondemak/Mali) Mali-Regular.ttf: Copyright 2018 The Mali Project Authors (https://github.com/cadsondemak/Mali) Mali-Italic.ttf: Copyright 2018 The Mali Project Authors (https://github.com/cadsondemak/Mali) Mali-Medium.ttf: Copyright 2018 The Mali Project Authors (https://github.com/cadsondemak/Mali) Mali-MediumItalic.ttf: Copyright 2018 The Mali Project Authors (https://github.com/cadsondemak/Mali) Mali-SemiBold.ttf: Copyright 2018 The Mali Project Authors (https://github.com/cadsondemak/Mali) Mali-SemiBoldItalic.ttf: Copyright 2018 The Mali Project Authors (https://github.com/cadsondemak/Mali) Mali-Bold.ttf: Copyright 2018 The Mali Project Authors (https://github.com/cadsondemak/Mali) Mali-BoldItalic.ttf: Copyright 2018 The Mali Project Authors (https://github.com/cadsondemak/Mali)",
+    "source": "https://github.com/google/fonts",
+    "distribution": "https://fontsource.org/fonts/mali",
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/fontsource/font-files.git",
+      "directory": "fonts/google/mali"
+    },
+    "weights": [
+      200,
+      300,
+      400,
+      500,
+      600,
+      700
+    ],
+    "styles": [
+      "italic",
+      "normal"
+    ],
+    "subsets": [
+      "latin",
+      "latin-ext",
+      "thai",
+      "vietnamese"
+    ],
+    "fontVersion": "v13",
+    "licenseSha256": "60145643c5699ef9b83a8779e668c0024ec87d4cb7d06eecd58df94f9141dd91"
+  },
+  {
+    "family": "Itim",
+    "package": "@fontsource/itim",
+    "packageVersion": "5.3.0",
+    "license": "OFL-1.1",
+    "licenseUrl": "/font-licenses/itim/LICENSE.txt",
+    "licenseInformation": "https://openfontlicense.org",
+    "attribution": "Copyright (c) 2015, Cadson Demak (info@cadsondemak.com), Copyright (c) 2014, Pablo Impallari (www.impallari.com|impallari@gmail.com)",
+    "source": "https://github.com/google/fonts",
+    "distribution": "https://fontsource.org/fonts/itim",
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/fontsource/font-files.git",
+      "directory": "fonts/google/itim"
+    },
+    "weights": [
+      400
+    ],
+    "styles": [
+      "normal"
+    ],
+    "subsets": [
+      "latin",
+      "latin-ext",
+      "thai",
+      "vietnamese"
+    ],
+    "fontVersion": "v16",
+    "licenseSha256": "a30d9716e7d743774d5e84a94674b4f7d62aaf101d59c833b4799a4327d5b275"
+  },
+  {
+    "family": "Noto Sans",
+    "package": "@fontsource/noto-sans",
+    "packageVersion": "5.3.0",
+    "license": "OFL-1.1",
+    "licenseUrl": "/font-licenses/noto-sans/LICENSE.txt",
+    "licenseInformation": "https://openfontlicense.org",
+    "attribution": "Copyright 2022 The Noto Project Authors (https://github.com/notofonts/latin-greek-cyrillic) NotoSans-Italic[wdth,wght].ttf: Copyright 2022 The Noto Project Authors (https://github.com/notofonts/latin-greek-cyrillic)",
+    "source": "https://github.com/google/fonts",
+    "distribution": "https://fontsource.org/fonts/noto-sans",
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/fontsource/font-files.git",
+      "directory": "fonts/google/noto-sans"
+    },
+    "weights": [
+      100,
+      200,
+      300,
+      400,
+      500,
+      600,
+      700,
+      800,
+      900
+    ],
+    "styles": [
+      "italic",
+      "normal"
+    ],
+    "subsets": [
+      "cyrillic",
+      "cyrillic-ext",
+      "devanagari",
+      "greek",
+      "greek-ext",
+      "latin",
+      "latin-ext",
+      "vietnamese"
+    ],
+    "fontVersion": "v42",
+    "licenseSha256": "54ec7b5a35310ad66f9f3091426f7028484cbf9ae1ab5da30122ee412a3009e1"
+  },
+  {
+    "family": "Inter",
+    "package": "@fontsource/inter",
+    "packageVersion": "5.3.0",
+    "license": "OFL-1.1",
+    "licenseUrl": "/font-licenses/inter/LICENSE.txt",
+    "licenseInformation": "https://openfontlicense.org",
+    "attribution": "Copyright 2016 The Inter Project Authors (https://github.com/rsms/inter) Inter-Italic[opsz,wght].ttf: Copyright 2016 The Inter Project Authors (https://github.com/rsms/inter)",
+    "source": "https://github.com/google/fonts",
+    "distribution": "https://fontsource.org/fonts/inter",
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/fontsource/font-files.git",
+      "directory": "fonts/google/inter"
+    },
+    "weights": [
+      100,
+      200,
+      300,
+      400,
+      500,
+      600,
+      700,
+      800,
+      900
+    ],
+    "styles": [
+      "italic",
+      "normal"
+    ],
+    "subsets": [
+      "cyrillic",
+      "cyrillic-ext",
+      "greek",
+      "greek-ext",
+      "latin",
+      "latin-ext",
+      "vietnamese"
+    ],
+    "fontVersion": "v20",
+    "licenseSha256": "3b0a5fca3d17942cde889069889dedbbbd075e9b599968c82a95f4d944e9b345"
+  }
+]

@@ -1,0 +1,30 @@
+{
+  "family": "Itim",
+  "package": "@fontsource/itim",
+  "packageVersion": "5.3.0",
+  "license": "OFL-1.1",
+  "licenseUrl": "/font-licenses/itim/LICENSE.txt",
+  "licenseInformation": "https://openfontlicense.org",
+  "attribution": "Copyright (c) 2015, Cadson Demak (info@cadsondemak.com), Copyright (c) 2014, Pablo Impallari (www.impallari.com|impallari@gmail.com)",
+  "source": "https://github.com/google/fonts",
+  "distribution": "https://fontsource.org/fonts/itim",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fontsource/font-files.git",
+    "directory": "fonts/google/itim"
+  },
+  "weights": [
+    400
+  ],
+  "styles": [
+    "normal"
+  ],
+  "subsets": [
+    "latin",
+    "latin-ext",
+    "thai",
+    "vietnamese"
+  ],
+  "fontVersion": "v16",
+  "licenseSha256": "a30d9716e7d743774d5e84a94674b4f7d62aaf101d59c833b4799a4327d5b275"
+}

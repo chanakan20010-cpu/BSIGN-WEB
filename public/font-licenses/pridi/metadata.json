@@ -1,0 +1,35 @@
+{
+  "family": "Pridi",
+  "package": "@fontsource/pridi",
+  "packageVersion": "5.3.0",
+  "license": "OFL-1.1",
+  "licenseUrl": "/font-licenses/pridi/LICENSE.txt",
+  "licenseInformation": "https://openfontlicense.org",
+  "attribution": "Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Pridi-Light.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Pridi-Regular.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Pridi-Medium.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Pridi-SemiBold.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Pridi-Bold.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com)",
+  "source": "https://github.com/google/fonts",
+  "distribution": "https://fontsource.org/fonts/pridi",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fontsource/font-files.git",
+    "directory": "fonts/google/pridi"
+  },
+  "weights": [
+    200,
+    300,
+    400,
+    500,
+    600,
+    700
+  ],
+  "styles": [
+    "normal"
+  ],
+  "subsets": [
+    "latin",
+    "latin-ext",
+    "thai",
+    "vietnamese"
+  ],
+  "fontVersion": "v15",
+  "licenseSha256": "ad3cb51b9e89527fa770b62ba189c9c1718bbd29b8f4d9165f976f98a4af34fd"
+}

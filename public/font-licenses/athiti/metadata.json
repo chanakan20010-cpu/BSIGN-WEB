@@ -1,0 +1,35 @@
+{
+  "family": "Athiti",
+  "package": "@fontsource/athiti",
+  "packageVersion": "5.3.0",
+  "license": "OFL-1.1",
+  "licenseUrl": "/font-licenses/athiti/LICENSE.txt",
+  "licenseInformation": "https://openfontlicense.org",
+  "attribution": "Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Athiti-Light.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Athiti-Regular.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Athiti-Medium.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Athiti-SemiBold.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Athiti-Bold.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com)",
+  "source": "https://github.com/google/fonts",
+  "distribution": "https://fontsource.org/fonts/athiti",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fontsource/font-files.git",
+    "directory": "fonts/google/athiti"
+  },
+  "weights": [
+    200,
+    300,
+    400,
+    500,
+    600,
+    700
+  ],
+  "styles": [
+    "normal"
+  ],
+  "subsets": [
+    "latin",
+    "latin-ext",
+    "thai",
+    "vietnamese"
+  ],
+  "fontVersion": "v14",
+  "licenseSha256": "45ffc83724580fdba92e809563c9f05d776d898a516d97dd5ea7ae2176fdee12"
+}

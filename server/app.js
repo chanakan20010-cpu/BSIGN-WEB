@@ -24,10 +24,17 @@ import {
   articleSchema,
   contactSchema,
   styleSchema,
+  adminPresentationSchema,
   validateTree,
   validateShape,
 } from "./schema.js";
 import { version } from "./version.js";
+import {
+  initializeFontLibrary,
+  installFontRoutes,
+  validateFontSelection,
+} from "./font-library.js";
+import { sanitizePublicAdminPresentation } from "./admin-presentation-defaults.js";
 const purify = createDOMPurify(new JSDOM("").window);
 const fail = (status, code) => Object.assign(new Error(code), { status, code });
 export function createApp({
@@ -50,6 +57,7 @@ export function createApp({
   if (initialSetupToken && (!localPreview || initialSetupToken.length < 48))
     throw Error("Initial setup requires a local preview capability");
   const db = openDb(directory);
+  initializeFontLibrary(db, directory);
   seed(db);
   const secretFile = path.join(directory, "session.key");
   if (!existsSync(secretFile))
@@ -133,6 +141,7 @@ export function createApp({
     });
   const auth = (q, r, n) =>
     q.session.user ? n() : r.status(401).json({ error: "UNAUTHORIZED" });
+  installFontRoutes(app, { db, directory, auth, limits });
   const audit = (q, action) =>
     db
       .prepare("INSERT INTO audit(actor,action,created_at) VALUES(?,?,?)")
@@ -276,11 +285,17 @@ export function createApp({
     if (state.enabled) {
       // Keep the login and public maintenance screen bootable without exposing
       // unpublished website content through the ordinary content endpoint.
-      const { brand, favicon, languages } = readDoc(db, "global").value;
+      const { brand, company, logo, favicon, languages } = readDoc(
+        db,
+        "global",
+      ).value;
       return r.json({
         maintenance: state,
-        global: { brand, favicon, languages },
+        global: { brand, company, logo, favicon, languages },
         styles: readDoc(db, "styles").value,
+        adminPresentation: sanitizePublicAdminPresentation(
+          readDoc(db, "adminPresentation")?.value,
+        ),
       });
     }
     r.json(
@@ -289,7 +304,12 @@ export function createApp({
           .prepare("SELECT key,value FROM documents")
           .all()
           .filter((x) => !x.key.startsWith("_"))
-          .map((x) => [x.key, JSON.parse(x.value)]),
+          .map((x) => [
+            x.key,
+            x.key === "adminPresentation"
+              ? sanitizePublicAdminPresentation(JSON.parse(x.value))
+              : JSON.parse(x.value),
+          ]),
       ),
     );
   });
@@ -318,6 +338,12 @@ export function createApp({
     )
       throw fail(400, "INVALID_PATCH");
     const value = merge(old.value, q.body.patch);
+    if (q.params.key === "adminPresentation") {
+      // Only display fields may be submitted. Preserve unknown stored fields
+      // for compatibility; the public projection always uses its allowlist.
+      adminPresentationSchema.partial().parse(q.body.patch);
+      adminPresentationSchema.passthrough().parse(value);
+    }
     try {
       validateTree(value);
       // Position overrides form an optional dictionary. Newly shipped slots
@@ -331,7 +357,10 @@ export function createApp({
       throw fail(400, "VALIDATION");
     }
     if (q.params.key === "styles")
-      Object.values(value).forEach((s) => styleSchema.parse(s));
+      Object.values(value).forEach((s) => {
+        styleSchema.parse(s);
+        validateFontSelection(db, s.font);
+      });
     if (q.params.key === "contact")
       z.object({
         confirmed: z.boolean(),

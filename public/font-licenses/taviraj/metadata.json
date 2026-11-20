@@ -1,0 +1,39 @@
+{
+  "family": "Taviraj",
+  "package": "@fontsource/taviraj",
+  "packageVersion": "5.3.0",
+  "license": "OFL-1.1",
+  "licenseUrl": "/font-licenses/taviraj/LICENSE.txt",
+  "licenseInformation": "https://openfontlicense.org",
+  "attribution": "Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Taviraj-ThinItalic.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Taviraj-ExtraLight.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Taviraj-ExtraLightItalic.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Taviraj-Light.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Taviraj-LightItalic.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Taviraj-Regular.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Taviraj-Italic.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Taviraj-Medium.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Taviraj-MediumItalic.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Taviraj-SemiBold.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Taviraj-SemiBoldItalic.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Taviraj-Bold.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Taviraj-BoldItalic.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Taviraj-ExtraBold.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Taviraj-ExtraBoldItalic.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Taviraj-Black.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Taviraj-BlackItalic.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com)",
+  "source": "https://github.com/google/fonts",
+  "distribution": "https://fontsource.org/fonts/taviraj",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fontsource/font-files.git",
+    "directory": "fonts/google/taviraj"
+  },
+  "weights": [
+    100,
+    200,
+    300,
+    400,
+    500,
+    600,
+    700,
+    800,
+    900
+  ],
+  "styles": [
+    "italic",
+    "normal"
+  ],
+  "subsets": [
+    "latin",
+    "latin-ext",
+    "thai",
+    "vietnamese"
+  ],
+  "fontVersion": "v15",
+  "licenseSha256": "3059fc9c8c4afaf71b135f331079e2c91f3c9570954560d66c033b680811cffa"
+}

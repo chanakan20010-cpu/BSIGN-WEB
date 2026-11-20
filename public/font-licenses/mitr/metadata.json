@@ -1,0 +1,35 @@
+{
+  "family": "Mitr",
+  "package": "@fontsource/mitr",
+  "packageVersion": "5.3.0",
+  "license": "OFL-1.1",
+  "licenseUrl": "/font-licenses/mitr/LICENSE.txt",
+  "licenseInformation": "https://openfontlicense.org",
+  "attribution": "Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Mitr-Light.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Mitr-Regular.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Mitr-Medium.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Mitr-SemiBold.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Mitr-Bold.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com)",
+  "source": "https://github.com/google/fonts",
+  "distribution": "https://fontsource.org/fonts/mitr",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fontsource/font-files.git",
+    "directory": "fonts/google/mitr"
+  },
+  "weights": [
+    200,
+    300,
+    400,
+    500,
+    600,
+    700
+  ],
+  "styles": [
+    "normal"
+  ],
+  "subsets": [
+    "latin",
+    "latin-ext",
+    "thai",
+    "vietnamese"
+  ],
+  "fontVersion": "v13",
+  "licenseSha256": "9571076e7e2fac2bb7f5edb4a0d652ae1a2d4d7040c468baa2f3a4d450963048"
+}

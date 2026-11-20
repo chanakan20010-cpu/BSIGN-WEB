@@ -1,0 +1,36 @@
+{
+  "family": "IBM Plex Sans Thai",
+  "package": "@fontsource/ibm-plex-sans-thai",
+  "packageVersion": "5.3.0",
+  "license": "OFL-1.1",
+  "licenseUrl": "/font-licenses/ibm-plex-sans-thai/LICENSE.txt",
+  "licenseInformation": "https://openfontlicense.org",
+  "attribution": "Copyright 2019 IBM Corp. All rights reserved. IBMPlexSansThai-ExtraLight.ttf: Copyright 2019 IBM Corp. All rights reserved. IBMPlexSansThai-Light.ttf: Copyright 2019 IBM Corp. All rights reserved. IBMPlexSansThai-Regular.ttf: Copyright 2019 IBM Corp. All rights reserved. IBMPlexSansThai-Medium.ttf: Copyright 2019 IBM Corp. All rights reserved. IBMPlexSansThai-SemiBold.ttf: Copyright 2019 IBM Corp. All rights reserved. IBMPlexSansThai-Bold.ttf: Copyright 2019 IBM Corp. All rights reserved.",
+  "source": "https://github.com/google/fonts",
+  "distribution": "https://fontsource.org/fonts/ibm-plex-sans-thai",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fontsource/font-files.git",
+    "directory": "fonts/google/ibm-plex-sans-thai"
+  },
+  "weights": [
+    100,
+    200,
+    300,
+    400,
+    500,
+    600,
+    700
+  ],
+  "styles": [
+    "normal"
+  ],
+  "subsets": [
+    "cyrillic-ext",
+    "latin",
+    "latin-ext",
+    "thai"
+  ],
+  "fontVersion": "v11",
+  "licenseSha256": "0eda9417087c7f8fd73ef70d2598e66bbf2e5fabc121fe796fa2e36b9eb16789"
+}

@@ -1,0 +1,254 @@
+.cms-contact-editor {
+  display: grid;
+  gap: 24px;
+  min-width: 0;
+}
+.cms-contact-outline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.admin.cms .cms-contact-outline a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 1px solid var(--cms-line);
+  border-radius: 6px;
+  background: #fff;
+  font-size: 13px;
+}
+.cms-contact-outline a > span {
+  color: var(--cms-accent);
+  font-size: 11px;
+}
+.cms-contact-section {
+  scroll-margin-top: 112px;
+}
+.cms-contact-section-body {
+  display: grid;
+  gap: 24px;
+}
+.cms-contact-section-body > *,
+.cms-contact-field-pair > *,
+.cms-contact-status-grid > * {
+  min-width: 0;
+}
+.admin.cms .cms-contact-section-body > *,
+.admin.cms .cms-contact-field-pair > *,
+.admin.cms .cms-contact-status-grid > * {
+  margin: 0;
+}
+.cms-contact-records,
+.cms-contact-social-list,
+.cms-contact-form-fields {
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+}
+.cms-contact-record,
+.cms-contact-social-card,
+.cms-contact-form-field {
+  min-width: 0;
+  padding: 22px;
+  border: 1px solid var(--cms-line);
+  border-radius: 8px;
+  background: #fcfbf8;
+}
+.cms-contact-record > * + *,
+.cms-contact-social-card > * + *,
+.cms-contact-form-field > * + * {
+  margin-top: 20px;
+}
+.cms-contact-record-heading,
+.cms-contact-subheading,
+.cms-contact-social-heading,
+.cms-contact-field-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+.cms-contact-record-heading > div,
+.cms-contact-subheading > div,
+.cms-contact-social-heading > div {
+  min-width: 0;
+}
+.cms-contact-record-heading > .icon,
+.cms-contact-social-preview {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex: none;
+}
+.cms-contact-social-preview > .icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 7px;
+}
+.cms-contact-social-preview :is(svg, img, .mask) {
+  width: 24px;
+  height: 24px;
+  max-width: 100%;
+}
+.cms-contact-record-heading p,
+.cms-contact-subheading p,
+.cms-contact-social-heading p {
+  color: var(--cms-muted);
+  font-size: 12px;
+  margin-top: 3px;
+}
+.cms-contact-social-heading > .cms-row-actions {
+  margin-left: auto;
+  flex: none;
+}
+.cms-contact-field-header {
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.cms-contact-field-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  align-items: start;
+}
+.cms-contact-field-pair > div > * + * {
+  margin-top: 18px;
+}
+.cms-contact-form-fields {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+}
+.cms-contact-form-field[data-form-field="message"] {
+  grid-column: 1 / -1;
+}
+.cms-contact-form-field > .cms-contact-field-pair {
+  grid-template-columns: minmax(0, 1fr);
+}
+.cms-contact-form-field[data-form-field="message"] > .cms-contact-field-pair {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.cms-contact-shared-value {
+  display: grid;
+  gap: 8px;
+  padding: 18px;
+  border: 1px solid var(--cms-line);
+  border-radius: 6px;
+  background: #fff;
+  overflow-wrap: anywhere;
+}
+.cms-contact-shared-value > span,
+.cms-contact-shared-value small {
+  color: var(--cms-muted);
+  font-size: 12px;
+}
+.cms-contact-shared-value > button {
+  justify-self: start;
+}
+.cms-contact-icon-settings {
+  min-width: 0;
+  border-top: 1px solid var(--cms-line);
+  padding-top: 16px;
+}
+.cms-contact-icon-settings > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--cms-accent);
+  cursor: pointer;
+  font-size: 13px;
+  list-style: none;
+}
+.cms-contact-icon-settings > summary::-webkit-details-marker {
+  display: none;
+}
+.cms-contact-icon-settings[open] > summary {
+  margin-bottom: 16px;
+}
+.cms-contact-icon-settings[open] > summary > svg {
+  transform: rotate(90deg);
+}
+.cms-contact-social-add {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+}
+.cms-contact-social-add > label {
+  flex: 1;
+  max-width: 420px;
+  min-width: 0;
+}
+.admin.cms .cms-contact-social-add > button {
+  flex: none;
+  min-height: 46px;
+}
+.cms-contact-notice {
+  min-height: 0;
+  color: var(--cms-accent);
+  font-size: 13px;
+}
+.cms-contact-notice:empty {
+  display: none;
+}
+.cms-contact-status-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+.cms-contact-status-card {
+  min-width: 0;
+  padding: 16px;
+  background: #fff;
+  border: 1px solid var(--cms-line);
+  border-radius: 6px;
+}
+.cms-contact-status-card > * {
+  margin: 0;
+}
+.cms-contact-section-body .cms-contact-icon-settings .cms-inline-icon-editor {
+  background: #fff;
+}
+.cms-contact-section-body .cms-contact-icon-settings .cms-inline-icon-heading {
+  gap: 18px;
+}
+@media (max-width: 1100px) {
+  .cms-contact-status-grid {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 700px) {
+  .cms-contact-outline a {
+    flex: 1 1 calc(50% - 8px);
+  }
+  .cms-contact-record,
+  .cms-contact-social-card,
+  .cms-contact-form-field {
+    padding: 16px;
+  }
+  .cms-contact-field-pair {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .cms-contact-form-fields,
+  .cms-contact-form-field[data-form-field="message"] > .cms-contact-field-pair {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .cms-contact-social-add {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .cms-contact-social-add > label {
+    max-width: none;
+  }
+  .cms-contact-social-heading {
+    flex-wrap: wrap;
+  }
+  .cms-contact-social-heading > .cms-row-actions {
+    width: 100%;
+    margin-left: 0;
+    justify-content: flex-end;
+  }
+}

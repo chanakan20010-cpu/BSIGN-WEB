@@ -1,0 +1,35 @@
+{
+  "family": "Maitree",
+  "package": "@fontsource/maitree",
+  "packageVersion": "5.3.0",
+  "license": "OFL-1.1",
+  "licenseUrl": "/font-licenses/maitree/LICENSE.txt",
+  "licenseInformation": "https://openfontlicense.org",
+  "attribution": "Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Maitree-Light.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Maitree-Regular.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Maitree-Medium.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Maitree-SemiBold.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com) Maitree-Bold.ttf: Copyright (c) 2015, Cadson Demak (info@cadsondemak.com)",
+  "source": "https://github.com/google/fonts",
+  "distribution": "https://fontsource.org/fonts/maitree",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fontsource/font-files.git",
+    "directory": "fonts/google/maitree"
+  },
+  "weights": [
+    200,
+    300,
+    400,
+    500,
+    600,
+    700
+  ],
+  "styles": [
+    "normal"
+  ],
+  "subsets": [
+    "latin",
+    "latin-ext",
+    "thai",
+    "vietnamese"
+  ],
+  "fontVersion": "v11",
+  "licenseSha256": "7a6252336f098802395ded62a6a968375c7241bf11e79cac7ee1094cb439e29a"
+}

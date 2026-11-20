@@ -31,6 +31,8 @@ import {
 import Admin from "./Admin";
 import Setup from "./Setup";
 import MaintenancePage from "./MaintenancePage";
+import { FontLibraryProvider, FontFaces } from "./font-library";
+import { cardAppearanceStyle } from "./card-appearance";
 import "./style.css";
 function App() {
   const [content, setContent] = useState(null);
@@ -401,7 +403,7 @@ function Home() {
           <SectionHeading value={h.why} slot="home.why.marker" />
           <div className="advantages">
             {h.advantages.map((a, i) => (
-              <article key={i}>
+              <article key={i} style={cardAppearanceStyle(a.appearance)}>
                 <Icon
                   name="rocket"
                   slot={`home.advantage.${i}`}
@@ -956,7 +958,7 @@ function Contact() {
           <section className="card contact-info">
             <FormattedText
               as="h2"
-              className="outlined type-panelHeading"
+              className="contact-section-title type-panelHeading"
               value={c.heading}
             />
             {[
@@ -995,14 +997,18 @@ function Contact() {
           <section className="card social">
             <FormattedText
               as="h2"
-              className="type-subheading"
+              className="contact-section-title type-subheading"
               value={c.socialHeading}
             />
             <div>
               {c.socials.map((s, i) => {
                 const inner = (
                   <>
-                    <Icon name={s.icon} slot={"social." + i} />
+                    <Icon
+                      name={s.icon}
+                      slot={"social." + i}
+                      value={s.iconStyle}
+                    />
                     <FormattedText
                       as="strong"
                       className="type-label"
@@ -1030,15 +1036,19 @@ function Contact() {
         <section className="card form-card">
           <FormattedText
             as="h2"
-            className="outlined type-panelHeading"
+            className="contact-section-title type-panelHeading"
             value={c.formHeading}
           />
-          <form onSubmit={submit}>
+          <form onSubmit={submit} onInvalid={() => setState("invalid")}>
             <div className="form-grid">
               {Object.entries(c.fields).map(([key, f]) => (
                 <label key={key} className={"type-label field-" + key}>
-                  <FormattedText value={f.label} />
-                  {["name", "email", "message"].includes(key) && " *"}
+                  <FormattedText value={f.label}>
+                    {t(f.label)}
+                    {["name", "email", "message"].includes(key) && (
+                      <span aria-hidden="true"> *</span>
+                    )}
+                  </FormattedText>
                   {key === "message" ? (
                     <textarea
                       {...textFormatProps(f.placeholder)}
@@ -1112,7 +1122,9 @@ function Contact() {
                     ? c.success
                     : state === "error"
                       ? g.error
-                      : ""
+                      : state === "invalid"
+                        ? c.invalid
+                        : ""
                 }
               />
             </p>
@@ -1173,7 +1185,10 @@ function Contact() {
   );
 }
 createRoot(document.getElementById("root")).render(
-  <BrowserRouter>
-    <App />
-  </BrowserRouter>,
+  <FontLibraryProvider>
+    <FontFaces />
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </FontLibraryProvider>,
 );

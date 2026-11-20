@@ -32,6 +32,9 @@ import {
 } from "./admin/Editors";
 import Dashboard from "./admin/Dashboard";
 import PageSection from "./admin/PageSection";
+import ContactEditor from "./admin/ContactEditor";
+import AdminPresentationEditor from "./admin/AdminPresentationEditor";
+import FontLibraryPanel from "./admin/FontLibraryPanel";
 import { ImageUploadBusyContext } from "./admin/DeviceImageUpload";
 import "./admin/fonts.css";
 import {
@@ -336,9 +339,17 @@ export default function Admin() {
     let savedPart = false;
     try {
       if (submitted) {
+        const patch =
+          documentKey === "adminPresentation"
+            ? Object.fromEntries(
+                Object.keys(defaults.adminPresentation)
+                  .filter((key) => Object.hasOwn(submitted, key))
+                  .map((key) => [key, submitted[key]]),
+              )
+            : submitted;
         const saved = await api("/admin/documents/" + documentKey, {
           method: "PATCH",
-          body: { revision: docs[documentKey].revision, patch: submitted },
+          body: { revision: docs[documentKey].revision, patch },
         });
         setDocs((d) => ({ ...d, [documentKey]: saved }));
         if (currentTab.current === tab)
@@ -535,9 +546,12 @@ export default function Admin() {
                 ))}
               </nav>
             )}
-            {tab === "styles" && (
+            {["styles", "fonts"].includes(tab) && (
               <nav className="cms-design-tabs" aria-label="การออกแบบเว็บไซต์">
-                {[["styles", "ตัวอักษร"]].map(([key, label]) => (
+                {[
+                  ["styles", "ตัวอักษร"],
+                  ["fonts", "คลังฟอนต์"],
+                ].map(([key, label]) => (
                   <button
                     key={key}
                     aria-current={tab === key ? "page" : undefined}
@@ -548,6 +562,7 @@ export default function Admin() {
                 ))}
               </nav>
             )}
+            {tab === "fonts" && <FontLibraryPanel />}
             {docs[documentKey] && draft && draftTab === tab && (
               <>
                 <div className="cms-savebar">
@@ -609,6 +624,26 @@ export default function Admin() {
                 )}
                 {tab === "styles" ? (
                   <StyleEditor value={draft} onChange={setDraft} />
+                ) : tab === "contact" ? (
+                  <ContactEditor
+                    value={draft}
+                    onChange={setDraft}
+                    media={media}
+                    icons={iconDraft}
+                    iconDefaults={defaults.icons}
+                    onIconsChange={setIconDraft}
+                    global={docs.global.value}
+                    onOpenCompany={() => navigate("global")}
+                    language={language}
+                    pendingUploads={pendingUploads}
+                  />
+                ) : tab === "adminPresentation" ? (
+                  <AdminPresentationEditor
+                    value={draft}
+                    onChange={setDraft}
+                    global={docs.global.value}
+                    media={media}
+                  />
                 ) : (
                   <div
                     className={

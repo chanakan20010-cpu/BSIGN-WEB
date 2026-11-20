@@ -123,14 +123,17 @@ test("maintenance is revision-safe, private-site APIs close while admin login wo
     const content = await request(f.app).get("/api/content");
     assert.equal(content.status, 200);
     assert.deepEqual(Object.keys(content.body).sort(), [
+      "adminPresentation",
       "global",
       "maintenance",
       "styles",
     ]);
     assert.deepEqual(Object.keys(content.body.global).sort(), [
       "brand",
+      "company",
       "favicon",
       "languages",
+      "logo",
     ]);
     assert.equal(
       content.body.maintenance.message.th,
@@ -356,7 +359,7 @@ test("additive migration updates untouched icon appearances once and preserves c
     assert.equal(docs.icons.value.shared.search.color, "#654321");
     assert.equal(
       f.db.prepare("SELECT max(version) version FROM migrations").get().version,
-      4,
+      5,
     );
     const revision = docs.icons.revision;
     const customized = await f.send("patch", "/api/admin/documents/icons", {

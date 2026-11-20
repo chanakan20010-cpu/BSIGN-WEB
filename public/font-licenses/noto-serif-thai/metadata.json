@@ -1,0 +1,37 @@
+{
+  "family": "Noto Serif Thai",
+  "package": "@fontsource/noto-serif-thai",
+  "packageVersion": "5.3.0",
+  "license": "OFL-1.1",
+  "licenseUrl": "/font-licenses/noto-serif-thai/LICENSE.txt",
+  "licenseInformation": "https://openfontlicense.org",
+  "attribution": "Copyright 2022 The Noto Project Authors (https://github.com/notofonts/thai)",
+  "source": "https://github.com/google/fonts",
+  "distribution": "https://fontsource.org/fonts/noto-serif-thai",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fontsource/font-files.git",
+    "directory": "fonts/google/noto-serif-thai"
+  },
+  "weights": [
+    100,
+    200,
+    300,
+    400,
+    500,
+    600,
+    700,
+    800,
+    900
+  ],
+  "styles": [
+    "normal"
+  ],
+  "subsets": [
+    "latin",
+    "latin-ext",
+    "thai"
+  ],
+  "fontVersion": "v28",
+  "licenseSha256": "bd85ada3eef71267263e0fd24a40ae20380015c7cf1afa0c27a4340b03431320"
+}

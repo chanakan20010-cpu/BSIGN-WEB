@@ -6,6 +6,7 @@ RUN --mount=type=secret,id=proxy_ca if [ -f /run/secrets/proxy_ca ]; then export
 COPY index.html vite.config.js ./
 COPY src ./src
 COPY public ./public
+COPY server/admin-presentation-defaults.js ./server/admin-presentation-defaults.js
 RUN npm run build && npm prune --omit=dev
 FROM node:24.22.1-bookworm-slim
 WORKDIR /app
@@ -14,6 +15,7 @@ COPY --from=build --chown=node:node /app/dist ./dist
 COPY --chown=node:node package.json ./
 COPY --chown=node:node server ./server
 COPY --chown=node:node scripts ./scripts
+COPY --chown=node:node src/font-catalog.js src/social-catalog.js ./src/
 RUN mkdir /app/.data && chown node:node /app/.data
 USER node
 ENV HOST=0.0.0.0 PORT=3000 DATA_DIR=/app/.data

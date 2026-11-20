@@ -18,7 +18,13 @@ import {
   Users,
   X,
 } from "lucide-react";
+import { Picture, useSite } from "../shared";
+import {
+  sanitizePublicAdminPresentation,
+  renderAdminPresentationText,
+} from "../../server/admin-presentation-defaults";
 import "./admin.css";
+import "./admin-presentation.css";
 
 const websiteViews = ["global", "home", "about", "news", "contact", "cta"];
 const items = [
@@ -32,6 +38,12 @@ const items = [
   ],
   ["header", "ส่วนหัวเว็บไซต์", LayoutDashboard, "header โลโก้ เมนูส่วนหัว"],
   ["footer", "ส่วนท้ายเว็บไซต์", LayoutDashboard, "footer โลโก้ เมนูส่วนท้าย"],
+  [
+    "adminPresentation",
+    "หน้าเข้าสู่ระบบ",
+    ShieldCheck,
+    "login แบรนด์ ข้อความต้อนรับ เข้าสู่ระบบ",
+  ],
   ["media", "คลังรูปภาพและไฟล์", Image, "รูปภาพและไฟล์ สื่อ media"],
   ["styles", "สไตล์เว็บไซต์", Palette, "สไตล์ตัวอักษร styles"],
   ["contacts", "กล่องข้อความ", Inbox, "ข้อความติดต่อ contacts"],
@@ -39,17 +51,42 @@ const items = [
   ["system", "ระบบและการสำรองข้อมูล", Database, "ข้อมูลระบบ ฐานข้อมูล system"],
 ];
 
-export function AdminBrand({ compact = false }) {
+export function useAdminIdentity(globalOverride, presentationOverride) {
+  const site = useSite();
+  const global = globalOverride || site?.content?.global || {};
+  const presentation = sanitizePublicAdminPresentation(
+    presentationOverride || site?.content?.adminPresentation,
+  );
+  const text = (key) => renderAdminPresentationText(presentation[key], global);
+  const brand =
+    typeof global.brand === "string"
+      ? global.brand
+      : global.brand?.th || global.brand?.en || "";
+  const company =
+    typeof global.company === "string"
+      ? global.company
+      : global.company?.th || global.company?.en || "";
+  return { global, presentation, text, brand: brand || company };
+}
+
+export function AdminBrand({ compact = false, global, presentation }) {
+  const identity = useAdminIdentity(global, presentation);
   return (
-    <span className={"cms-brand" + (compact ? " cms-brand-compact" : "")}>
-      <span className="cms-brand-mark" aria-hidden="true">
-        B<span />
+    <span
+      className={"cms-brand" + (compact ? " cms-brand-compact" : "")}
+      role={compact ? "img" : undefined}
+      aria-label={compact ? identity.brand || "โลโก้บริษัท" : undefined}
+    >
+      <span className="cms-brand-logo" aria-hidden="true">
+        {identity.global.logo?.url ? (
+          <Picture value={identity.global.logo} />
+        ) : (
+          <Image size={28} />
+        )}
       </span>
       <span className="cms-brand-wordmark">
-        <b>
-          BSIGN<span>TECH</span>
-        </b>
-        <small>CONTENT MANAGEMENT</small>
+        <b>{identity.brand}</b>
+        <small>{identity.text("sidebarCaption")}</small>
       </span>
     </span>
   );
@@ -67,6 +104,7 @@ export default function AdminShell({
   loading = false,
   children,
 }) {
+  const identity = useAdminIdentity();
   const [open, setOpen] = useState(false);
   const [mobile, setMobile] = useState(
     () => window.matchMedia("(max-width: 900px)").matches,
@@ -77,7 +115,7 @@ export default function AdminShell({
     previousTab = useRef(tab);
   const active = websiteViews.includes(tab)
     ? "global"
-    : tab === "icons"
+    : ["icons", "fonts"].includes(tab)
       ? "styles"
       : tab;
 
@@ -238,7 +276,7 @@ export default function AdminShell({
           </Link>
           <div className="cms-account">
             <span className="cms-avatar" aria-hidden="true">
-              B
+              <ShieldCheck size={18} />
             </span>
             <span>
               <b>ผู้ดูแลระบบ</b>
@@ -269,7 +307,7 @@ export default function AdminShell({
             >
               <Menu size={22} aria-hidden="true" />
             </button>
-            <h1 className="cms-sr-only">BSIGN TECH · CMS</h1>
+            <h1 className="cms-sr-only">{identity.text("workspaceHeading")}</h1>
             <span className="cms-breadcrumb-home">พื้นที่จัดการ</span>
             <ChevronRight size={14} aria-hidden="true" />
             <span>{title}</span>
@@ -297,7 +335,7 @@ export default function AdminShell({
         >
           <div className="cms-page-heading">
             <div>
-              <p className="cms-eyebrow">BSIGN TECH CONTENT MANAGEMENT</p>
+              <p className="cms-eyebrow">{identity.text("workspaceEyebrow")}</p>
               <h2 tabIndex={-1} ref={heading}>
                 {title}
               </h2>
@@ -307,8 +345,8 @@ export default function AdminShell({
           <div className="cms-main-content">{children}</div>
         </main>
         <footer className="cms-workspace-footer">
-          <span>BSIGN TECH Content Management</span>
-          <span>พื้นที่สำหรับผู้ดูแลเว็บไซต์</span>
+          <span>{identity.text("workspaceFooter")}</span>
+          <span>{identity.text("workspaceFooterNote")}</span>
         </footer>
       </div>
     </div>

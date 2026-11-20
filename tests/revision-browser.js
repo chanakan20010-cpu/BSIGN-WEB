@@ -483,6 +483,7 @@ try {
     ),
   );
   assert.deepEqual(Object.keys(blocked.content).sort(), [
+    "adminPresentation",
     "global",
     "maintenance",
     "styles",

@@ -1,4 +1,9 @@
 import { z } from "zod";
+import { isAllowedFontFamily } from "../src/font-catalog.js";
+import {
+  adminPresentationDefaults,
+  requiredAdminPresentationFields,
+} from "./admin-presentation-defaults.js";
 export const text = z.string().max(30000);
 export const textFormatSchema = z
   .object({
@@ -31,6 +36,28 @@ export const bi = z
   .object({ th: text, en: text, format: textFormatSchema.optional() })
   .passthrough();
 export const color = z.string().regex(/^#[0-9a-fA-F]{6}$/);
+const surfaceColor = z.union([color, z.literal("transparent")]);
+export const cardAppearanceSchema = z
+  .object({ background: surfaceColor, border: surfaceColor })
+  .strict();
+const requiredPresentationFields = new Set(requiredAdminPresentationFields);
+export const adminPresentationSchema = z
+  .object(
+    Object.fromEntries(
+      Object.keys(adminPresentationDefaults).map((key) => [
+        key,
+        z
+          .string()
+          .max(5000)
+          .regex(/^[^\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]*$/)
+          .refine(
+            (value) =>
+              !requiredPresentationFields.has(key) || Boolean(value.trim()),
+          ),
+      ]),
+    ),
+  )
+  .strict();
 export const iconSchema = z
   .object({
     name: z.string().max(50),
@@ -132,7 +159,7 @@ export const articleSchema = z
   })
   .passthrough();
 export const styleSchema = z.object({
-  font: z.enum(["Noto Sans Thai", "Noto Sans", "sans-serif", "serif"]),
+  font: z.string().refine(isAllowedFontFamily, "Choose an available font"),
   size: z.number().min(10).max(100),
   tablet: z.number().min(10).max(100),
   mobile: z.number().min(10).max(100),
@@ -153,10 +180,15 @@ export const contactSchema = z.object({
 // Validate all persisted leaves, including unrecognized future keys. Known shapes are
 // validated after merging so partial requests cannot silently delete newer fields.
 export function validateTree(v, key = "") {
+  if (key === "appearance") cardAppearanceSchema.parse(v);
   if (key === "format") textFormatSchema.parse(v);
   if (key === "editorLabels") editorLabelsSchema.parse(v);
   if (key === "editorLabel") editorLabel.parse(v);
-  if (key === "footIcon" || (key === "icon" && typeof v !== "string"))
+  if (
+    key === "footIcon" ||
+    key === "iconStyle" ||
+    (key === "icon" && typeof v !== "string")
+  )
     iconSchema.parse(v);
   if (v === null || typeof v === "boolean") return;
   if (typeof v === "number") {
@@ -221,6 +253,9 @@ export function validateShape(template, value, path = "") {
           "footerHeading",
           "footerBrand",
           "panelHeading",
+          "appearance",
+          "iconStyle",
+          "platform",
         ].includes(k)
       )
         continue;

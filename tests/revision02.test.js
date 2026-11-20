@@ -339,7 +339,7 @@ test("migration 3 copies saved icon appearances, footer menus and footer type wi
     const migrated = await f.documents();
     assert.equal(
       f.db.prepare("SELECT max(version) version FROM migrations").get().version,
-      4,
+      5,
     );
     assert.equal(migrated.home.value.cards[0].icon.color, "#102030");
     assert.equal(migrated.home.value.cards[1].icon.color, "#405060");
