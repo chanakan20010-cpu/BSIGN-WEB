@@ -32,6 +32,21 @@ jobs:
           git -C source archive --format=zip --output=$archive HEAD
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           Expand-Archive -LiteralPath $archive -DestinationPath $env:BSIGN_PREVIEW_FOLDER
+      - name: Parse updated Windows startup scripts with PowerShell 5.1
+        shell: powershell
+        working-directory: 'BSIGN Preview ทดสอบ'
+        run: |
+          foreach ($relative in @('scripts/windows/bootstrap.ps1', 'tests/windows-startup.ps1')) {
+            $tokens = $null
+            $syntaxIssues = $null
+            $null = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $PWD $relative), [ref]$tokens, [ref]$syntaxIssues)
+            if ($syntaxIssues) {
+              foreach ($syntaxIssue in $syntaxIssues) {
+                Write-Host "::error title=PowerShell syntax::$relative line $($syntaxIssue.Extent.StartLineNumber): $($syntaxIssue.Message)"
+              }
+              exit 1
+            }
+          }
       - name: Verify Internet-marked ZIP, tamper rejection and START-WINDOWS
         shell: powershell
         working-directory: 'BSIGN Preview ทดสอบ'
@@ -44,6 +59,16 @@ jobs:
               $tail = ((Get-Content '.runtime/logs/setup.log' -Tail 12) -join ' ') -replace '[\r\n]+',' '
               Write-Host "::error title=Setup output::$tail"
             }
+            exit 1
+          }
+      - name: Fast extraction, shared download caches and Node ZIP benchmark
+        shell: powershell
+        working-directory: 'BSIGN Preview ทดสอบ'
+        run: |
+          try { & ./tests/windows-startup.ps1 }
+          catch {
+            $message = $_.Exception.GetBaseException().Message -replace '[\r\n]+',' '
+            Write-Host "::error title=Windows startup tests::$message"
             exit 1
           }
       - name: Verify Windows Forms controller

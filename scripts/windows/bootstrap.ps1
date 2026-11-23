@@ -76,6 +76,118 @@ function Receive-BsignArchive([string]$Url,[string]$Destination,[string]$Sha256)
         if (Test-Path -LiteralPath $partial) { Remove-Item -LiteralPath $partial -Force }
     }
 }
+function Expand-BsignArchive([string]$Archive,[string]$Destination) {
+    # Expand-Archive in Windows PowerShell 5.1 spends time on per-file progress
+    # and provider operations. Use .NET file APIs while keeping the GUI live.
+    $ProgressPreference = 'SilentlyContinue'
+    Invoke-BsignTick
+    if (Test-Path -LiteralPath $Destination) { throw 'Archive destination already exists' }
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    $root = [IO.Path]::GetFullPath($Destination)
+    $prefix = $root.TrimEnd([IO.Path]::DirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
+    $created = $false
+    try {
+        $null = New-Item -ItemType Directory -Path $root
+        $created = $true
+        $zip = [IO.Compression.ZipFile]::OpenRead($Archive)
+        try {
+            $count = 0
+            foreach ($entry in $zip.Entries) {
+                $relative = $entry.FullName
+                if ([string]::IsNullOrWhiteSpace($relative) -or $relative -match '^[\\/]' -or $relative.Contains(':') -or (($relative -split '[\\/]') -contains '..')) {
+                    throw 'Invalid archive entry path'
+                }
+                $relative = $relative.Replace([char]'/',[IO.Path]::DirectorySeparatorChar)
+                $target = [IO.Path]::GetFullPath([IO.Path]::Combine($root,$relative))
+                if (-not $target.StartsWith($prefix,[StringComparison]::OrdinalIgnoreCase)) { throw 'Invalid archive entry path' }
+                if ($entry.FullName.EndsWith('/') -or $entry.FullName.EndsWith('\')) {
+                    $null = [IO.Directory]::CreateDirectory($target)
+                } else {
+                    $null = [IO.Directory]::CreateDirectory([IO.Path]::GetDirectoryName($target))
+                    [IO.Compression.ZipFileExtensions]::ExtractToFile($entry,$target,$false)
+                }
+                $count++
+                if (($count % 32) -eq 0) { Invoke-BsignTick }
+            }
+            Invoke-BsignTick
+        } finally { $zip.Dispose() }
+    } catch {
+        # Only this newly-created staging directory belongs to this call.
+        if ($created -and (Test-Path -LiteralPath $root)) { Remove-Item -LiteralPath $root -Recurse -Force }
+        throw
+    }
+}
+function Get-BsignCacheDirectory([string]$Name) {
+    $probe = $null
+    try {
+        if ($Name -notmatch '^[a-z-]+$') { return $null }
+        $base = $env:LOCALAPPDATA
+        if ([string]::IsNullOrWhiteSpace($base)) { $base = [Environment]::GetFolderPath([Environment+SpecialFolder]::LocalApplicationData) }
+        if ([string]::IsNullOrWhiteSpace($base) -or -not [IO.Path]::IsPathRooted($base)) { return $null }
+        $directory = [IO.Path]::Combine($base,'BSIGN TECH','preview-cache',$Name)
+        $null = [IO.Directory]::CreateDirectory($directory)
+        $probe = [IO.Path]::Combine($directory,([Guid]::NewGuid().ToString('N')+'.probe'))
+        $stream = [IO.File]::Open($probe,[IO.FileMode]::CreateNew,[IO.FileAccess]::Write,[IO.FileShare]::None)
+        $stream.Dispose()
+        [IO.File]::Delete($probe)
+        $probe = $null
+        return $directory
+    } catch { return $null }
+    finally {
+        if ($probe) { try { [IO.File]::Delete($probe) } catch { } }
+    }
+}
+function Get-BsignNpmCache([string]$RuntimeRoot) {
+    $cache = Get-BsignCacheDirectory 'npm-cache'
+    if ($cache) { return $cache }
+    $fallback = [IO.Path]::Combine($RuntimeRoot,'npm-cache')
+    $null = [IO.Directory]::CreateDirectory($fallback)
+    return $fallback
+}
+function Test-BsignArchiveFile([string]$File,[string]$Sha256) {
+    try {
+        return (Test-Path -LiteralPath $File -PathType Leaf) -and ((Get-FileHash -LiteralPath $File -Algorithm SHA256).Hash -eq $Sha256)
+    } catch { return $false }
+}
+function Receive-BsignNodeArchive([string]$Url,[string]$Destination,[string]$Sha256) {
+    if ($Sha256 -notmatch '^[a-fA-F0-9]{64}$') { throw 'Invalid Node archive checksum' }
+    if (Test-BsignArchiveFile $Destination $Sha256) { return }
+    $cacheDirectory = Get-BsignCacheDirectory 'node-archives'
+    $cached = $null
+    if ($cacheDirectory) {
+        $name = [IO.Path]::GetFileNameWithoutExtension($Destination)+'-'+$Sha256.ToLowerInvariant()+'.zip'
+        $cached = [IO.Path]::Combine($cacheDirectory,$name)
+        if (Test-BsignArchiveFile $cached $Sha256) {
+            $copy = [IO.Path]::Combine([IO.Path]::GetDirectoryName($Destination),('cached-'+[Guid]::NewGuid().ToString('N')+'.partial'))
+            try {
+                [IO.File]::Copy($cached,$copy,$false)
+                if (-not (Test-BsignArchiveFile $copy $Sha256)) { throw 'Cached archive checksum mismatch' }
+                Move-Item -LiteralPath $copy -Destination $Destination -Force
+                Write-BsignStatus 'ใช้ไฟล์ Node.js ที่ตรวจสอบแล้วจากแคชในเครื่อง…'
+                return
+            } catch {
+                # An unavailable/corrupt cache must never block a normal setup.
+            } finally {
+                try { if (Test-Path -LiteralPath $copy) { Remove-Item -LiteralPath $copy -Force } } catch { }
+            }
+        }
+    }
+    Write-BsignStatus 'ครั้งแรก: กำลังดาวน์โหลดเครื่องมือที่จำเป็น…'
+    $null = Receive-BsignArchive $Url $Destination $Sha256
+    if ($cached) {
+        $publish = [IO.Path]::Combine($cacheDirectory,('publish-'+[Guid]::NewGuid().ToString('N')+'.partial'))
+        try {
+            [IO.File]::Copy($Destination,$publish,$false)
+            if (-not (Test-BsignArchiveFile $publish $Sha256)) { throw 'Cached archive checksum mismatch' }
+            # No overwrite: another launcher may already have published this key.
+            [IO.File]::Move($publish,$cached)
+        } catch {
+            # Cache publication is optional; the verified project archive is ready.
+        } finally {
+            try { if (Test-Path -LiteralPath $publish) { Remove-Item -LiteralPath $publish -Force } } catch { }
+        }
+    }
+}
 function Get-BsignFingerprint([string[]]$Files,[string]$Salt) {
     $builder = New-Object Text.StringBuilder
     $null = $builder.AppendLine($Salt)
@@ -107,16 +219,18 @@ function Initialize-BsignProject([string]$ProjectRoot, [switch]$Console) {
     $nodeDirectory = Join-Path $runtimeRoot $folderName
     $node = Join-Path $nodeDirectory 'node.exe'
     if (-not (Test-Path -LiteralPath $node)) {
-        Write-BsignStatus 'ครั้งแรก: กำลังดาวน์โหลดเครื่องมือที่จำเป็น…'
+        Write-BsignStatus 'กำลังตรวจสอบเครื่องมือที่จำเป็น…'
         $archive = Join-Path $runtimeRoot ($folderName+'.zip')
-        $null = Receive-BsignArchive ('https://nodejs.org/dist/v'+$manifest.version+'/'+$folderName+'.zip') $archive $manifest.archives.$arch.sha256
+        $null = Receive-BsignNodeArchive ('https://nodejs.org/dist/v'+$manifest.version+'/'+$folderName+'.zip') $archive $manifest.archives.$arch.sha256
         Write-BsignStatus 'ตรวจสอบไฟล์แล้ว กำลังเตรียม Node.js สำหรับโปรเจกต์นี้…'
-        $stage = Join-Path $runtimeRoot ('unpack-'+[Guid]::NewGuid().ToString('N'))
+        $stage = Join-Path $runtimeRoot ('u-'+[Guid]::NewGuid().ToString('N').Substring(0,16))
+        $stageReady = $false
         try {
-            Expand-Archive -LiteralPath $archive -DestinationPath $stage -Force
+            Expand-BsignArchive $archive $stage
+            $stageReady = $true
             if (Test-Path -LiteralPath $nodeDirectory) { Remove-Item -LiteralPath $nodeDirectory -Recurse -Force }
             Move-Item -LiteralPath (Join-Path $stage $folderName) -Destination $nodeDirectory
-        } finally { if(Test-Path -LiteralPath $stage){Remove-Item -LiteralPath $stage -Recurse -Force} }
+        } finally { if($stageReady -and (Test-Path -LiteralPath $stage)){Remove-Item -LiteralPath $stage -Recurse -Force} }
     }
     $actualVersion = Invoke-BsignProcess $node @('--version') $ProjectRoot $logFile -ShowOutput:$Console
     if ($actualVersion -ne ('v'+$manifest.version)) { throw 'เวอร์ชันเครื่องมือในโฟลเดอร์ .runtime ไม่ตรง กรุณาปิดและลบเฉพาะโฟลเดอร์ .runtime แล้วลองใหม่' }
@@ -127,7 +241,8 @@ function Initialize-BsignProject([string]$ProjectRoot, [switch]$Console) {
     $depsStamp = Join-Path $runtimeRoot 'dependencies.stamp'
     if (-not ((Test-BsignStamp $depsStamp $deps) -and (Test-Path -LiteralPath (Join-Path $ProjectRoot 'node_modules\.package-lock.json')))) {
         Write-BsignStatus 'กำลังเตรียมส่วนประกอบของเว็บไซต์ (ครั้งแรกต้องใช้อินเทอร์เน็ต)…'
-        $null = Invoke-BsignProcess $node @($npm,'ci','--include=dev','--no-audit','--no-fund','--strict-ssl=true','--cache',(Join-Path $runtimeRoot 'npm-cache')) $ProjectRoot $logFile -ShowOutput:$Console
+        $npmCache = Get-BsignNpmCache $runtimeRoot
+        $null = Invoke-BsignProcess $node @($npm,'ci','--include=dev','--prefer-offline','--no-audit','--no-fund','--strict-ssl=true','--cache',$npmCache) $ProjectRoot $logFile -ShowOutput:$Console
         [IO.File]::WriteAllText($depsStamp,$deps)
     }
     $files = @((Join-Path $ProjectRoot 'index.html'),(Join-Path $ProjectRoot 'vite.config.js'))
