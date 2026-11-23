@@ -247,3 +247,4 @@ API ส่ง error code แทนข้อมูลภายในและไ�
 - [ไอคอนและเมนูหน้าติดต่อ](docs/screenshots/v180-contact-icons.png)
 - [เลือกสีในช่องชื่อแบรนด์ของส่วนหัว](docs/screenshots/v180-header-color-editor.png)
 - [ตัวอย่างสีข้อความรายช่อง](docs/screenshots/v180-contact-colors.png)
+- [ตัวเลือกสีบนมือถือ 320px](docs/screenshots/v180-color-mobile.png)

@@ -14,11 +14,18 @@
 | Accessibility | Public เดิมทั้ง 5 หน้าและ Admin regression ผ่าน automated axe WCAG A/AA ตามเกณฑ์ชุดทดสอบ; ชุดใหม่เปิดตัวเลือกสี ไม่พบ serious/critical violations |
 | บัญชีพรีวิว | setup/recovery และ initial-admin → /admin → logout → restart → login ผ่านอีก 2 flow |
 | Docker / Compose | build v1.8.0 ผ่าน; HTTP/API, non-root และข้อมูลอยู่หลังเปลี่ยน container ผ่าน; Compose config ผ่าน |
+| ตัวเลือกสีบนมือถือ | ตรวจเพิ่มเติมที่ 390/320px: keyboard เปิดส่วนรูปแบบและ Tab/Enter เลือกสี/คืนค่าได้ focus มองเห็น ไม่ล้นกรอบ/จอ และ axe WCAG A/AA ไม่มี violations ทุก impact ทั้งสองขนาด ไม่รวมในจำนวน 342 ข้างต้น |
 | ภาพตัวอย่าง | docs/screenshots/v180-*.png ตรวจภาพจริงแล้ว ใช้ข้อมูลและสีทดสอบ ไม่แสดงรหัสผ่าน |
 
 รวม browser ตามชุดหลัก 342 กรณี ไม่รวม 2 flow บัญชีพรีวิว ไม่มี migration ใหม่ ข้อความเต็มไม่ถูกตัดในฐานข้อมูล และสีเฉพาะข้อความเป็นฟิลด์เสริมที่เก็บร่วมกับเนื้อหานั้น
 
 ข้อจำกัดเดิมเรื่อง screen reader จริง/Windows ARM64, การเชื่อม SMTP จริง, พิกัด iframe Maps และบัญชี LinkedIn ยังเป็นไปตามรุ่นก่อน ไม่มีการเพิ่มบริการเสียเงินหรือ deploy โดเมนสาธารณะ
+
+Windows Server 2022 x64 / PowerShell 5.1 ผ่าน [Windows preview](https://github.com/chanakan20010-cpu/BSIGN-WEB/actions/runs/45108126250) — implementation commit `4ffc09acc7ca84a5db0334e299360d532e483d99`, workflow Success (5 นาที 6 วินาที), job succeeded (5 นาที 3 วินาที)
+
+- ZIP แตกลงโฟลเดอร์ภาษาไทย/ช่องว่าง, START-WINDOWS, Internet Zone/tamper rejection, portable Node และ GUI/VBS ผ่าน
+- API 54 ชุด; Edge browser 289 กรณี (Admin 82, revision 01/02/03 จำนวน 40/36/42, Contact 33, Fonts 10, Identity 11, revision 04 จำนวน 18 และ revision 05 จำนวน 17) รวม setup/recovery และ initial-admin อีก 2 flow ผ่านตามขั้นตอน workflow
+- ยืนยันจากสถานะหน้า workflow/job สาธารณะ ไม่ได้อ่าน log ที่ต้องเข้าสู่ระบบ CI ใช้ Edge headless และจำลอง Mark-of-the-Web ไม่เท่ากับการทดสอบ Explorer หรือเครื่องผู้ใช้จริง
 
 ---
 
