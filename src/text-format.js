@@ -24,6 +24,9 @@ export const textAlignLabels = {
   justify: "ชิดขอบทั้งสองด้าน",
 };
 
+export const isCustomTextColor = (color) =>
+  typeof color === "string" && /^#[0-9a-fA-F]{6}$/.test(color);
+
 // Values are validated again on the server. Only known role names can become
 // CSS variable references, and no free-form CSS is accepted from a text field.
 export function textFormatting(value) {
@@ -34,6 +37,7 @@ export function textFormatting(value) {
   const align = Object.hasOwn(textAlignLabels, format?.align)
     ? format.align
     : null;
+  const color = isCustomTextColor(format?.color) ? format.color : null;
   const style = {};
   if (role) {
     for (const key of ["size", "tablet", "mobile"])
@@ -54,7 +58,8 @@ export function textFormatting(value) {
       textJustify: align === "distributed" ? "inter-character" : "auto",
     });
   }
-  return { role, align, style };
+  if (color) style.color = color;
+  return { role, align, color, style };
 }
 
 export function textFormatProps(value) {
@@ -63,6 +68,7 @@ export function textFormatProps(value) {
     className: "bs-formatted-text",
     "data-text-style": format.role || undefined,
     "data-text-align": format.align || undefined,
+    "data-text-color": format.color ? "custom" : undefined,
     style: format.style,
   };
 }

@@ -1,8 +1,8 @@
-# BSIGN TECH — v1.7.0
+# BSIGN TECH — v1.8.0
 
 เว็บไซต์ TH/EN ตามภาพส่งออก Figma ที่ผู้ใช้แนบ: หน้าแรก เกี่ยวกับเรา ข่าวสาร รายละเอียดข่าว และติดต่อเรา พร้อม CMS, REST API และ SQLite จริง
 
-รุ่นนี้ทำตามไฟล์ “รายการแก้ไข 02.docx” และงานหน้าติดต่อที่ค้างอยู่ ดูรายการเทียบคำขอใน [docs/REVISION-04.md](docs/REVISION-04.md) และผลทดสอบใน [docs/VALIDATION.md](docs/VALIDATION.md)
+รุ่นนี้ปรับตามรายการในแชทที่อนุญาตด้วย “แก้ไขได้” เมื่อ 23 พฤศจิกายน 2026 ดูรายการเทียบคำขอใน [docs/REVISION-05.md](docs/REVISION-05.md) และผลทดสอบใน [docs/VALIDATION.md](docs/VALIDATION.md)
 
 v1.6.3 เพิ่มเงาภาพหลักและภาพส่วนทำไมต้องเลือกเราในหน้าแรก โดยใช้เงาเดียวกับการ์ดภาพหน้าเกี่ยวกับเรา
 
@@ -63,6 +63,14 @@ npm start
 โหมดเซิร์ฟเวอร์ใช้ `http://localhost:3000` และ CMS ที่ `/admin` โดย origin ต้องตรง `APP_ORIGIN` ส่วนตัวเปิดพรีวิวจัดการ origin/port ให้เองโดยไม่แก้ `.env`
 
 `npm run dev` ใช้ Vite hot reload และ API ใน origin เดียวกัน แม้มี dist อยู่แล้ว ส่วน `npm start` เสิร์ฟ production build โหมด dev อนุญาต Vite inline preamble/WebSocket ใน CSP เฉพาะระหว่างพัฒนา โหมด production ใช้ CSP ที่เข้มงวดกว่า
+
+## สีข้อความและการแสดงผลที่เพิ่มใน v1.8.0
+
+- เปิดหน้าจัดการเนื้อหาที่ต้องการ เช่น **ส่วนหัวเว็บไซต์**, **ติดต่อเรา** หรือ **ข่าวสารและบทความ** แล้วเปิด **รูปแบบ สี และการจัดแนวข้อความ** ใต้ช่องนั้นเพื่อเลือกสีเฉพาะข้อความ ไม่ต้องแก้สไตล์ส่วนกลาง
+- เลือกสีด้วย Color Picker หรือรหัส HEX 6 หลัก ดูตัวอย่าง แล้วกดบันทึก สีของช่องใช้ร่วมกันทั้ง TH/EN; เมื่อต้องการกลับไปใช้สีเดิมให้คืนค่าตามสไตล์แล้วบันทึก
+- ชื่อแบรนด์ใช้ข้อมูลร่วมกันระหว่างส่วนหัวและส่วนท้าย จึงเปลี่ยนสีตามช่องชื่อแบรนด์เดียวกัน หัวข้อรายบรรทัดเดิมยังใช้สีประจำบรรทัดเมื่อไม่มีสีเฉพาะข้อความ
+- เมนู Header/Footer และหมวดข่าวที่เลือกแสดงตัวหนา 700 รายการอื่น 400 ปกข่าวเด่นย่อเฉพาะที่แสดงสูงสุด 3 บรรทัดต่อหัวข้อ/คำโปรย โดยหน้ารายละเอียดข่าวยังใช้ข้อมูลเต็ม
+- ไม่เพิ่ม migration และไม่เขียนข้อมูลเก่าทับ เก็บ `.data` ทั้งโฟลเดอร์และ `.env` เดิมตามวิธีอัปเดตด้านบน
 
 ## ฟอนต์และงานหลังบ้านที่เพิ่มใน v1.7.0
 
@@ -144,7 +152,7 @@ Production ต้องตั้ง `NODE_ENV=production`, `APP_ORIGIN=https://�
 Docker build ใน Codex cloud ต้องส่ง CA ให้ npm โดยรักษา TLS verification:
 
 ```sh
-docker build --secret id=proxy_ca,src="$CODEX_PROXY_CERT" -t bsign-web:1.7.0 .
+docker build --secret id=proxy_ca,src="$CODEX_PROXY_CERT" -t bsign-web:1.8.0 .
 docker compose up --no-build -d
 ```
 
@@ -182,13 +190,14 @@ npm run test:contact
 npm run test:fonts
 npm run test:identity
 npm run test:revision04
+npm run test:revision05
 ```
 
 Browser tests ใช้ Chromium (`CHROMIUM_PATH` เปลี่ยนตำแหน่ง binary ได้) ใช้ฐานข้อมูลและบัญชีสุ่มชั่วคราว ไม่เขียนข้อมูลทดสอบลง `.data` สร้าง screenshots ใน test-results ซึ่งไม่ commit
 
 ดูผลที่ตรวจจริงและข้อจำกัดใน `docs/VALIDATION.md` และแนวทาง PostgreSQL ใน `docs/POSTGRESQL.md` ยังไม่มีการติดตั้ง PostgreSQL อัตโนมัติ
 
-ฟอนต์ที่อัปโหลดและ metadata รวมอยู่ใน backup ตั้งแต่รุ่นนี้ สำเนารุ่นก่อนที่ยังไม่มีฟอนต์กู้คืนได้เช่นเดิม การกู้คืนจะตรวจ path, symlink, checksum และฟอนต์ก่อนสร้างโฟลเดอร์ปลายทางใหม่ ไม่เขียนทับโฟลเดอร์ที่มีอยู่
+ฟอนต์ที่อัปโหลดและ metadata รวมอยู่ใน backup ตั้งแต่ v1.7.0 สำเนารุ่นก่อนที่ยังไม่มีฟอนต์กู้คืนได้เช่นเดิม การกู้คืนจะตรวจ path, symlink, checksum และฟอนต์ก่อนสร้างโฟลเดอร์ปลายทางใหม่ ไม่เขียนทับโฟลเดอร์ที่มีอยู่
 
 ## API โดยย่อ
 
@@ -229,3 +238,12 @@ API ส่ง error code แทนข้อมูลภายในและไ�
 [คลังฟอนต์](docs/screenshots/v170-font-library.png) · [คลังฟอนต์มือถือ](docs/screenshots/v170-font-library-mobile.png) · [ตั้งค่า Login](docs/screenshots/v170-login-editor.png) · [Login มือถือ](docs/screenshots/v170-login-mobile.png) · [โซเชียลในหน้าติดต่อ](docs/screenshots/v170-contact-socials.png) · [แบบฟอร์มหลังบ้าน](docs/screenshots/v170-contact-form.png) · [สีการ์ด](docs/screenshots/v170-card-colors.png) · [หน้าติดต่อสาธารณะ](docs/screenshots/v170-contact-public.png)
 
 ภาพจากเว็บที่รันจริงและข้อมูลชั่วคราว ไม่แสดงรหัสผ่านผู้ดูแล
+
+## ภาพตัวอย่าง v1.8.0
+
+ภาพจากการรันด้วยข้อมูลทดสอบ แสดงตัวอย่างการตั้งค่าสีที่ผู้ดูแลเลือกได้ สีในเว็บไซต์เดิมยังใช้ค่าที่บันทึกไว้
+
+- [ปกข่าวจำกัด 3 บรรทัด](docs/screenshots/v180-featured-news.png)
+- [ไอคอนและเมนูหน้าติดต่อ](docs/screenshots/v180-contact-icons.png)
+- [เลือกสีในช่องชื่อแบรนด์ของส่วนหัว](docs/screenshots/v180-header-color-editor.png)
+- [ตัวอย่างสีข้อความรายช่อง](docs/screenshots/v180-contact-colors.png)

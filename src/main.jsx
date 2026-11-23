@@ -212,11 +212,15 @@ function Header() {
             {g.nav.map((n, i) => (
               <NavLink
                 className="type-menu"
+                style={({ isActive }) => ({ fontWeight: isActive ? 700 : 400 })}
                 key={i}
                 to={n.href}
                 end={n.href === "/"}
               >
-                <FormattedText value={n.label} />
+                <FormattedText
+                  value={n.label}
+                  style={{ fontWeight: "inherit" }}
+                />
               </NavLink>
             ))}
           </nav>
@@ -271,11 +275,15 @@ function Footer() {
           {(g.footerNav || g.nav).map((n, i) => (
             <NavLink
               className="type-footer"
+              style={({ isActive }) => ({ fontWeight: isActive ? 700 : 400 })}
               key={i}
               to={n.href}
               end={n.href === "/"}
             >
-              <FormattedText value={n.label} />
+              <FormattedText
+                value={n.label}
+                style={{ fontWeight: "inherit" }}
+              />
             </NavLink>
           ))}
         </nav>
@@ -652,10 +660,14 @@ function News() {
               <button
                 key={c.id}
                 className="type-button"
+                style={{ fontWeight: category === c.id ? 700 : 400 }}
                 aria-pressed={category === c.id}
                 onClick={() => filter({ category: c.id })}
               >
-                <FormattedText value={c.label} />
+                <FormattedText
+                  value={c.label}
+                  style={{ fontWeight: "inherit" }}
+                />
               </button>
             ))}
           </div>
@@ -707,12 +719,12 @@ function News() {
                   </span>
                   <FormattedText
                     as="h2"
-                    className="type-heading"
+                    className="type-heading featured-title"
                     value={data.items[0].title}
                   />
                   <FormattedText
                     as="p"
-                    className="type-body"
+                    className="type-body featured-excerpt"
                     value={data.items[0].excerpt}
                   />
                   <Link
@@ -948,7 +960,7 @@ function Contact() {
   };
   const coords = `${c.map.latitude},${c.map.longitude}`;
   return (
-    <div className="container section">
+    <div className="container section contact-page">
       <div className="contact-banner">
         <Titles lines={c.title} />
         <FormattedText as="h2" className="type-heading" value={c.subtitle} />

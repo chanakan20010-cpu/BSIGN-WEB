@@ -30,6 +30,9 @@ export const textFormatSchema = z
     align: z
       .enum(["inherit", "left", "right", "center", "distributed", "justify"])
       .optional(),
+    color: z
+      .union([z.string().regex(/^#[0-9a-fA-F]{6}$/), z.literal("inherit")])
+      .optional(),
   })
   .passthrough();
 export const bi = z
@@ -211,6 +214,9 @@ export function validateTree(v, key = "") {
   for (const [k, x] of Object.entries(v)) {
     if (["__proto__", "constructor", "prototype"].includes(k))
       throw Error("Unsafe key");
+    // format.color is already validated above. Its explicit reset sentinel
+    // must not become an allowed value for unrelated icon/theme colors.
+    if (key === "format" && k === "color") continue;
     validateTree(x, k);
   }
 }

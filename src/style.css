@@ -225,6 +225,9 @@ header {
   font-style: normal;
   color: #946200;
 }
+.brand [data-text-color="custom"] em {
+  color: inherit;
+}
 .header-inner nav {
   display: flex;
   gap: 30px;
@@ -450,7 +453,8 @@ header {
   font-style: normal;
 }
 .footer-wordmark[data-text-style] em,
-.brand [data-text-style] em {
+.brand [data-text-style] em,
+.footer-wordmark[data-text-color="custom"] em {
   color: inherit;
 }
 .footer-company {
@@ -638,8 +642,19 @@ header {
   border-radius: 0;
 }
 .featured > div:last-child {
+  min-width: 0;
   padding: 50px;
   align-self: center;
+}
+.featured .featured-title,
+.featured .featured-excerpt {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  overflow-wrap: anywhere;
 }
 .featured h2 {
   margin: 10px 0 24px;
@@ -774,6 +789,16 @@ header {
 .contact-info .icon {
   width: 40px;
   height: 40px;
+}
+.contact-page :is(.contact-info, .social, .office) .icon {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+}
+.contact-page .icon > :is(svg, img, .mask) {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
 }
 .contact-info small {
   display: block;

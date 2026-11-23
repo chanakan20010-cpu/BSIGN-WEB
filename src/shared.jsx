@@ -156,7 +156,12 @@ export function FormattedText({
       className={[className, "bs-formatted-text"].filter(Boolean).join(" ")}
       data-text-style={format.role || undefined}
       data-text-align={format.align || undefined}
-      style={{ ...format.style, ...style }}
+      data-text-color={format.color ? "custom" : undefined}
+      style={{
+        ...format.style,
+        ...style,
+        ...(format.color ? { color: format.color } : {}),
+      }}
     >
       {children === undefined ? t(value) : children}
     </Tag>

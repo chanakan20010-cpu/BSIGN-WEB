@@ -26,6 +26,62 @@
   font-size: 12px;
   color: var(--cms-muted);
 }
+.admin.cms .cms-text-color-controls {
+  margin: 16px 0 0;
+  padding: 14px 0 0;
+  border: 0;
+  border-top: 1px solid var(--cms-line);
+}
+.admin.cms .cms-text-color-controls > legend {
+  padding: 0 6px 0 0;
+  color: var(--cms-ink);
+  font-size: 12px;
+  font-weight: 600;
+}
+.admin.cms .cms-text-color-fields {
+  display: grid;
+  grid-template-columns: 72px minmax(100px, 1fr) auto;
+  align-items: end;
+  gap: 10px;
+}
+.admin.cms .cms-text-color-fields label {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  color: var(--cms-muted);
+  font-size: 12px;
+}
+.admin.cms .cms-text-color-fields input[type="color"] {
+  width: 100%;
+  height: 40px;
+  min-height: 40px;
+  padding: 5px;
+  cursor: pointer;
+}
+.admin.cms .cms-text-color-fields .cms-text-color-hex {
+  width: 100%;
+  height: 40px;
+  min-height: 40px;
+  padding: 8px 10px;
+}
+.admin.cms .cms-text-color-reset {
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid var(--cms-line);
+  border-radius: 5px;
+  background: #fff;
+  color: var(--cms-accent);
+  font-size: 12px;
+}
+.admin.cms .cms-text-color-controls > small {
+  display: block;
+  margin-top: 9px;
+  color: var(--cms-muted);
+  font-size: 11px;
+}
+.admin.cms .cms-text-color-controls > .cms-text-color-error {
+  color: #a32130;
+}
 .admin.cms .cms-text-format-preview {
   background: #fff;
   border: 1px solid var(--cms-line);
@@ -126,5 +182,12 @@
 @media (max-width: 700px) {
   .admin.cms .cms-text-format-fields {
     grid-template-columns: 1fr;
+  }
+  .admin.cms .cms-text-color-fields {
+    grid-template-columns: 64px minmax(0, 1fr);
+  }
+  .admin.cms .cms-text-color-reset {
+    grid-column: 1 / -1;
+    justify-self: start;
   }
 }
