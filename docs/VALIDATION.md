@@ -2,9 +2,20 @@
 
 ปรับเฉพาะตัวเปิด Windows และแคชเครื่องมือ รายละเอียดใน [STARTUP-PERFORMANCE.md](STARTUP-PERFORMANCE.md) โค้ดหน้าบ้าน/หลังบ้านและ schema คงตาม v1.8.0 ไม่แก้ `.data` หรือ `.env` ของผู้ใช้
 
-- ตรวจ launcher hash ที่สร้างใหม่ตรงทั้ง 4 ไฟล์ และ UTF-8 BOM/CRLF ของ PowerShell scripts ผ่าน
-- เพิ่ม Windows startup checks 10 กรณี ครอบคลุม Unicode/ช่องว่าง, bytes/output, ZIP path ปลอดภัย, ยกเลิก/ล้างเฉพาะ staging, แคชร่วม/แคชในโปรเจกต์, SHA-256 และ benchmark ZIP Node.js จริง
-- ผลรัน Windows และตัวเลขวัดเวลาจะบันทึกหลัง CI เสร็จ ไม่ได้ใช้เวลาจากเครื่อง Linux ประเมินแทน Windows
+Windows Server 2022 x64 / PowerShell 5.1 ผ่าน [Windows preview](https://github.com/chanakan20010-cpu/BSIGN-WEB/actions/runs/45112682505) — implementation commit `529b71bb55c7603221be532d40845950ecf97152`, workflow Success (5 นาที 29 วินาที), job succeeded (5 นาที 26 วินาที)
+
+| รายการ | ผล |
+|---|---|
+| Node.js ZIP รุ่น 24.22.1 x64 | Expand-Archive 48,178.79 ms → .NET extraction 3,164.80 ms; อัตราส่วน 15.22 เท่า |
+| ไฟล์ที่แตก | 1,994 ไฟล์ จำนวน/ตำแหน่ง/ขนาด/SHA-256 เหมือนกันทุกไฟล์ |
+| Windows startup 10 กรณี | ผ่าน Unicode/ช่องว่าง, bytes/output, ZIP traversal/rooted/ADS rejection, ยกเลิก/ล้างเฉพาะ staging, แคชร่วมและ fallback, cache hit โดยไม่ดาวน์โหลด, cache เสียและ SHA mismatch รวม benchmark |
+| เปิดพรีวิว | START-WINDOWS, Internet Zone/tamper rejection, portable Node, GUI/VBS, setup/recovery, initial-admin และ login/restart ผ่าน |
+| ชุดตรวจเดิมบน Windows | API 54 ชุด และ Edge browser 289 กรณีผ่านตาม workflow รวมหน้าตา/ข้อความ/สี/ฟอนต์จาก v1.8.0 |
+| ความสมบูรณ์ไฟล์ตัวเปิด | launcher hashes ทั้ง 4 ไฟล์และ UTF-8 BOM/CRLF ผ่าน รวม PowerShell 5.1 syntax parsing |
+
+ค่าด้านบนวัดเฉพาะการแตก ZIP ที่ตรวจสอบแล้ว วิธีละหนึ่งครั้งตามลำดับบน CI runner เดียว ไม่รวมดาวน์โหลด ติดตั้ง npm, build หรือเปิดเซิร์ฟเวอร์ จึงไม่ใช่คำรับรองว่าเวลาเปิดเว็บทั้งหมดหรือเครื่องผู้ใช้จะเร็วขึ้น 15 เท่า ผลจริงขึ้นกับอินเทอร์เน็ต ดิสก์และเครื่อง
+
+ยืนยันจากสถานะและ notice สาธารณะของ workflow/job ไม่ได้อ่าน log ที่ต้องเข้าสู่ระบบ ชุดทดสอบเก็บผล JSON ที่ `.runtime/logs/startup-performance.json` ใน CI และไม่รวมลง source ZIP ใช้ Edge headless/จำลอง Mark-of-the-Web ไม่ใช่การทดสอบ Explorer บนเครื่องผู้ใช้จริง ยังไม่ได้ทดสอบ Windows ARM64 หรือ screen reader จริง
 
 ---
 
