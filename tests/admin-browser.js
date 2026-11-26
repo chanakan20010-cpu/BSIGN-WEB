@@ -573,10 +573,10 @@ try {
   await navigate("สไตล์ตัวอักษร");
   const originalSize = (await content()).styles.hero.size;
   await page.getByLabel("ขนาด Desktop (px)", { exact: true }).fill("38");
-  await expect(page.locator(".cms-type-sample .type-hero").first()).toHaveCSS(
-    "font-size",
-    "38px",
-  );
+  await page.locator(".cms-type-sample").scrollIntoViewIfNeeded();
+  await expect(
+    page.frameLocator(".cms-type-sample iframe").locator(".type-hero").first(),
+  ).toHaveCSS("font-size", "38px");
   assert.equal(
     (await content()).styles.hero.size,
     originalSize,

@@ -1,3 +1,29 @@
+# ผลการตรวจ v1.9.0 — 26 พฤศจิกายน 2026
+
+รายการเทียบคำขอและวิธีใช้อยู่ใน [REVISION-06.md](REVISION-06.md) ตรวจด้วยฐานข้อมูล บัญชี และไฟล์ชั่วคราว ไม่แก้ `.data`/`.env` ของผู้ใช้ ภาพตัวอย่างใช้ข้อมูลทดสอบ
+
+| รายการ | ผล |
+|---|---|
+| Production build | ผ่าน Node.js 24.22.1; ตรวจรูปแบบไฟล์และ launcher hashes ทั้ง 4 ไฟล์ |
+| API 69 ชุด | ผ่าน รวม media delete 7, text toolbar 5 และ logo background 3 ชุดใหม่ พร้อมชุดเดิม 54 ชุด |
+| การลบภาพ | ตรวจ auth/CSRF, ฉบับร่าง/ข่าวตั้งเวลา/unknown fields, URL encoding, อ้างอิงซ้ำเมื่อยืนยัน, path/symlink, ไฟล์หาย, file lock และ rollback/คืน bytes เมื่อฐานข้อมูลล้มเหลว |
+| รูปแบบข้อความ/ภาพ | ตรวจสีและค่า CSS allowlist, ฟอนต์จากคลัง, ค่า inherit/reset และ future fields, partial client, restart และ backup/restore; สีพื้นภาพต้องเป็น HEX หรือ transparent |
+| ตัวอย่างก่อนบันทึก | เปรียบเทียบ computed styles กับองค์ประกอบสาธารณะครบ 15 สไตล์ รวมปุ่ม/ลูกศร เมนู active/inactive แบรนด์และพื้นเข้ม, แบบร่าง TH/EN, Desktop/Tablet/Mobile และฟอนต์อัปโหลดจริง |
+| Browser 361 กรณี | ผ่าน Public 53, Admin 82, Contact 33, revision 01/02/03 จำนวน 40/36/42, Fonts 10, Identity 11, revision 04 จำนวน 18, revision 05 จำนวน 17 และ revision 06 จำนวน 19 |
+| ชุดใหม่ 19 กรณี | ผ่านลบภาพ/อ้างอิง, ตัวอย่างจริง 15 สไตล์, แบบร่าง TH/EN/หน้าจอ/ฟอนต์, แถบจัดข้อความ/save/reset/keyboard, พื้นหลังโลโก้ และข้อมูลหลัง restart |
+| ลำดับข้อมูลและการเข้าถึง | ตรวจหลังบ้านทั้ง 19 หน้าที่ 1440/390px ไม่มี layout ล้นจอ; ชุดใหม่ผ่าน automated axe WCAG A/AA/2.1AA โดยไม่มี serious/critical violations หรือ JavaScript errors |
+| บัญชีพรีวิว | setup/recovery และ initial-admin → /admin → logout → restart → login ผ่านอีก 2 flow |
+| Docker / Compose / Dev | build v1.9.0 ผ่าน; HTTP/API, non-root และข้อมูลหลังเปลี่ยน container ผ่าน; Compose config ผ่านแบบไม่ resolve env_file และ Vite dev/API smoke ผ่าน |
+| ภาพประกอบ | `docs/screenshots/v190-*.png` ตรวจภาพคลังสื่อ ตัวอย่างปุ่ม แถบจัดข้อความ Desktop/Mobile และลำดับส่วนหลังบ้านแล้ว ไม่มีรหัสผ่านในภาพ |
+
+ตัวอย่างใช้ public CSS ใน iframe เอกสารคงที่ และค่าข้อความผ่าน React escaping ไม่รับ HTML จากช่องข้อความ ตัวอย่างรายช่องจำลองบริบทและ breakpoint ของเว็บ ส่วนความกว้างเนื้อหาจำกัดตามพื้นที่แสดงตัวอย่างใน CMS
+
+แก้ปัญหาที่พบจาก regression: เมื่อย้ายย่อหน้าแล้วสลับภาษา iframe เดิมอาจถูกถอดออกและไม่มี font-ready promise จึงตรวจเอกสารที่ยังเชื่อมต่ออยู่และหยุด callback หลัง cleanup ก่อนวัดขนาดตัวอย่าง การตรวจเดิมยังรักษา assertion และเพิ่มการเปิดส่วนตัวเลือกขั้นสูงใน helper ตาม UI ใหม่
+
+ข้อจำกัดเดิมเรื่อง screen reader จริง/Windows ARM64, SMTP ปลายทาง, พิกัด Maps และบัญชี LinkedIn ยังคงตามรุ่นก่อน ไม่มีการเพิ่มบริการเสียเงินหรือ deploy โดเมนสาธารณะ
+
+---
+
 # ผลการตรวจ v1.8.1 — 23 พฤศจิกายน 2026
 
 ปรับเฉพาะตัวเปิด Windows และแคชเครื่องมือ รายละเอียดใน [STARTUP-PERFORMANCE.md](STARTUP-PERFORMANCE.md) โค้ดหน้าบ้าน/หลังบ้านและ schema คงตาม v1.8.0 ไม่แก้ `.data` หรือ `.env` ของผู้ใช้

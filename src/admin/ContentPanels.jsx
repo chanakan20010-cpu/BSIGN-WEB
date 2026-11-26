@@ -44,6 +44,7 @@ import ArticleParagraphs, {
   emptyParagraph,
 } from "./ArticleParagraphs";
 import { DeviceImageUpload, ImageUploadBusyContext } from "./DeviceImageUpload";
+import "./media-library.css";
 
 function ArticleSettings({ language, onChange, children }) {
   const element = useRef(null);
@@ -142,6 +143,11 @@ const errors = {
   INVALID_IMAGE: "รูปภาพไม่ถูกต้อง กรุณาเลือก SVG, PNG, JPEG หรือ WebP",
   INVALID_SVG: "ไม่สามารถอ่านไฟล์ SVG นี้ได้ กรุณาตรวจไฟล์แล้วลองใหม่",
   UNSAFE_SVG: "ไฟล์ SVG มีส่วนประกอบที่ไม่รองรับ กรุณาเลือกไฟล์อื่น",
+  MEDIA_IN_USE: "ไฟล์นี้กำลังใช้งานอยู่ กรุณานำออกจากตำแหน่งที่ใช้งานก่อนลบ",
+  MEDIA_NOT_FOUND: "ไฟล์นี้ถูกลบไปแล้ว กรุณาอัปเดตรายการคลังสื่อ",
+  MEDIA_DELETE_FAILED: "ยังลบไฟล์ไม่ได้ กรุณาปิดโปรแกรมที่กำลังใช้ไฟล์แล้วลองอีกครั้ง",
+  MEDIA_FILE_UNSAFE: "ตำแหน่งเก็บไฟล์ไม่ถูกต้อง จึงยังลบไฟล์นี้ไม่ได้",
+  MEDIA_STORAGE_UNAVAILABLE: "ยังเข้าถึงพื้นที่เก็บภาพไม่ได้ กรุณาตรวจพื้นที่เก็บข้อมูล",
 };
 const errorText = (e) => errors[e?.message] || "ทำรายการไม่สำเร็จ กรุณาลองอีกครั้ง";
 function useCollection(endpoint) {
@@ -1069,7 +1075,26 @@ export function MediaPanel({ media = [], onRefresh, onNotice }) {
     [query, setQuery] = useState(""),
     [type, setType] = useState("all"),
     [page, setPage] = useState(1),
-    [fileName, setFileName] = useState("");
+    [fileName, setFileName] = useState(""),
+    [pendingDelete, setPendingDelete] = useState(null),
+    [deleting, setDeleting] = useState(false),
+    [deleteError, setDeleteError] = useState("");
+  const deleteDialog = useRef(null),
+    deleteTrigger = useRef(null),
+    libraryHeading = useRef(null);
+  useEffect(() => {
+    const dialog = deleteDialog.current;
+    if (!dialog) return;
+    if (pendingDelete && !dialog.open) {
+      dialog.showModal();
+      dialog.querySelector(".cms-media-cancel")?.focus();
+    } else if (!pendingDelete && dialog.open) {
+      dialog.close();
+      const target = deleteTrigger.current;
+      if (target?.isConnected) target.focus({ preventScroll: true });
+      else libraryHeading.current?.focus({ preventScroll: true });
+    }
+  }, [pendingDelete]);
   useEffect(() => {
     setPage(1);
   }, [query, type]);
@@ -1107,6 +1132,46 @@ export function MediaPanel({ media = [], onRefresh, onNotice }) {
       input.select();
       onNotice?.("เลือก URL ให้แล้ว กด Ctrl+C หรือคัดลอกบนอุปกรณ์ของคุณ", "success");
     }
+  }
+  async function removeFile(event) {
+    event.preventDefault();
+    if (!pendingDelete || deleting) return;
+    setDeleting(true);
+    setDeleteError("");
+    let deleted = false;
+    try {
+      await api("/admin/media/" + encodeURIComponent(pendingDelete.id), {
+        method: "DELETE",
+      });
+      deleted = true;
+      await onRefresh?.();
+      setPendingDelete(null);
+      libraryHeading.current?.focus({ preventScroll: true });
+      onNotice?.("ลบไฟล์จากคลังสื่อแล้ว", "success");
+    } catch (error) {
+      if (deleted) {
+        setPendingDelete(null);
+        onNotice?.("ลบไฟล์แล้ว กรุณาอัปเดตรายการคลังสื่อเพื่อดูข้อมูลล่าสุด", "error");
+      } else {
+        if (["MEDIA_IN_USE", "MEDIA_NOT_FOUND"].includes(error.message)) {
+          setPendingDelete(null);
+          try {
+            await onRefresh?.();
+          } catch {
+            /* The next refresh can retry. */
+          }
+        }
+        setDeleteError(errorText(error));
+        onNotice?.(errorText(error), "error");
+      }
+    } finally {
+      setDeleting(false);
+    }
+  }
+  function referenceLabel(reference) {
+    if (reference.kind !== "article") return reference.label;
+    const status = statusNames[reference.status] || "บทความ";
+    return `${reference.label} · ${status}`;
   }
   const filtered = media.filter(
     (m) =>
@@ -1169,19 +1234,33 @@ export function MediaPanel({ media = [], onRefresh, onNotice }) {
             <p className="cms-muted">
               ไฟล์จะถูกตรวจสอบก่อนเก็บ รูป raster จะถูกปรับเป็น WebP
             </p>
-            <button className="cms-primary" disabled={busy}>
+            <button className="cms-primary" disabled={busy || deleting}>
               <Upload size={16} />
               {busy ? "กำลังอัปโหลด…" : "อัปโหลดและตรวจไฟล์"}
             </button>
           </div>
         </form>
       </section>
-      <section className="cms-card">
+      <section className="cms-card cms-media-library">
         <div className="cms-card-header">
           <div>
-            <h3>คลังสื่อ</h3>
-            <p>{media.length} ไฟล์พร้อมใช้งาน</p>
+            <h3 ref={libraryHeading} tabIndex={-1}>
+              คลังสื่อ
+            </h3>
+            <p>{media.length} ไฟล์ · ลบไฟล์ที่ยังไม่ได้ใช้งานได้จากแต่ละรายการ</p>
           </div>
+          <button
+            type="button"
+            className="cms-secondary"
+            disabled={busy || deleting}
+            onClick={() =>
+              onRefresh?.().catch(() =>
+                onNotice?.("ยังโหลดคลังสื่อไม่ได้ กรุณาลองอีกครั้ง", "error"),
+              )
+            }
+          >
+            <RefreshCw size={16} aria-hidden="true" /> อัปเดตรายการ
+          </button>
         </div>
         <div className="cms-card-body">
           <div className="cms-field-grid">
@@ -1204,7 +1283,11 @@ export function MediaPanel({ media = [], onRefresh, onNotice }) {
             <>
               <div className="cms-media-grid">
                 {filtered.slice((current - 1) * 12, current * 12).map((m) => (
-                  <figure className="cms-media-item" key={m.id}>
+                  <figure
+                    className="cms-media-item"
+                    key={m.id}
+                    data-media-id={m.id}
+                  >
                     <div className="cms-media-image">
                       <img src={m.url} alt={m.name} loading="lazy" />
                     </div>
@@ -1212,6 +1295,14 @@ export function MediaPanel({ media = [], onRefresh, onNotice }) {
                       <strong>{m.name}</strong>
                       <span className="cms-badge" data-tone="neutral">
                         {m.mime === "image/svg+xml" ? "SVG" : "WebP"}
+                      </span>
+                      <span
+                        className="cms-badge cms-media-usage"
+                        data-tone={m.inUse ? "warning" : "success"}
+                      >
+                        {m.inUse
+                          ? `กำลังใช้งาน · ${m.usageCount} จุด`
+                          : "ยังไม่ได้ใช้งาน"}
                       </span>
                       <p className="cms-muted">
                         ที่มา: {m.source || "ไม่ระบุ"}
@@ -1224,13 +1315,46 @@ export function MediaPanel({ media = [], onRefresh, onNotice }) {
                         value={m.url}
                         onFocus={(e) => e.currentTarget.select()}
                       />
-                      <button
-                        className="cms-secondary"
-                        onClick={(e) => copyUrl(m, e)}
-                      >
-                        <Copy size={15} />
-                        คัดลอก URL
-                      </button>
+                      {m.inUse && (
+                        <details className="cms-media-references">
+                          <summary>ดูตำแหน่งที่ใช้งาน</summary>
+                          <ul>
+                            {(m.references || []).map((reference, index) => (
+                              <li
+                                key={`${reference.kind}-${reference.key || reference.id || index}`}
+                              >
+                                <strong>{referenceLabel(reference)}</strong>
+                                <span>
+                                  {reference.paths.length} ตำแหน่งที่บันทึกไว้
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                          <p>นำภาพออกจากตำแหน่งเหล่านี้และบันทึกก่อนลบไฟล์</p>
+                        </details>
+                      )}
+                      <div className="cms-media-actions">
+                        <button
+                          type="button"
+                          className="cms-secondary"
+                          onClick={(e) => copyUrl(m, e)}
+                        >
+                          <Copy size={15} aria-hidden="true" /> คัดลอก URL
+                        </button>
+                        <button
+                          type="button"
+                          className="cms-danger"
+                          aria-label={"ลบไฟล์ " + m.name}
+                          disabled={busy || deleting || Boolean(m.inUse)}
+                          onClick={(event) => {
+                            deleteTrigger.current = event.currentTarget;
+                            setDeleteError("");
+                            setPendingDelete(m);
+                          }}
+                        >
+                          <Trash2 size={15} aria-hidden="true" /> ลบไฟล์
+                        </button>
+                      </div>
                     </figcaption>
                   </figure>
                 ))}
@@ -1264,6 +1388,59 @@ export function MediaPanel({ media = [], onRefresh, onNotice }) {
           )}
         </div>
       </section>
+      <dialog
+        ref={deleteDialog}
+        className="cms-media-delete-dialog"
+        aria-labelledby="cms-media-delete-title"
+        aria-describedby="cms-media-delete-description"
+        onCancel={(event) => {
+          event.preventDefault();
+          if (!deleting) setPendingDelete(null);
+        }}
+      >
+        <form onSubmit={removeFile}>
+          <div className="cms-media-delete-heading">
+            <Trash2 size={23} aria-hidden="true" />
+            <h3 id="cms-media-delete-title">ลบไฟล์จากคลังสื่อ</h3>
+          </div>
+          <p id="cms-media-delete-description">
+            ไฟล์นี้จะถูกลบออกจากคลังสื่อและพื้นที่เก็บไฟล์อย่างถาวร
+          </p>
+          {pendingDelete && (
+            <div className="cms-media-delete-file">
+              <img src={pendingDelete.url} alt="" />
+              <strong>{pendingDelete.name}</strong>
+            </div>
+          )}
+          {deleteError && (
+            <p className="cms-media-delete-error" role="alert">
+              {deleteError}
+            </p>
+          )}
+          <div className="cms-media-delete-actions">
+            <button
+              type="button"
+              className="cms-secondary cms-media-cancel"
+              disabled={deleting}
+              onClick={() => setPendingDelete(null)}
+            >
+              ยกเลิก
+            </button>
+            <button type="submit" className="cms-danger" disabled={deleting}>
+              {deleting ? (
+                <LoaderCircle
+                  className="cms-spin"
+                  size={16}
+                  aria-hidden="true"
+                />
+              ) : (
+                <Trash2 size={16} aria-hidden="true" />
+              )}
+              {deleting ? "กำลังลบ…" : "ยืนยันลบไฟล์"}
+            </button>
+          </div>
+        </form>
+      </dialog>
     </>
   );
 }

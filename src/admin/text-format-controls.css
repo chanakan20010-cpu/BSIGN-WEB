@@ -1,8 +1,132 @@
-.admin.cms .cms-text-format-controls {
+.admin.cms .cms-text-editor-tools {
   margin-top: 12px;
-  padding: 10px 12px;
-  border: 1px solid var(--cms-line);
-  border-radius: 6px;
+  border: 1px solid #ded6c8;
+  border-radius: 8px;
+  overflow: hidden;
+  min-width: 0;
+  background: #fff;
+}
+.admin.cms .cms-text-ribbon {
+  padding: 10px;
+  background: #f4f1ea;
+  border-bottom: 1px solid #ded6c8;
+}
+.admin.cms .cms-ribbon-font-group {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.15fr) 70px;
+  gap: 8px;
+  align-items: end;
+}
+.admin.cms .cms-ribbon-font-group label {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  margin: 0;
+  color: #5d5549;
+  font-size: 11px;
+  font-weight: 500;
+}
+.admin.cms .cms-ribbon-font-group :is(input, select) {
+  width: 100%;
+  min-width: 0;
+  min-height: 34px;
+  height: 34px;
+  padding: 5px 8px;
+  font-size: 12px;
+  border-color: #d9d0c1;
+  background-color: #fff;
+}
+.admin.cms .cms-ribbon-tools-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+  margin-top: 9px;
+}
+.admin.cms .cms-ribbon-group {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 2px;
+  padding-right: 7px;
+  border-right: 1px solid #d7ccba;
+}
+.admin.cms .cms-ribbon-button,
+.admin.cms .cms-ribbon-color {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 30px;
+  position: relative;
+  width: 30px;
+  height: 32px;
+  min-width: 30px;
+  min-height: 32px;
+  padding: 5px;
+  margin: 0;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  background: transparent;
+  color: #39352e;
+  cursor: pointer;
+}
+.admin.cms .cms-ribbon-button:hover,
+.admin.cms .cms-ribbon-color:hover {
+  background: #fff;
+  border-color: #cec1aa;
+}
+.admin.cms .cms-ribbon-button[aria-pressed="true"] {
+  background: #ffe6a4;
+  border-color: #c59a36;
+  color: #594000;
+}
+.admin.cms .cms-ribbon-button:focus-visible,
+.admin.cms .cms-ribbon-color:focus-within {
+  outline: 2px solid #805b00;
+  outline-offset: 2px;
+}
+.admin.cms .cms-ribbon-color::after {
+  content: "";
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  bottom: 2px;
+  height: 3px;
+  border: 1px solid #0002;
+  background: var(--ribbon-color);
+}
+.admin.cms .cms-ribbon-color input[type="color"] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  padding: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.admin.cms .cms-distributed-button > span {
+  position: absolute;
+  bottom: -1px;
+  right: 1px;
+  font-size: 10px;
+  line-height: 1;
+  background: #f4f1ea;
+}
+.admin.cms .cms-text-format-hint {
+  margin: 0;
+  padding: 8px 12px;
+  color: #6a6256;
+  background: #fff;
+  font-size: 11px;
+  line-height: 1.7;
+}
+.admin.cms .cms-text-format-controls {
+  margin: 0;
+  padding: 9px 12px;
+  border: 0;
+  border-radius: 0;
   background: #faf9f6;
 }
 .admin.cms .cms-text-format-controls > summary {
@@ -40,7 +164,7 @@
 }
 .admin.cms .cms-text-color-fields {
   display: grid;
-  grid-template-columns: 72px minmax(100px, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: end;
   gap: 10px;
 }
@@ -84,12 +208,13 @@
 }
 .admin.cms .cms-text-format-preview {
   background: #fff;
-  border: 1px solid var(--cms-line);
-  border-radius: 6px;
-  padding: 14px;
-  margin-top: 12px;
-  max-height: 220px;
-  overflow: auto;
+  border: 0;
+  border-top: 1px solid var(--cms-line);
+  border-radius: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+  overflow: hidden;
 }
 .admin.cms .cms-text-format-preview[data-tone="dark"] {
   background: #252623;
@@ -183,11 +308,17 @@
   .admin.cms .cms-text-format-fields {
     grid-template-columns: 1fr;
   }
+  .admin.cms .cms-ribbon-font-group {
+    grid-template-columns: minmax(0, 1fr) 70px;
+  }
+  .admin.cms .cms-ribbon-style {
+    grid-column: 1 / -1;
+  }
   .admin.cms .cms-text-color-fields {
-    grid-template-columns: 64px minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) auto;
   }
   .admin.cms .cms-text-color-reset {
-    grid-column: 1 / -1;
-    justify-self: start;
+    max-width: 100%;
+    padding-inline: 8px;
   }
 }

@@ -33,6 +33,34 @@ export const textFormatSchema = z
     color: z
       .union([z.string().regex(/^#[0-9a-fA-F]{6}$/), z.literal("inherit")])
       .optional(),
+    font: z
+      .union([z.literal("inherit"), z.string().refine(isAllowedFontFamily)])
+      .optional(),
+    size: z
+      .union([z.literal("inherit"), z.number().finite().min(10).max(100)])
+      .optional(),
+    weight: z
+      .union([
+        z.literal("inherit"),
+        z.number().int().min(100).max(900).multipleOf(100),
+      ])
+      .optional(),
+    italic: z.union([z.literal("inherit"), z.boolean()]).optional(),
+    underline: z.union([z.literal("inherit"), z.boolean()]).optional(),
+    strike: z.union([z.literal("inherit"), z.boolean()]).optional(),
+    background: z
+      .union([
+        z.literal("inherit"),
+        z.literal("transparent"),
+        z.string().regex(/^#[0-9a-fA-F]{6}$/),
+      ])
+      .optional(),
+    line: z
+      .union([z.literal("inherit"), z.number().finite().min(1).max(3)])
+      .optional(),
+    spacing: z
+      .union([z.literal("inherit"), z.number().finite().min(-4).max(20)])
+      .optional(),
   })
   .passthrough();
 export const bi = z
@@ -113,6 +141,7 @@ export const image = z
     url: link,
     alt: bi,
     crop: z.array(z.number().finite().nonnegative()).length(6).nullable(),
+    background: surfaceColor.optional(),
   })
   .passthrough()
   .refine(
@@ -183,6 +212,15 @@ export const contactSchema = z.object({
 // Validate all persisted leaves, including unrecognized future keys. Known shapes are
 // validated after merging so partial requests cannot silently delete newer fields.
 export function validateTree(v, key = "") {
+  if (
+    v &&
+    typeof v === "object" &&
+    !Array.isArray(v) &&
+    Object.hasOwn(v, "url") &&
+    Object.hasOwn(v, "alt") &&
+    Object.hasOwn(v, "crop")
+  )
+    image.parse(v);
   if (key === "appearance") cardAppearanceSchema.parse(v);
   if (key === "format") textFormatSchema.parse(v);
   if (key === "editorLabels") editorLabelsSchema.parse(v);
@@ -214,12 +252,30 @@ export function validateTree(v, key = "") {
   for (const [k, x] of Object.entries(v)) {
     if (["__proto__", "constructor", "prototype"].includes(k))
       throw Error("Unsafe key");
-    // format.color is already validated above. Its explicit reset sentinel
-    // must not become an allowed value for unrelated icon/theme colors.
-    if (key === "format" && k === "color") continue;
+    // These format leaves were validated above. Reset sentinels must not
+    // loosen validation of unrelated theme, icon or image color fields.
+    if (key === "format" && ["color", "background"].includes(k)) continue;
     validateTree(x, k);
   }
 }
+
+// A syntactically valid custom family also needs a registered font asset.
+// Callers validate this list against the database before persisting content.
+export function textFormatFontFamilies(value) {
+  const families = new Set();
+  const seen = new WeakSet();
+  function visit(node) {
+    if (!node || typeof node !== "object" || seen.has(node)) return;
+    seen.add(node);
+    const family = node.format?.font;
+    if (typeof family === "string" && family !== "inherit")
+      families.add(family);
+    for (const child of Object.values(node)) visit(child);
+  }
+  visit(value);
+  return [...families];
+}
+
 export function validateShape(template, value, path = "") {
   if (path.endsWith(".crop")) {
     z.array(z.number().finite().nonnegative())

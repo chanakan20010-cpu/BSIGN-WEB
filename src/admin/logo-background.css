@@ -1,0 +1,47 @@
+.admin.cms .cms-logo-background-controls {
+  min-width: 0;
+  margin: 16px 0;
+  padding: 16px;
+  border: 1px solid var(--cms-line);
+  border-radius: 8px;
+  background: #faf9f6;
+}
+.admin.cms .cms-logo-background-fields {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 12px;
+}
+.admin.cms .cms-logo-background-fields input[type="color"] {
+  width: 100%;
+  height: 44px;
+  padding: 5px;
+}
+.admin.cms .cms-logo-background-transparent {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+}
+.admin.cms .cms-logo-background-transparent input {
+  width: 17px;
+  height: 17px;
+  min-height: 0;
+  margin: 0;
+}
+.admin.cms .cms-logo-background-error {
+  color: #a32130;
+}
+.admin.cms .cms-logo-background-controls .cms-hint {
+  margin-top: 10px;
+}
+@media (max-width: 700px) {
+  .admin.cms .cms-logo-background-fields {
+    grid-template-columns: 64px minmax(0, 1fr);
+  }
+  .admin.cms .cms-logo-background-fields > button {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+}

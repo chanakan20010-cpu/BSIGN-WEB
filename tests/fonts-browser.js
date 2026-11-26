@@ -114,8 +114,14 @@ async function overflow(page, name) {
     name + " fits the viewport",
   );
 }
-async function actualCustomFace(page, family, selector) {
-  const element = page.locator(selector).first();
+async function actualCustomFace(page, family, selector, frameSelector) {
+  if (frameSelector)
+    await page.locator(".cms-type-sample").scrollIntoViewIfNeeded();
+  const element = (
+    frameSelector
+      ? page.frameLocator(frameSelector).locator(selector)
+      : page.locator(selector)
+  ).first();
   await expect(element).toBeVisible();
   await expect
     .poll(() => element.evaluate((node) => getComputedStyle(node).fontFamily))
@@ -150,11 +156,32 @@ async function actualCustomFace(page, family, selector) {
   try {
     await session.send("DOM.enable");
     await session.send("CSS.enable");
-    const { root } = await session.send("DOM.getDocument");
+    const { root } = await session.send("DOM.getDocument", {
+      depth: -1,
+      pierce: true,
+    });
+    let documentId = root.nodeId;
+    if (frameSelector) {
+      const { nodeId: frameId } = await session.send("DOM.querySelector", {
+        nodeId: root.nodeId,
+        selector: frameSelector,
+      });
+      const { node: frameNode } = await session.send("DOM.describeNode", {
+        nodeId: frameId,
+        depth: 1,
+        pierce: true,
+      });
+      assert.ok(
+        frameNode.contentDocument?.nodeId,
+        "preview iframe has its own rendered document",
+      );
+      documentId = frameNode.contentDocument.nodeId;
+    }
     const { nodeId } = await session.send("DOM.querySelector", {
-      nodeId: root.nodeId,
+      nodeId: documentId,
       selector,
     });
+    assert.ok(nodeId, "rendered glyph target exists in the selected document");
     const { fonts } = await session.send("CSS.getPlatformFontsForNode", {
       nodeId,
     });
@@ -335,6 +362,7 @@ try {
     admin,
     font.family,
     '.cms-style-preview-paper .type-hero[data-selected="true"]',
+    ".cms-type-sample iframe",
   );
   assert.deepEqual(
     (await request("GET", "/admin/documents")).styles.value.hero,

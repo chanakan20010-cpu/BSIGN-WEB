@@ -45,6 +45,7 @@ import {
 } from "simple-icons";
 import { getSocialPlatform, socialIconDefaults } from "./social-catalog";
 import { textFormatting } from "./text-format";
+import { logoBackground } from "./logo-appearance";
 export { textFormatProps } from "./text-format";
 import "./text-format.css";
 const brands = { facebook: faFacebook, line: faLine, linkedin: faLinkedin };
@@ -124,6 +125,7 @@ export function Picture({ value, className = "" }) {
         src={value.url}
         alt={t(value.alt)}
         loading="lazy"
+        style={{ backgroundColor: logoBackground(value) }}
       />
     );
   const [x, y, w, h, iw, ih] = value.crop;
@@ -134,7 +136,10 @@ export function Picture({ value, className = "" }) {
       className={"crop " + className}
       viewBox={`${x} ${y} ${w} ${h}`}
       preserveAspectRatio="xMidYMid slice"
-      style={{ aspectRatio: `${w}/${h}` }}
+      style={{
+        aspectRatio: `${w}/${h}`,
+        backgroundColor: logoBackground(value),
+      }}
     >
       <image href={value.url} width={iw} height={ih} />
     </svg>

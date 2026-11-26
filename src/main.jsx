@@ -33,6 +33,7 @@ import Setup from "./Setup";
 import MaintenancePage from "./MaintenancePage";
 import { FontLibraryProvider, FontFaces } from "./font-library";
 import { cardAppearanceStyle } from "./card-appearance";
+import { logoBackground } from "./logo-appearance";
 import "./style.css";
 function App() {
   const [content, setContent] = useState(null);
@@ -252,7 +253,15 @@ function Footer() {
     <footer className="site-footer">
       <div className="container footer-grid">
         <div className="footer-brand">
-          <div className="footer-logo-box">
+          <div
+            className="footer-logo-box"
+            style={{
+              backgroundColor: logoBackground(
+                g.footerLogo || g.logo,
+                "#ffffff",
+              ),
+            }}
+          >
             <Picture value={g.footerLogo || g.logo} />
           </div>
           <div className="footer-brand-copy">

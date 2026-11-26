@@ -15,6 +15,8 @@ import { DeviceImageUpload } from "./DeviceImageUpload";
 import TextFormatControls from "./TextFormatControls";
 import CardAppearanceEditor from "./CardAppearanceEditor";
 import { useFontLibrary } from "../font-library";
+import PublicTextPreview, { fieldPreviewContext } from "./PublicTextPreview";
+import LogoBackgroundControls from "./LogoBackgroundControls";
 export { default as TextFormatControls } from "./TextFormatControls";
 
 // A language switch changes the visible controls, never the stored object.
@@ -448,6 +450,7 @@ function ImageFieldEditor({ value, onChange, path, media }) {
   const latest = useRef(value),
     key = path.split(".").at(-1),
     label = page?.labels?.fields?.[path]?.trim() || fieldLabel(path);
+  const isLogo = ["logo", "footerLogo"].includes(key);
   latest.current = value;
   return (
     <fieldset
@@ -473,11 +476,27 @@ function ImageFieldEditor({ value, onChange, path, media }) {
           });
         }}
       />
+      {isLogo && (
+        <LogoBackgroundControls
+          value={value}
+          onChange={onChange}
+          label={label}
+          defaultBackground={key === "footerLogo" ? "#ffffff" : "transparent"}
+        />
+      )}
       {value.url ? (
         <>
-          <div className="cms-preview">
-            <Picture value={value} />
-          </div>
+          {isLogo ? (
+            <PublicTextPreview
+              image={value}
+              context={key === "footerLogo" ? "footer-logo" : "header-logo"}
+              title={`ตัวอย่าง ${label}`}
+            />
+          ) : (
+            <div className="cms-preview">
+              <Picture value={value} />
+            </div>
+          )}
           <button
             type="button"
             className="cms-secondary"
@@ -513,7 +532,12 @@ function ImageFieldEditor({ value, onChange, path, media }) {
         </p>
       )}
       {Object.entries(value)
-        .filter(([name]) => !["url", "alt", "crop"].includes(name))
+        .filter(
+          ([name]) =>
+            !["url", "alt", "crop", ...(isLogo ? ["background"] : [])].includes(
+              name,
+            ),
+        )
         .map(([name, field]) => (
           <Field
             key={name}
@@ -562,11 +586,21 @@ function FaviconField({ value, onChange, path }) {
   );
 }
 
-export function Field({ value, onChange, path = "", media = [] }) {
+export function Field({
+  value,
+  onChange,
+  path = "",
+  media = [],
+  preview = {},
+}) {
   const language = useContext(EditorLanguageContext);
   const page = useContext(EditorPageContext);
   const site = useSite();
   const { fonts } = useFontLibrary();
+  const previewContext = {
+    ...fieldPreviewContext(path, page?.page),
+    ...preview,
+  };
   const key = path.split(".").at(-1),
     label = page?.labels?.fields?.[path]?.trim() || fieldLabel(path);
   if (path.startsWith("home.advantages.") && key === "appearance")
@@ -605,6 +639,10 @@ export function Field({ value, onChange, path = "", media = [] }) {
         </div>
         {!/(?:^|\.)(?:alt|editorLabel|editorLabels)(?:\.|$)/.test(path) && (
           <TextFormatControls
+            path={path}
+            defaultRole={previewContext.role}
+            previewContext={previewContext.context}
+            legacyColor={previewContext.legacyColor}
             label={label}
             styles={site?.content?.styles}
             value={value.format}
@@ -633,6 +671,7 @@ export function Field({ value, onChange, path = "", media = [] }) {
           <Field
             path={`${path}.text`}
             value={value.text}
+            preview={{ legacyColor: value.color }}
             media={media}
             onChange={(text) => onChange({ ...value, text })}
           />
@@ -1477,6 +1516,7 @@ const styleKinds = {
   footerBrand: ["ชื่อแบรนด์ส่วนท้าย", "ชื่อแบรนด์ที่แสดงข้างโลโก้ในส่วนท้ายเว็บไซต์"],
 };
 export function StyleEditor({ value, onChange }) {
+  const site = useSite();
   const [selected, setSelected] = useState("hero"),
     [language, setLanguage] = useState("th"),
     [viewport, setViewport] = useState("size");
@@ -1486,6 +1526,28 @@ export function StyleEditor({ value, onChange }) {
       fieldLabel(kind),
       "รูปแบบตัวอักษรส่วนกลาง",
     ];
+  const content = site?.content || {};
+  const samples = {
+    brand: content.global?.brand,
+    footerBrand: content.global?.brand,
+    hero: content.home?.title?.[0]?.text,
+    heading: content.home?.services?.heading,
+    panelHeading: content.contact?.formHeading,
+    subheading: content.home?.cards?.[0]?.title,
+    body: content.home?.cards?.[0]?.body,
+    intro: content.home?.intro,
+    inverse: content.cta?.body,
+    highlight: content.home?.services?.eyebrow,
+    button: content.cta?.primary,
+    menu: content.global?.nav?.[0]?.label,
+    label: content.contact?.fields?.name?.label,
+    footer: content.global?.address,
+    footerHeading: content.global?.contactHeading,
+  };
+  const sample = {
+    th: samples[kind]?.th || "เทคโนโลยีที่เติบโตไปพร้อมธุรกิจของคุณ",
+    en: samples[kind]?.en || "Technology that grows with your business.",
+  };
   const previewStyles = Object.fromEntries(
     Object.entries(value).map(([key, style]) => [
       key,
@@ -1589,80 +1651,15 @@ export function StyleEditor({ value, onChange }) {
               </label>
             </div>
             <div className="cms-type-sample" data-tone="light">
-              <Typography styles={previewStyles}>
-                <div className="cms-style-preview-paper" lang={language}>
-                  <span className="cms-preview-eyebrow">
-                    BSIGN TECH · TYPOGRAPHY PREVIEW
-                  </span>
-                  <p className="type-hero" data-selected={kind === "hero"}>
-                    {language === "th" ? (
-                      <>
-                        ออกแบบอนาคต
-                        <br />
-                        ให้ธุรกิจเติบโต
-                      </>
-                    ) : (
-                      <>
-                        Engineer the future.
-                        <br />
-                        Build what’s next.
-                      </>
-                    )}
-                  </p>
-                  <p
-                    className="type-heading"
-                    data-selected={kind === "heading"}
-                  >
-                    {language === "th"
-                      ? "สร้างคุณค่าไปด้วยกัน"
-                      : "Create lasting value, together."}
-                  </p>
-                  <p className="type-body" data-selected={kind === "body"}>
-                    {language === "th"
-                      ? "สถาปัตยกรรมดิจิทัลและวิศวกรรมอัจฉริยะ เชื่อมเทคโนโลยีกับเป้าหมายขององค์กร ด้วยประสบการณ์และความใส่ใจในทุกรายละเอียด"
-                      : "Digital architecture and intelligent engineering, connecting technology with your business goals through thoughtful design and attention to every detail."}
-                  </p>
-                  <p
-                    className="type-highlight"
-                    data-selected={kind === "highlight"}
-                  >
-                    {language === "th"
-                      ? "มุ่งมั่นสู่อนาคตที่ดีกว่า"
-                      : "Building a better tomorrow."}
-                  </p>
-                  {!["hero", "heading", "body", "highlight"].includes(kind) && (
-                    <div
-                      className="cms-selected-type-sample"
-                      data-tone={
-                        [
-                          "inverse",
-                          "footer",
-                          "footerHeading",
-                          "footerBrand",
-                        ].includes(kind)
-                          ? "dark"
-                          : "light"
-                      }
-                    >
-                      <small>{title}</small>
-                      <p className={`type-${kind}`}>
-                        {language === "th"
-                          ? "เทคโนโลยีที่เติบโตไปพร้อมธุรกิจของคุณ"
-                          : "Technology that grows with your business."}
-                      </p>
-                    </div>
-                  )}
-                  <div className="cms-preview-rule" />
-                  <div className="cms-preview-footer">
-                    <span>
-                      {language === "th"
-                        ? "มาตรฐานเดียวกันในทุกหน้า"
-                        : "One consistent voice, everywhere"}
-                    </span>
-                    <span>TH / EN</span>
-                  </div>
-                </div>
-              </Typography>
+              <PublicTextPreview
+                value={sample}
+                role={kind}
+                context={kind}
+                language={language}
+                styles={previewStyles}
+                viewport={viewport}
+                title={`ตัวอย่าง ${title}`}
+              />
             </div>
             <p className="cms-muted">
               {current[viewport]} px · น้ำหนัก {current.weight} · ระยะตัวอักษร{" "}

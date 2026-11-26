@@ -122,8 +122,11 @@ async function setFormat(path, style, align) {
   const styleSelect = block.getByLabel(/^รูปแบบข้อความ /);
   await reveal(styleSelect);
   if (style !== undefined) await styleSelect.selectOption(style);
-  if (align !== undefined)
-    await block.getByLabel(/^การจัดแนวข้อความ /).selectOption(align);
+  if (align !== undefined) {
+    const alignmentSelect = block.getByLabel(/^การจัดแนวข้อความ /);
+    await reveal(alignmentSelect);
+    await alignmentSelect.selectOption(align);
+  }
 }
 async function audit(page, label) {
   const result = await new AxeBuilder({ page })

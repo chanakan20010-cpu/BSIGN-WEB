@@ -238,7 +238,10 @@ try {
   await admin
     .getByLabel("รหัส HEX panelHeading.color", { exact: true })
     .fill(changed.color);
-  const preview = admin.locator(".cms-selected-type-sample .type-panelHeading");
+  await admin.locator(".cms-type-sample").scrollIntoViewIfNeeded();
+  const preview = admin
+    .frameLocator(".cms-type-sample iframe")
+    .locator(".cms-selected-type-sample .type-panelHeading");
   for (const [viewport, size] of [
     ["size", changed.size],
     ["tablet", changed.tablet],
@@ -366,7 +369,9 @@ try {
     .getByLabel("ขนาดหน้าจอตัวอย่าง", { exact: true })
     .selectOption("size");
   await expect(
-    admin.locator(".cms-selected-type-sample .type-panelHeading"),
+    admin
+      .frameLocator(".cms-type-sample iframe")
+      .locator(".cms-selected-type-sample .type-panelHeading"),
   ).toHaveCSS("font-size", "24px");
   assert.deepEqual(
     (await request("GET", "/admin/documents")).styles.value.panelHeading,

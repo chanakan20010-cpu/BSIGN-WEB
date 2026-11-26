@@ -222,7 +222,7 @@ header {
   overflow-wrap: anywhere;
 }
 .brand em {
-  font-style: normal;
+  font-style: inherit;
   color: #946200;
 }
 .brand [data-text-color="custom"] em {
@@ -450,7 +450,7 @@ header {
 }
 .footer-wordmark em {
   color: #f2b819;
-  font-style: normal;
+  font-style: inherit;
 }
 .footer-wordmark[data-text-style] em,
 .brand [data-text-style] em,

@@ -1,0 +1,14 @@
+.admin.cms .cms-public-text-preview {
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--cms-line);
+  border-radius: 8px;
+  background: #fff;
+}
+.admin.cms .cms-public-text-frame {
+  display: block;
+  border: 0;
+  max-width: none;
+  background: transparent;
+}

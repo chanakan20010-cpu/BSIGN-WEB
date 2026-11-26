@@ -1,0 +1,346 @@
+/* Main sections, editable fields and repeated items use distinct surfaces.
+   Keep these rules within the management workspace, away from site previews. */
+.admin.cms {
+  --cms-section-paper: #fff8e8;
+  --cms-group-paper: #f5f3ee;
+  --cms-heading-ink: #302c24;
+}
+
+.admin.cms .cms-page-heading {
+  padding-bottom: 22px;
+  margin-bottom: 26px;
+  border-bottom: 1px solid #e6dfd2;
+}
+.admin.cms .cms-page-heading h2 {
+  font-weight: 700;
+  letter-spacing: -0.4px;
+}
+.admin.cms .cms-eyebrow {
+  font-size: 11px;
+  color: #75510a;
+}
+.admin.cms .cms-card > .cms-card-header {
+  background: var(--cms-section-paper);
+  border-left: 4px solid var(--cms-amber);
+  border-bottom-color: #e8dfcd;
+}
+.admin.cms .cms-card-header h3 {
+  color: var(--cms-heading-ink);
+  font-weight: 600;
+  line-height: 1.5;
+}
+.admin.cms .cms-card-header p {
+  color: #625b51;
+  font-size: 14px;
+  line-height: 1.7;
+}
+.admin.cms .cms-section-number {
+  width: 38px;
+  height: 38px;
+  border-radius: 9px;
+  background: #ffbd35;
+  color: #302c24;
+  font-size: 14px;
+  font-weight: 700;
+}
+.admin.cms .cms-section-name-editor > summary {
+  font-size: 13px;
+  color: #72500d;
+}
+.admin.cms .cms-section-heading-copy > h3 {
+  font-weight: 700;
+}
+.admin.cms .cms-page-section,
+.admin.cms .cms-contact-section {
+  scroll-margin-top: 180px;
+}
+
+/* Existing page and contact outlines remain available while reading a page. */
+.admin.cms .cms-page-outline,
+.admin.cms .cms-contact-outline {
+  position: sticky;
+  top: 96px;
+  z-index: 12;
+  min-width: 0;
+  max-width: 100%;
+  padding: 12px;
+  border: 1px solid #e3dccf;
+  border-radius: 9px;
+  background: #fff;
+  box-shadow: 0 4px 14px #3d31240a;
+}
+.admin.cms .cms-page-outline {
+  display: grid;
+  gap: 9px;
+}
+.admin.cms .cms-page-outline-label {
+  color: #635a4b;
+  font-size: 13px;
+  font-weight: 500;
+}
+.admin.cms .cms-page-outline > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  min-width: 0;
+}
+.admin.cms .cms-page-outline a,
+.admin.cms .cms-contact-outline a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid #e7e1d6;
+  border-radius: 6px;
+  background: #faf9f6;
+  color: #40392e;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+}
+.admin.cms .cms-page-outline a > span,
+.admin.cms .cms-contact-outline a > span {
+  display: inline-grid;
+  place-items: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 4px;
+  border-radius: 5px;
+  background: #fff0c8;
+  color: #72500d;
+  font-size: 12px;
+  font-weight: 600;
+}
+.admin.cms .cms-page-outline a:hover,
+.admin.cms .cms-contact-outline a:hover {
+  border-color: #cfa64d;
+  background: #fff3d6;
+}
+.admin.cms .cms-page-outline a:focus-visible,
+.admin.cms .cms-contact-outline a:focus-visible {
+  outline-offset: 2px;
+}
+
+/* Field names stay quieter than section headings but stronger than help text. */
+.admin.cms .cms-field-group > legend {
+  color: #3d362b;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 1.7;
+}
+.admin.cms
+  .cms-document-fields
+  > .cms-field-group:not(.cms-bilingual-field)
+  > legend {
+  width: 100%;
+  padding: 9px 12px;
+  border-left: 3px solid #d7b768;
+  border-radius: 5px;
+  background: var(--cms-group-paper);
+}
+.admin.cms .cms-bilingual-field > legend {
+  padding-bottom: 7px;
+  border-bottom: 1px solid #eee9e0;
+}
+.admin.cms .cms-editable-label {
+  line-height: 1.7;
+}
+.admin.cms .cms-editable-label > button {
+  font-size: 12px;
+}
+.admin.cms .cms-array-item {
+  margin-block: 20px;
+  padding: 20px;
+  border-color: #dfd9cd;
+  border-radius: 9px;
+  background: #fff;
+}
+.admin.cms .cms-array-header {
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: -20px -20px 22px;
+  padding: 13px 18px;
+  border-bottom: 1px solid #e5dfd3;
+  border-radius: 8px 8px 0 0;
+  background: var(--cms-group-paper);
+}
+.admin.cms .cms-array-header > strong {
+  min-width: 0;
+  color: #403629;
+  font-size: 15px;
+  font-weight: 600;
+}
+.admin.cms .cms-array-header > .cms-row-actions {
+  margin-left: auto;
+}
+.admin.cms .cms-page-icons > h4,
+.admin.cms .cms-contact-subheading h4 {
+  color: #403629;
+  font-size: 16px;
+  font-weight: 600;
+}
+.admin.cms .cms-page-icons {
+  padding-top: 20px;
+  border-top: 2px solid #eee4d1;
+}
+.admin.cms .cms-paragraph-block {
+  border-color: #dfd9cd;
+  background: #fff;
+}
+.admin.cms .cms-paragraph-block > legend {
+  padding: 5px 11px;
+  border: 1px solid #e3d6b9;
+  border-radius: 6px;
+  background: #fff4d9;
+  color: #624709;
+  font-size: 14px;
+  font-weight: 600;
+}
+.admin.cms .cms-article-step {
+  display: inline-block;
+  padding: 3px 9px;
+  border: 1px solid #e6d6b1;
+  border-radius: 5px;
+  background: #fff;
+  color: #73500a;
+  font-size: 13px;
+  font-weight: 600;
+}
+.admin.cms .cms-article-outline > a > span {
+  font-weight: 700;
+}
+
+/* Contact records, font groups and tables use the same secondary hierarchy. */
+.admin.cms .cms-contact-record,
+.admin.cms .cms-contact-social-card,
+.admin.cms .cms-contact-form-field {
+  border-color: #dfd9cd;
+  background: #fff;
+}
+.admin.cms .cms-contact-record > .cms-contact-record-heading,
+.admin.cms .cms-contact-social-card > .cms-contact-social-heading,
+.admin.cms .cms-contact-form-field > .cms-contact-field-header {
+  margin: -22px -22px 20px;
+  padding: 15px 20px;
+  border-bottom: 1px solid #e5dfd3;
+  border-radius: 7px 7px 0 0;
+  background: var(--cms-group-paper);
+}
+.admin.cms
+  :is(
+    .cms-contact-record-heading,
+    .cms-contact-social-heading,
+    .cms-contact-field-header
+  )
+  :is(h3, h4, strong) {
+  color: #403629;
+  font-weight: 600;
+}
+.admin.cms .cms-font-heading,
+.admin.cms .cms-font-section-heading {
+  margin: -26px -26px 24px;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e8dfcd;
+  border-left: 4px solid var(--cms-amber);
+  background: var(--cms-section-paper);
+}
+.admin.cms .cms-font-heading :is(h2, h3),
+.admin.cms .cms-font-section-heading h3,
+.admin.cms .cms-site-status-heading h3,
+.admin.cms .cms-dashboard-welcome :is(h2, h3) {
+  color: var(--cms-heading-ink);
+  font-weight: 600;
+}
+.admin.cms .cms-table th {
+  background: #f4f1e9;
+  color: #514638;
+  font-size: 13px;
+  font-weight: 600;
+}
+.admin.cms .cms-section-nav {
+  padding: 10px;
+  border: 1px solid #e3dccf;
+  border-radius: 8px;
+  background: #fff;
+}
+.admin.cms .cms-section-nav strong {
+  font-size: 14px;
+  font-weight: 500;
+}
+.admin.cms
+  .cms-section-nav
+  button:is([aria-current="true"], [aria-current="page"])
+  strong {
+  font-weight: 600;
+}
+
+@media (max-width: 760px) {
+  .admin.cms .cms-font-heading,
+  .admin.cms .cms-font-section-heading {
+    margin: -19px -19px 22px;
+    padding: 18px;
+  }
+}
+@media (max-width: 700px) {
+  .admin.cms .cms-page-heading {
+    padding-bottom: 18px;
+  }
+  .admin.cms .cms-page-heading h2 {
+    font-weight: 600;
+  }
+  .admin.cms .cms-card-header {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .admin.cms .cms-card-header p {
+    font-size: 13px;
+  }
+  .admin.cms .cms-page-outline,
+  .admin.cms .cms-contact-outline {
+    top: 12px;
+    padding: 10px;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    overscroll-behavior-inline: contain;
+  }
+  .admin.cms .cms-page-outline > div,
+  .admin.cms .cms-contact-outline {
+    flex-wrap: nowrap;
+  }
+  .admin.cms .cms-page-outline > div {
+    overflow-x: auto;
+    padding-bottom: 3px;
+  }
+  .admin.cms .cms-page-outline a,
+  .admin.cms .cms-contact-outline a {
+    flex-shrink: 0;
+    min-height: 38px;
+    white-space: nowrap;
+    font-size: 13px;
+  }
+  .admin.cms .cms-page-section,
+  .admin.cms .cms-contact-section {
+    scroll-margin-top: 130px;
+  }
+  .admin.cms .cms-array-item {
+    padding: 16px;
+  }
+  .admin.cms .cms-array-header {
+    margin: -16px -16px 20px;
+    padding: 12px 14px;
+  }
+  .admin.cms .cms-contact-record > .cms-contact-record-heading,
+  .admin.cms .cms-contact-social-card > .cms-contact-social-heading,
+  .admin.cms .cms-contact-form-field > .cms-contact-field-header {
+    margin: -16px -16px 20px;
+    padding: 14px 16px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .admin.cms .cms-page-outline,
+  .admin.cms .cms-contact-outline {
+    scroll-behavior: auto;
+  }
+}

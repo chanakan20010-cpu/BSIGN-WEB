@@ -25,6 +25,7 @@ import {
 } from "../../server/admin-presentation-defaults";
 import "./admin.css";
 import "./admin-presentation.css";
+import "./admin-hierarchy.css";
 
 const websiteViews = ["global", "home", "about", "news", "contact", "cta"];
 const items = [

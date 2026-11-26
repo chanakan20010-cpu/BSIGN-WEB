@@ -102,17 +102,18 @@ function field(name) {
   return admin.locator(`.cms-bilingual-field[data-field-path="${name}"]`);
 }
 async function colorControls(name) {
-  const controls = field(name).locator(".cms-text-format-controls");
-  await expect(controls).toHaveCount(1);
-  if ((await controls.getAttribute("open")) === null)
-    await controls.locator(":scope > summary").click();
-  return controls;
+  const tools = field(name).locator(".cms-text-editor-tools");
+  const advanced = tools.locator(".cms-text-format-controls");
+  await expect(advanced).toHaveCount(1);
+  if ((await advanced.getAttribute("open")) === null)
+    await advanced.locator(":scope > summary").click();
+  return tools;
 }
 async function setColor(name, value) {
   const controls = await colorControls(name);
   await controls.locator(".cms-text-color-hex").fill(value);
   await controls.locator(".cms-text-color-hex").blur();
-  await expect(controls.locator('input[type="color"]')).toHaveValue(value);
+  await expect(controls.getByLabel(/^สีข้อความ /)).toHaveValue(value);
   return controls;
 }
 async function resetColor(name) {
@@ -402,11 +403,14 @@ try {
       await navigate("ส่วนหัวเว็บไซต์");
       const controls = await setColor("global.brand", colors.brand);
       await expect(
-        controls.locator(".cms-text-format-preview .bs-formatted-text"),
+        controls
+          .frameLocator(".cms-text-format-preview iframe")
+          .locator("[data-preview-text]")
+          .first(),
       ).toHaveCSS("color", "rgb(106, 47, 133)");
-      await expect(
-        controls.locator('input[type="color"]'),
-      ).toHaveAccessibleName(/^สีข้อความ /);
+      await expect(controls.getByLabel(/^สีข้อความ /)).toHaveAccessibleName(
+        /^สีข้อความ /,
+      );
       await field("global.brand").screenshot({
         path: "test-results/revision05-header-color-editor.png",
         animations: "disabled",

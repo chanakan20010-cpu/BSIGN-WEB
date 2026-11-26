@@ -27,6 +27,7 @@ import {
   adminPresentationSchema,
   validateTree,
   validateShape,
+  textFormatFontFamilies,
 } from "./schema.js";
 import { version } from "./version.js";
 import {
@@ -35,6 +36,7 @@ import {
   validateFontSelection,
 } from "./font-library.js";
 import { sanitizePublicAdminPresentation } from "./admin-presentation-defaults.js";
+import { deleteMedia, listMedia } from "./media-library.js";
 const purify = createDOMPurify(new JSDOM("").window);
 const fail = (status, code) => Object.assign(new Error(code), { status, code });
 export function createApp({
@@ -90,7 +92,7 @@ export function createApp({
             ? ["'self'", "'unsafe-inline'"]
             : ["'self'"],
           "connect-src": development ? ["'self'", "ws:"] : ["'self'"],
-          "frame-src": ["https://www.google.com"],
+          "frame-src": ["'self'", "https://www.google.com"],
           "upgrade-insecure-requests": secure ? [] : null,
         },
       },
@@ -356,6 +358,8 @@ export function createApp({
     } catch {
       throw fail(400, "VALIDATION");
     }
+    for (const font of textFormatFontFamilies(value))
+      validateFontSelection(db, font);
     if (q.params.key === "styles")
       Object.values(value).forEach((s) => {
         styleSchema.parse(s);
@@ -548,6 +552,8 @@ export function createApp({
       throw fail(400, "VALIDATION");
     }
     const a = articleSchema.parse(value);
+    for (const font of textFormatFontFamilies(a))
+      validateFontSelection(db, font);
     if (!readDoc(db, "news").value.categories.some((c) => c.id === a.category))
       throw fail(400, "INVALID_CATEGORY");
     if (rows().some((r) => r.id !== id && r.slug === a.slug))
@@ -629,14 +635,21 @@ export function createApp({
     storage: multer.memoryStorage(),
     limits: { fileSize: 8 * 1024 * 1024, files: 1 },
   });
-  app.get("/api/admin/media", auth, (_q, r) =>
-    r.json(
-      db
-        .prepare("SELECT * FROM media ORDER BY created_at DESC")
-        .all()
-        .map((m) => ({ ...m, url: "/uploads/" + m.id })),
-    ),
-  );
+  app.get("/api/admin/media", auth, (_q, r) => r.json(listMedia(db)));
+  app.delete("/api/admin/media/:id", auth, (q, r) => {
+    try {
+      const result = deleteMedia(db, directory, q.params.id, {
+        onDelete: () => audit(q, "media:delete"),
+      });
+      r.json(result);
+    } catch (error) {
+      if (error.code === "MEDIA_IN_USE")
+        return r
+          .status(409)
+          .json({ error: error.code, references: error.references });
+      throw error;
+    }
+  });
   app.post("/api/admin/media", auth, upload.single("file"), async (q, r) => {
     if (!q.file) throw fail(400, "FILE_REQUIRED");
     const source = z
@@ -719,6 +732,7 @@ export function createApp({
         res.set("X-Content-Type-Options", "nosniff");
       },
     }),
+    (_q, r) => r.sendStatus(404),
   );
   app.post(
     "/api/contact",
