@@ -2,6 +2,14 @@
 
 รายการเทียบคำขอและวิธีใช้อยู่ใน [REVISION-06.md](REVISION-06.md) ตรวจด้วยฐานข้อมูล บัญชี และไฟล์ชั่วคราว ไม่แก้ `.data`/`.env` ของผู้ใช้ ภาพตัวอย่างใช้ข้อมูลทดสอบ
 
+Windows Server 2022 x64 / PowerShell 5.1 ผ่าน [Windows preview](https://github.com/chanakan20010-cpu/BSIGN-WEB/actions/runs/45853136122) — implementation commit `bf99d30e923998d0a1a4bc57b112d86daabc2ca5`, workflow Success (7 นาที 8 วินาที), job succeeded (7 นาที 4 วินาที)
+
+- ZIP แตกในโฟลเดอร์ภาษาไทย/ช่องว่าง, START-WINDOWS, Internet Zone/tamper rejection, GUI/VBS, cache/startup 10 กรณี และบัญชีพรีวิวทั้ง 2 flow ผ่าน
+- API 69 ชุด และ Edge browser 308 กรณีผ่านตามขั้นตอน workflow (ชุด Linux เพิ่ม Public browser อีก 53 กรณี รวม 361)
+- Notice ของ Node.js ZIP benchmark: Expand-Archive 69,223.08 ms → .NET extraction 3,022.69 ms, 1,994 ไฟล์เหมือนกันทุกไฟล์; วัดเฉพาะการแตก ZIP วิธีละหนึ่งครั้งบน runner เดียว ไม่ใช่เวลาเปิดเว็บทั้งหมด
+
+ยืนยันสถานะและ notice สาธารณะของ workflow/job ไม่ได้อ่าน log ที่ต้องเข้าสู่ระบบ ใช้ Edge headless และจำลอง Mark-of-the-Web ไม่ใช่การทดสอบ Explorer บนเครื่องผู้ใช้จริง ยังไม่ได้ทดสอบ Windows ARM64 หรือ screen reader จริง การเปลี่ยนหลัง commit ที่ทดสอบมีเฉพาะเอกสารบันทึกผลนี้
+
 | รายการ | ผล |
 |---|---|
 | Production build | ผ่าน Node.js 24.22.1; ตรวจรูปแบบไฟล์และ launcher hashes ทั้ง 4 ไฟล์ |
